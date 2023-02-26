@@ -15,6 +15,7 @@
     <ClInclude Include="components.h" />
     <ClInclude Include="Content\content.h" />
     <ClInclude Include="Dependencies\nameof.hpp" />
+    <ClInclude Include="engine.h" />
     <ClInclude Include="Graphics\gpass.h" />
     <ClInclude Include="Graphics\gfxwindow.h" />
     <ClInclude Include="Graphics\descriptorheap.h" />

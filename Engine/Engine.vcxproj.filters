@@ -19,6 +19,7 @@
     <ClInclude Include="Graphics\rootsig.h" />
     <ClInclude Include="Content\content.h" />
     <ClInclude Include="script.h" />
+    <ClInclude Include="engine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\graphics.cpp" />

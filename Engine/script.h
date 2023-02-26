@@ -1,7 +1,8 @@
 #pragma once
+#include "common.h"
 #include "scenegraph.h"
 
-namespace engine 
+namespace engine
 {
 	class IScript
 	{
@@ -18,6 +19,23 @@ namespace engine
 
 	using ScriptPtr = std::unique_ptr<IScript>;								// Pointer to script instance
 	using ScriptCreator = ScriptPtr(*)(GameObject& object);					// Pointer to CreateScript inst
+
+	struct SCIPT_INFO
+	{
+		uint64_t id;
+		ScriptCreator creator;
+	};
+
+	struct Script
+	{
+		ScriptPtr instance{};
+	};
+
+	template <class Script_Impl>
+	ScriptPtr CreateScript(GameObject& obj)
+	{
+		return std::make_unique<Script_Impl>(obj);
+	}
 
 	ENGINE_API bool LoadGCDLL(const wchar_t* path);
 	ENGINE_API bool UnloadGCDLL();

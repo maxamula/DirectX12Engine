@@ -31,4 +31,4 @@
 #define WRITEMEM(val) memcpy((void*)at, &val, sizeof(val)); at += sizeof(val);
 
 // Script
-#define REGISTER_SCRIPT 
+#define REGISTER_SCRIPT(TYPE) class TYPE; namespace { const uint8_t _reg##TYPE{RegisterScript(std::hash<std::string>()(#TYPE), &engine::CreateScript<TYPE>)};}

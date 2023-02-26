@@ -1,7 +1,6 @@
 #pragma once
 #include "components.h"
 #include <DirectXMath.h>
-#include <boost/serialization/access.hpp>
 
 namespace engine
 {
@@ -24,7 +23,6 @@ namespace engine
 	class GameObject : public ParentBase
 	{
 		friend class Scene;
-		friend class boost::serialization::access;
 	public:
 		GameObject();
 
@@ -35,22 +33,6 @@ namespace engine
 
 
 	private:
-		template<class Archive>
-		void serialize(Archive& ar, const unsigned int version)
-		{
-			ar & m_id;
-			ar& m_id;
-			ar& m_id;
-			ar& m_id;
-			ar& m_id;
-			ar& m_id;
-			ar& m_id;
-			ar& m_id;
-			ar& m_id;
-			ar& m_id;
-			ar& m_id;
-		}
-
 		uint32_t m_id;
 	};
 

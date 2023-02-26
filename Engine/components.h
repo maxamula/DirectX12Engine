@@ -1,5 +1,4 @@
 #pragma once
-#include "script.h"
 #include <DirectXMath.h>
 
 namespace engine
@@ -30,10 +29,5 @@ namespace engine
 				DirectX::XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z) *
 				DirectX::XMMatrixTranslation(position.x, position.y, position.z);
 		}
-	};
-
-	struct Script
-	{
-		ScriptPtr instance{};
 	};
 }
