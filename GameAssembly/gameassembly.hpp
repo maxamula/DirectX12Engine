@@ -16,3 +16,9 @@ uint8_t RegisterScript(uint64_t handle, ScriptCreator creator)
 	ScriptTable()[handle] = { handle, creator };
 	return 0;
 }
+
+// This is the function that is called when the assembly is loaded
+__declspec(dllexport) void AssemblyMain()
+{
+
+}

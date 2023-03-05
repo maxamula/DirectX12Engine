@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameAssembly", "GameAssembly\GameAssembly.vcxproj", "{BD78AE5D-8D19-4DBB-904B-52CEBE9793F8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ContentManager", "ContentManager\ContentManager.vcxproj", "{1D8879AE-0A4E-4067-BF07-76CC0032C86A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,10 @@ Global
 		{BD78AE5D-8D19-4DBB-904B-52CEBE9793F8}.Debug|x64.Build.0 = Debug|x64
 		{BD78AE5D-8D19-4DBB-904B-52CEBE9793F8}.Release|x64.ActiveCfg = Release|x64
 		{BD78AE5D-8D19-4DBB-904B-52CEBE9793F8}.Release|x64.Build.0 = Release|x64
+		{1D8879AE-0A4E-4067-BF07-76CC0032C86A}.Debug|x64.ActiveCfg = Debug|x64
+		{1D8879AE-0A4E-4067-BF07-76CC0032C86A}.Debug|x64.Build.0 = Debug|x64
+		{1D8879AE-0A4E-4067-BF07-76CC0032C86A}.Release|x64.ActiveCfg = Release|x64
+		{1D8879AE-0A4E-4067-BF07-76CC0032C86A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -20,6 +20,8 @@
     <ClInclude Include="Content\content.h" />
     <ClInclude Include="script.h" />
     <ClInclude Include="engine.h" />
+    <ClInclude Include="Graphics\depthtexture.h" />
+    <ClInclude Include="Graphics\rendertexture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\graphics.cpp" />
@@ -39,6 +41,8 @@
     <ClCompile Include="Graphics\rootsig.cpp" />
     <ClCompile Include="Content\content.cpp" />
     <ClCompile Include="script.cpp" />
+    <ClCompile Include="Graphics\depthtexture.cpp" />
+    <ClCompile Include="Graphics\rendertexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

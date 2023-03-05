@@ -15,6 +15,7 @@
     <ClInclude Include="components.h" />
     <ClInclude Include="Content\content.h" />
     <ClInclude Include="Dependencies\nameof.hpp" />
+    <ClInclude Include="Graphics\depthtexture.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="Graphics\gpass.h" />
     <ClInclude Include="Graphics\gfxwindow.h" />
@@ -25,6 +26,7 @@
     <ClInclude Include="Graphics\texture.h" />
     <ClInclude Include="Graphics\rendersurface.h" />
     <ClInclude Include="Graphics\shaders.h" />
+    <ClInclude Include="Graphics\rendertexture.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Graphics\rootsig.h" />
     <ClInclude Include="scenegraph.h" />
@@ -35,6 +37,7 @@
     <ClCompile Include="application.cpp" />
     <ClCompile Include="components.cpp" />
     <ClCompile Include="Content\content.cpp" />
+    <ClCompile Include="Graphics\depthtexture.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="Graphics\gpass.cpp" />
     <ClCompile Include="Graphics\dllmain.cpp" />
@@ -46,6 +49,7 @@
     <ClCompile Include="Graphics\rendersurface.cpp" />
     <ClCompile Include="Graphics\shaders.cpp" />
     <ClCompile Include="Graphics\rootsig.cpp" />
+    <ClCompile Include="Graphics\rendertexture.cpp" />
     <ClCompile Include="scenegraph.cpp" />
     <ClCompile Include="script.cpp" />
     <ClCompile Include="window.cpp" />
@@ -58,6 +62,11 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ContentManager\ContentManager.vcxproj">
+      <Project>{1d8879ae-0a4e-4067-bf07-76cc0032c86a}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
