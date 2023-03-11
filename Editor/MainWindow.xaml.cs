@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Editor.Content;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,13 @@ namespace Editor
         public MainWindow()
         {
             InitializeComponent();
+            GeometryData geometryData = new GeometryData();
+            PrimitiveDesc desc = new PrimitiveDesc();
+            desc.type = PrimitiveType.Plane;
+            desc.segmentY = 10;
+            ImportParams importParams = new ImportParams();
+            Content.Geometry g = new Content.Geometry();
+            ContentManager.CreatePrimitive(g, desc, importParams);
         }
     }
 }

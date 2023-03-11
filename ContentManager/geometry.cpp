@@ -36,7 +36,7 @@ namespace engine::content
 			{
 				generator::MeshVertex vertex = vertices.generate();
 				mesh.vertices.emplace_back(vertex.position[0], vertex.position[1], vertex.position[2]);
-				mesh.normals.emplace_back(vertex.normal[0], vertex.normal[1], vertex.normal[2]);	// TODO implement generation method
+				//mesh.normals.emplace_back(vertex.normal[0], vertex.normal[1], vertex.normal[2]);	// TODO implement generation method
 				//mesh.uvs[0].emplace_back(vertex.texCoord[0], vertex.texCoord[1]);
 				vertices.next();
 			}
@@ -328,15 +328,13 @@ namespace engine::content
 		}
 	}
 
-	void CreatePrimitive(PRIMITIVE_DESC& desc, IMPORT_PARAMS& params)
+	void CreatePrimitive(PRIMITIVE_DESC& desc, IMPORT_PARAMS& params, GEOMETRY_DATA& data)
 	{
 		assert(desc.type < PRIMITIVE_TYPE::Count);
 		SCENE scene;
 		g_primitiveCreators[(size_t)desc.type](scene, desc);
 		ProcessScene(scene, params);
-		GEOMETRY_DATA geomData;
-		PackData(scene, geomData);
-		geomData.params = params;
+		PackData(scene, data);
 	}
 }
 
@@ -351,6 +349,8 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	d.type = engine::content::PRIMITIVE_TYPE::Plane;
 	d.segments[1] = 4;
 
-	engine::content::CreatePrimitive(d, p);
+	engine::content::GEOMETRY_DATA data{};
+
+	engine::content::CreatePrimitive(d, p, data);
 	return 0;
 }

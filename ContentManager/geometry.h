@@ -7,6 +7,7 @@
 
 namespace engine::content
 {
+#pragma pack(push, 1)
 	struct IMPORT_PARAMS
 	{
 		float smoothingAngle;
@@ -16,6 +17,7 @@ namespace engine::content
 		bool bImportTextures;
 		bool bImportAnimations;
 	};
+#pragma pack(pop)
 
 	struct VERTEX
 	{
@@ -91,8 +93,7 @@ namespace engine::content
 	{
 		void* buffer;
 		size_t bufferSize;
-		IMPORT_PARAMS params;
 	};
 
-	//CMANAGER_API Create
+	CMANAGER_API void CreatePrimitive(PRIMITIVE_DESC& desc, IMPORT_PARAMS& params, GEOMETRY_DATA& data);
 }

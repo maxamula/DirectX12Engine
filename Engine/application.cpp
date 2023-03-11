@@ -49,16 +49,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	RegisterClassEx(&wc);
 	engine::gfx::InitD3D();
 
-	HWND a = CreateWindow(WND_CLASS, L"s", WS_OVERLAPPED, 0, 0, 100, 200, nullptr, nullptr, nullptr, NULL);
-
-	gfx::RenderSurface surf = gfx::RenderSurface(a,100, 200);
-	//MSG msg;
-	//while (GetMessage(&msg, NULL, 0, 0))
-	//{
-	//	TranslateMessage(&msg);
-	//	DispatchMessage(&msg);
-	//}
-	surf.Release();
 	engine::gfx::ShutdownD3D();
 	UnregisterClass(WND_CLASS, wc.hInstance);
 	return 0;

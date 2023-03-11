@@ -52,8 +52,8 @@ namespace engine::gfx
 		}
 		device->SetName(L"MAIN");
 
-		//shaders::Initialize();
-		//gpass::Initialize();
+		shaders::Initialize();
+		gpass::Initialize();
 
 		new (&g_cmdQueue) CommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
@@ -66,8 +66,8 @@ namespace engine::gfx
 	void ShutdownD3D()
 	{
 		// Release all resources
-		//gpass::Shutdown();
-		//shaders::Shutdown();
+		gpass::Shutdown();
+		shaders::Shutdown();
 		RELEASE(device);
 		RELEASE(dxgiFactory);
 		RELEASE(dxgiAdapter);
@@ -76,5 +76,6 @@ namespace engine::gfx
 		g_dsvHeap.Release();
 		g_srvHeap.Release();
 		g_uavHeap.Release();
+
 	}
 }
