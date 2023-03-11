@@ -10,30 +10,53 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include "Content/content.h"
 
-namespace engine
-{
-	extern HINSTANCE g_hInstance;
-}
 
 using namespace engine;
 
-INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-	PSTR lpCmdLine, INT nCmdShow)
+namespace engine
 {
-	engine::g_hInstance = hInstance;
-	engine::gfx::InitD3D();
-	
-	char p[] = "dssfghjffjkfdjkdsfjvvsdljsokgjpwo";
-	char f[] = "fsdfsdsadf";
-	char m[] = "341435435431gdffgdssfg";
-	char l[] = "sssssssssssss";
-	content::RESOURCE_BLOB blob = { 0, std::size(p), (uint8_t*)&p[0]};
-	content::RESOURCE_BLOB blob1 = { 0, std::size(f), (uint8_t*)&f[0] };
-	content::RESOURCE_BLOB blob2 = { 0, std::size(m), (uint8_t*)&m[0] };
-	content::RESOURCE_BLOB blob3 = { 0, std::size(l), (uint8_t*)&l[0] };
-	content::RESOURCE_BLOB blobs[] = { blob, blob1, blob2, blob3 };
-	content::CreateAssetFile("test.bin", blobs, 4);
+	HINSTANCE g_hInstance;
+	extern LRESULT CALLBACK WndProcBase(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+}
 
-	engine::gfx::ShutdownD3D();
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+
+	//_CrtDumpMemoryLeaks();
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	//WNDCLASSEX wc;
+	//ZeroMemory(&wc, sizeof(WNDCLASSEX));
+	//wc.cbSize = sizeof(WNDCLASSEX);
+	//wc.style = CS_HREDRAW | CS_VREDRAW;
+	//wc.lpfnWndProc = engine::WndProcBase;
+	//wc.cbClsExtra = 0;
+	//wc.lpszClassName = WND_CLASS;
+	//wc.cbWndExtra = sizeof(void*);	// 8 bytes
+	//wc.hInstance = GetModuleHandle(NULL);
+	//wc.hbrBackground = (HBRUSH)GetStockObject(GRAY_BRUSH);
+	//wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+
+	//RegisterClassEx(&wc);
+	//engine::gfx::InitD3D();
+	//GFX_WND_DESC desc;
+	//engine::Window* window = Window::Create(NULL, desc);
+	//window->ShowWnd();
+
+
+	Scene* scene = Scene::CreateScene();
+	//GameObject* obj = scene->CreateObject();
+	//GameObject* obj2 = obj->CreateObject();
+	//obj->Destroy();
+
+	//scene->Destroy();
+
+	/*MSG msg;
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}*/
+	//engine::gfx::ShutdownD3D();
 	return 0;
 }

@@ -19,6 +19,8 @@ namespace engine
 	class Window
 	{
 	public:
+		static Window* Create(HINSTANCE hInst, GFX_WND_DESC& desc);
+
 		virtual void Destroy() = 0;
 		virtual void ShowWnd() = 0;
 		virtual void CloseWnd() = 0;

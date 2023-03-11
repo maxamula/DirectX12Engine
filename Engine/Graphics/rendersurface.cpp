@@ -50,7 +50,12 @@ namespace engine::gfx
 		m_height = height;
 		m_viewport.Width = (float)width;
 		m_viewport.Height = (float)height;
-		Release();
+		for (int i = 0; i < BACKBUFFER_COUNT; ++i)
+		{
+			RELEASE(m_renderTargets[i].resource);
+			g_rtvHeap.Free(m_renderTargets[i].allocation);
+			m_renderTargets[i].allocation = {};
+		}
 		HRESULT hr = m_pSwap->ResizeBuffers(BACKBUFFER_COUNT, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
 		assert(SUCCEEDED(hr));
 		m_backBufferIndex = m_pSwap->GetCurrentBackBufferIndex();

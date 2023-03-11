@@ -8,41 +8,34 @@ namespace engine
 	class GameObject;
 	class Scene;
 
-	class ParentBase
+	class ENGINE_API ParentBase
 	{
 	public:
-		GameObject& AddChildObject();
-		void RemoveChildObject(GameObject& object);
+		virtual GameObject* CreateObject() = 0;
+		virtual void Destroy() = 0;
 		virtual DirectX::XMMATRIX GetWorldMatrix() const = 0;
-		virtual void Release();
+		virtual void _DetachChild(GameObject* object) = 0;
 
-	private:
-		std::list<GameObject> m_children;
-	};
-
-	class GameObject : public ParentBase
-	{
-		friend class Scene;
-	public:
-		GameObject();
-
-
-		bool operator==(const GameObject& other) const;
-		void Release() override;
-		DirectX::XMMATRIX GetWorldMatrix() const override;
-
-
-	private:
-		uint32_t m_id;
-	};
-
-	class Scene : public ParentBase
-	{
-	public:
-		Scene() = default;
-		void Release() override;
-		DirectX::XMMATRIX GetWorldMatrix() const override;
-	private:
+	protected:
 		
+		std::vector<GameObject*> m_children;
+	};
+
+	class ENGINE_API GameObject : public ParentBase
+	{
+	public:
+
+	private:
+
+	};
+
+	class ENGINE_API Scene : public ParentBase
+	{
+	public:
+		static Scene* CreateScene();
+
+
+	private:
+
 	};
 }
