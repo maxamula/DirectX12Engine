@@ -93,8 +93,8 @@ namespace engine
 		{
 			GetWindowRect(m_hWnd, &m_wndRect);
 			GetClientRect(m_hWnd, &m_clientRect);
-			m_width = m_clientRect.right - m_clientRect.left;
-			m_height = m_clientRect.bottom - m_clientRect.top;
+			m_width = (uint16_t)(m_clientRect.right - m_clientRect.left);
+			m_height = (uint16_t)(m_clientRect.bottom - m_clientRect.top);
 			m_surface.Resize(m_width, m_height);
 		}
 

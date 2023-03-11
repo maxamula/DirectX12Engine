@@ -26,21 +26,19 @@ namespace engine::gfx
 		hr = pSwap->QueryInterface(__uuidof(IDXGISwapChain4), (void**)&m_pSwap);
 		assert(SUCCEEDED(hr));
 		m_backBufferIndex = m_pSwap->GetCurrentBackBufferIndex();
+		pSwap->Release();
 		_CreateRendertargetViews();
 	}
 
 	void RenderSurface::Release()
 	{
-		if (m_pSwap)
+		for (int i = 0; i < BACKBUFFER_COUNT; ++i)
 		{
-			for (int i = 0; i < BACKBUFFER_COUNT; ++i)
-			{
-				RELEASE(m_renderTargets[i].resource);
-				g_rtvHeap.Free(m_renderTargets[i].allocation);
-				m_renderTargets[i].allocation = {};
-			}
-			RELEASE(m_pSwap);
+			RELEASE(m_renderTargets[i].resource);
+			g_rtvHeap.Free(m_renderTargets[i].allocation);
+			m_renderTargets[i].allocation = {};
 		}
+		RELEASE(m_pSwap);
 	}
 
 	void RenderSurface::Resize(unsigned short width, unsigned short height)

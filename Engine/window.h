@@ -9,8 +9,8 @@ namespace engine
 		WndProcFnPtr callback = NULL;
 		HWND hParent = NULL;
 		wchar_t* szCaption = (wchar_t*)L"Game";
-		uint16_t left = CW_USEDEFAULT;
-		uint16_t top = CW_USEDEFAULT;
+		uint32_t left = CW_USEDEFAULT;
+		uint32_t top = CW_USEDEFAULT;
 		uint16_t width = 1280;
 		uint16_t height = 720;
 	};
