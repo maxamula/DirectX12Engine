@@ -1,0 +1,39 @@
+﻿<Window x:Class="Editor.Project.ProjectCoreDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Editor.Project"
+        xmlns:nodify="clr-namespace:Nodify;assembly=Nodify"
+        mc:Ignorable="d"
+        Title="ProjectCoreDialog" Height="450" Width="800">
+    <Grid>
+        <nodify:NodifyEditor ItemsSource="{Binding Nodes}" >
+            <nodify:NodifyEditor.DataContext>
+                <local:WindowGraphEditor />
+            </nodify:NodifyEditor.DataContext>
+
+            <nodify:NodifyEditor.ItemTemplate>
+                <DataTemplate DataType="{x:Type local:WindowGraphNode}">
+                    <nodify:Node Header="{Binding Title}"
+                        Input="{Binding Input}"
+                        Output="{Binding Output}">
+                        
+
+                        <nodify:Node.InputConnectorTemplate>
+                            <DataTemplate DataType="{x:Type local:Connector}">
+                                <nodify:NodeInput Header="{Binding Title}" />
+                            </DataTemplate>
+                        </nodify:Node.InputConnectorTemplate>
+
+                        <nodify:Node.OutputConnectorTemplate>
+                            <DataTemplate DataType="{x:Type local:Connector}">
+                                <nodify:NodeOutput Header="{Binding Title}" />
+                            </DataTemplate>
+                        </nodify:Node.OutputConnectorTemplate>
+                    </nodify:Node>
+                </DataTemplate>
+            </nodify:NodifyEditor.ItemTemplate>
+        </nodify:NodifyEditor>
+    </Grid>
+</Window>

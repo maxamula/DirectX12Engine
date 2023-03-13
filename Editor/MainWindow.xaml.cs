@@ -1,4 +1,5 @@
 ﻿using Editor.Content;
+using Editor.Project;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,13 +25,35 @@ namespace Editor
         public MainWindow()
         {
             InitializeComponent();
-            GeometryData geometryData = new GeometryData();
-            PrimitiveDesc desc = new PrimitiveDesc();
-            desc.type = PrimitiveType.Plane;
-            desc.segmentY = 10;
-            ImportParams importParams = new ImportParams();
-            Content.Geometry g = new Content.Geometry();
-            ContentManager.CreatePrimitive(g, desc, importParams);
+            Closing += OnMainWindowClosing;
+            ShowProjectDialog();
+        }
+
+        private void OnMainWindowClosing(object sender, EventArgs e)
+        {
+            Project.Project.Current?.Unload();
+        }
+
+        async private void ShowProjectDialog()
+        {
+            var projectDialog = new ProjectDialog();    // create project dialog instance
+            if (projectDialog.ShowDialog() == false || projectDialog.DataContext == null)
+                Application.Current.Shutdown();         // Shutdown application if user clicked exit btn or error 
+            else
+            {
+                Project.Project.Current?.Unload();          // if loading other project - unload old one
+                DataContext = projectDialog.DataContext;    // Pass project as context to main window
+                // TODO BUILD & LOAD GCDLL async
+            }
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.F1)
+            {
+                Project.ProjectCoreDialog dialog = new Project.ProjectCoreDialog();
+                dialog.ShowDialog();
+            }
         }
     }
 }
