@@ -11,11 +11,11 @@ namespace engine
 	{
 		friend class SceneImpl;
 	public:
-		GameObject* CreateObject() override
+		GameObject& CreateObject() override
 		{
 			GameObject* child = new GameObjectImpl(m_reg, *this);
 			m_children.push_back(child);
-			return child;
+			return *child;
 		}
 
 		void Destroy() override
@@ -63,11 +63,11 @@ namespace engine
 	{
 	public:
 		SceneImpl() = default;
-		GameObject* CreateObject() override
+		GameObject& CreateObject() override
 		{
 			GameObject* child = new GameObjectImpl(m_registry, *this);
 			m_children.push_back(child);
-			return child;
+			return *child;
 		}
 
 		void Destroy() override
@@ -100,8 +100,8 @@ namespace engine
 		entt::registry m_registry;
 	};
 
-	Scene* Scene::CreateScene()
+	Scene& CreateScene()
 	{
-		return new SceneImpl();
+		return *new SceneImpl();
 	}
 }

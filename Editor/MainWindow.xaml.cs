@@ -26,7 +26,19 @@ namespace Editor
         {
             InitializeComponent();
             Closing += OnMainWindowClosing;
-            ShowProjectDialog();
+            //ShowProjectDialog();
+
+            // =================== TEST ==================='
+            var scene = new Project.Scene();
+            var obj = scene.CreateObject();
+            var obj2 = obj.CreateObject();
+            var obj3 = obj.CreateObject();
+            obj.Destroy();
+            obj2.Destroy();
+            scene.Destroy();
+            
+
+            // =================== TEST ==================='
         }
 
         private void OnMainWindowClosing(object sender, EventArgs e)

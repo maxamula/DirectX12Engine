@@ -69,7 +69,6 @@ namespace Editor.Project
 
         static public ReadOnlyObservableCollection<ProjectData> Projects { get; }
 
-
         private static void ReadProjectData()
         {
             if (File.Exists(_projectDataPath))

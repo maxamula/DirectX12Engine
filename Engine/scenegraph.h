@@ -11,7 +11,7 @@ namespace engine
 	class ENGINE_API ParentBase
 	{
 	public:
-		virtual GameObject* CreateObject() = 0;
+		virtual GameObject& CreateObject() = 0;
 		virtual void Destroy() = 0;
 		virtual DirectX::XMMATRIX GetWorldMatrix() const = 0;
 		virtual void _DetachChild(GameObject* object) = 0;
@@ -32,10 +32,11 @@ namespace engine
 	class ENGINE_API Scene : public ParentBase
 	{
 	public:
-		static Scene* CreateScene();
 
 
 	private:
 
 	};
+
+	ENGINE_API Scene& CreateScene();
 }

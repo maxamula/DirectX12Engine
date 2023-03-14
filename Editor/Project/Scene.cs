@@ -1,0 +1,73 @@
+﻿using Editor.Utils;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Editor.Project
+{
+    [DataContract(IsReference = true)]
+    abstract public class SceneGraphBase : VMBase
+    {
+        abstract public GameObject CreateObject();
+        abstract public void Destroy(); 
+        abstract public void _Detach(GameObject obj);
+    }
+
+    [DataContract]
+    public class Scene : SceneGraphBase
+    {
+        // Engine side
+        private Engine.Scene _engineScene;
+        // Constructor
+        public Scene()
+        {
+            _engineScene = new Engine.Scene();
+            Objects = new ReadOnlyObservableCollection<GameObject>(_objects);
+        }
+        public override GameObject CreateObject()
+        {
+            // Creating new object
+            var obj = new GameObject(this, this, _engineScene.CreateObject());
+            // Add object to scene list
+            _objects.Add(obj);
+            // Return object
+            return obj;
+        }
+
+        public override void Destroy()
+        {
+            // destroy engine side and all children
+            _engineScene.Destroy();
+            // Remove from project
+            //Project.RemoveScene(this);
+            
+        }
+        public override void _Detach(GameObject obj)
+        {
+            Debug.Assert(obj != null);
+            _objects.Remove(obj);
+        }
+        [DataMember] public Project Project { get; private set; }
+        private string _name;
+        [DataMember] public string Name
+        {
+            get => _name;
+            set
+            {
+                if(_name != value)
+                {
+                    _name = value;
+                    OnPropertyChanged(nameof(Name));
+                }
+            }
+        }
+        
+        [DataMember] private ObservableCollection<GameObject> _objects = new ObservableCollection<GameObject>();
+        public ReadOnlyObservableCollection<GameObject> Objects { get; private set; }
+    }
+}

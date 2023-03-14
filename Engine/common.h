@@ -9,9 +9,9 @@
 #include <mutex>
 
 #ifdef _BUILD_ENGINE
-#define ENGINE_API _declspec(dllexport)
+#define ENGINE_API __declspec(dllexport)
 #else
-#define ENGINE_API _declspec(dllimport)
+#define ENGINE_API __declspec(dllimport)
 #endif
 
 #define RELEASE(com) { if(com) { com->Release(); com = nullptr; } }

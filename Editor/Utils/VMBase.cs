@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Editor.Utils
+namespace Editor
 {
     [DataContract(IsReference = true)]
     public class VMBase : INotifyPropertyChanged
