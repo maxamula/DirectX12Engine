@@ -44,7 +44,14 @@ namespace engine
 
 		DirectX::XMMATRIX GetWorldMatrix() const override
 		{
-			return DirectX::XMMatrixIdentity();
+			return GetTransformation().GetMatrix() * m_parent.GetWorldMatrix();
+		}
+
+		// components
+
+		Transformation& GetTransformation() const
+		{
+			return m_reg.get<Transformation>(m_id);
 		}
 	private:
 		GameObjectImpl(entt::registry& reg, ParentBase& parent)
