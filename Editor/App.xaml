@@ -7,7 +7,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <hc:Theme/>
+                <hc:Theme AccentColor="#29abdf"/>
                 <ResourceDictionary Source="pack://application:,,,/Nodify;component/Themes/Light.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

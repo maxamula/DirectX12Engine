@@ -28,10 +28,10 @@ namespace Editor
             Objects = new ReadOnlyObservableCollection<GameObject>(_objects);
         }
         // Manage graph
-        public override GameObject CreateObject()
+        public override GameObject CreateObject(string name)
         {
             // Create new obj
-            var obj = new GameObject(_scene, this, _engineObject.CreateObject());
+            var obj = new GameObject(_scene, this, _engineObject.CreateObject()) { Name = name };
             // Push into graph
             _objects.Add(obj);
             // Ret
@@ -71,5 +71,20 @@ namespace Editor
 
         private ObservableCollection<GameObject> _objects = new ObservableCollection<GameObject>();
         public ReadOnlyObservableCollection<GameObject> Objects { get; private set; }
+
+        // MISC
+        private string _name;
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                if(value != _name) 
+                {
+                    _name = value;
+                    OnPropertyChanged(nameof(Name));
+                }
+            }
+        }
     }
 }

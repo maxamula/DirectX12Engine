@@ -29,14 +29,10 @@ namespace Editor
             //ShowProjectDialog();
 
             // =================== TEST ==================='
-            var scene = new Project.Scene();
-            var obj = scene.CreateObject();
-            var obj2 = obj.CreateObject();
-            var obj3 = obj.CreateObject();
-            obj.Destroy();
-            obj2.Destroy();
-            scene.Destroy();
-            
+
+            var proj = new Project.Project("EMPTY");
+            proj.AddScene("dssda");
+            this.DataContext = proj;
 
             // =================== TEST ==================='
         }

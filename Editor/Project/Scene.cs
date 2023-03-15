@@ -13,7 +13,7 @@ namespace Editor.Project
     [DataContract(IsReference = true)]
     abstract public class SceneGraphBase : VMBase
     {
-        abstract public GameObject CreateObject();
+        abstract public GameObject CreateObject(string name);
         abstract public void Destroy(); 
         abstract public void _Detach(GameObject obj);
     }
@@ -29,10 +29,10 @@ namespace Editor.Project
             _engineScene = new Engine.Scene();
             Objects = new ReadOnlyObservableCollection<GameObject>(_objects);
         }
-        public override GameObject CreateObject()
+        public override GameObject CreateObject(string name)
         {
             // Creating new object
-            var obj = new GameObject(this, this, _engineScene.CreateObject());
+            var obj = new GameObject(this, this, _engineScene.CreateObject()) { Name = name };
             // Add object to scene list
             _objects.Add(obj);
             // Return object
@@ -59,11 +59,8 @@ namespace Editor.Project
             get => _name;
             set
             {
-                if(_name != value)
-                {
-                    _name = value;
-                    OnPropertyChanged(nameof(Name));
-                }
+                 _name = $"Scene ({value})";
+                 OnPropertyChanged(nameof(Name));  
             }
         }
         

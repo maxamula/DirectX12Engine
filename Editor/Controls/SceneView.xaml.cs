@@ -24,5 +24,26 @@ namespace Editor.Controls
         {
             InitializeComponent();
         }
+
+        private void OnObjectSelectionChanged(object sender, EventArgs e)
+        {
+            var obj = (sender as TreeView).SelectedItem;
+            //ComponentsView.Instance.DataContext = obj;
+        }
+
+        private void OnAddChildClick(object sender, RoutedEventArgs e)
+        {
+            Project.SceneGraphBase item = (Project.SceneGraphBase)tree.SelectedItem;
+            GameObject obj = item.CreateObject("New Object");
+        }
+
+        private void OnRemoveChildClick(object sender, RoutedEventArgs e)
+        {
+            Project.SceneGraphBase item = (Project.SceneGraphBase)tree.SelectedItem;
+            if (item != null && item is GameObject)
+            {
+                item.Destroy();
+            }
+        }
     }
 }

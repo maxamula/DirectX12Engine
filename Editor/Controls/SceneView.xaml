@@ -28,8 +28,8 @@
         </Grid.RowDefinitions>
         <Border BorderBrush="#DFE6E9" BorderThickness="0">
             <StackPanel Orientation="Horizontal" Grid.Row="0" >
-                <Button Width="20" Height="20" Content="+" Padding="0" Margin="2 0 2 0"/>
-                <Button Width="20" Height="20" Content="-" Padding="0" Margin="2 0 2 0"/>
+                <Button Width="20" Height="20" Content="+" Padding="0" Margin="2 0 2 0" Click="OnAddChildClick"/>
+                <Button Width="20" Height="20" Content="-" Padding="0" Margin="2 0 2 0" Click="OnRemoveChildClick"/>
                 <Button Width="20" Height="20" Content="" IsEnabled="False" Padding="0" Margin="18 0 2 0"/>
                 <TextBlock Text="{Binding Name}"/>
             </StackPanel>
@@ -40,16 +40,19 @@
                     <Setter Property="CornerRadius" Value="5"/>
                 </Style>
             </ScrollViewer.Resources>
-            <TreeView x:Name="tree" Style="{StaticResource TreeView.Small}" ItemsSource="{Binding Scenes}">
+            <TreeView x:Name="tree" Style="{StaticResource TreeView.Small}" ItemsSource="{Binding Scenes}" SelectedItemChanged="OnObjectSelectionChanged">
                 <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource = "{Binding Path=GameObjects}">
+                    <HierarchicalDataTemplate ItemsSource = "{Binding Path=Objects}">
                         <StackPanel Orientation="Horizontal">
                             <Image Height="10" Margin="0 0 5 0" Source="{StaticResource dot_red}"/>
                             <TextBlock Text="{Binding Path=Name}"/>
                         </StackPanel>
                         <HierarchicalDataTemplate.ItemTemplate>
-                            <HierarchicalDataTemplate ItemsSource="{Binding Path=Children}">
-                                <TextBlock Text="{Binding Name}"/>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Path=Objects}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Height="10" Margin="0 0 5 0" Source="{StaticResource dot_blue}"/>
+                                    <TextBlock Text="{Binding Path=Name}"/>
+                                </StackPanel>
                             </HierarchicalDataTemplate>
                         </HierarchicalDataTemplate.ItemTemplate>
                     </HierarchicalDataTemplate>
