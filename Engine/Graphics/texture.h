@@ -1,6 +1,8 @@
 #pragma once
 #include "graphics.h"
 
+#define MAX_MIPS 10
+
 namespace engine::gfx
 {
 	struct TEXTURE_DESC
@@ -15,7 +17,11 @@ namespace engine::gfx
 	{
 	public:
 		Texture() = default;
-		DISABLE_MOVE_COPY(Texture);
+		DISABLE_COPY(Texture);
+		// Move
+		Texture(Texture&& o);
+		Texture& operator=(Texture&& o);
+
 		// From existing resource
 		Texture(D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc, ID3D12Resource* resource);
 		// Place resource
@@ -34,5 +40,22 @@ namespace engine::gfx
 		static constexpr uint16_t maxMips{ 10 };
 		ID3D12Resource* m_res;
 		DESCRIPTOR_HANDLE m_srv;
+	};
+
+	class RenderTexture
+	{
+	public:
+		RenderTexture() = default;
+		RenderTexture(TEXTURE_DESC& desc);
+		DISABLE_COPY(RenderTexture);
+		// Move
+		RenderTexture(RenderTexture&& o);
+		RenderTexture& operator=(RenderTexture&& o);
+
+		void Release();
+	private:
+		Texture m_tex;
+		DESCRIPTOR_HANDLE m_rtv[MAX_MIPS]{};
+		uint32_t m_mipCount = 0;
 	};
 }

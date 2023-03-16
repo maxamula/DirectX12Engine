@@ -2,6 +2,27 @@
 
 namespace engine::gfx
 {
+#pragma region Texture
+
+	Texture::Texture(Texture&& o)
+		: m_res(o.m_res), m_srv(o.m_srv)
+	{
+		assert(this != &o);
+		o.m_res = nullptr;
+		o.m_srv = {};
+	}
+
+	Texture& Texture::operator=(Texture&& o)
+	{
+		assert(this != &o);
+		Release();
+		m_res = o.m_res;
+		m_srv = o.m_srv;
+		o.m_res = nullptr;
+		o.m_srv = {};
+		return *this;
+	}
+
 	Texture::Texture(D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc, ID3D12Resource* resource)
 		: m_res(resource)
 	{
@@ -36,4 +57,31 @@ namespace engine::gfx
 		g_srvHeap.Free(m_srv);
 		RELEASE(m_res);
 	}
+#pragma endregion
+#pragma region RenderTex
+	RenderTexture::RenderTexture(RenderTexture&& o)
+		: m_tex(std::move(o.m_tex)), m_mipCount(o.m_mipCount)
+	{
+		assert(this != &o);
+		for (uint32_t i = 0; i < MAX_MIPS; ++i)
+			m_rtv[i] = o.m_rtv[i];
+		o.m_mipCount = 0;
+		for (uint32_t i = 0; i < MAX_MIPS; ++i)
+			o.m_rtv[i] = {};
+	}
+
+	RenderTexture& RenderTexture::operator=(RenderTexture&& o)
+	{
+		assert(this != &o);
+		m_tex.Release();
+		m_tex = std::move(o.m_tex);
+		m_mipCount = o.m_mipCount;
+		for (uint32_t i = 0; i < MAX_MIPS; ++i)
+			m_rtv[i] = o.m_rtv[i];
+		o.m_mipCount = 0;
+		for (uint32_t i = 0; i < MAX_MIPS; ++i)
+			o.m_rtv[i] = {};
+		return *this;
+	}
+#pragma endregion
 }
