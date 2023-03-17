@@ -20,6 +20,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	
 	engine::gfx::InitD3D();
 
+
 	engine::gfx::ShutdownD3D();
 	return 0;
 }

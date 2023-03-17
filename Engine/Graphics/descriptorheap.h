@@ -13,7 +13,7 @@ namespace engine::gfx
 		D3D12_CPU_DESCRIPTOR_HANDLE CPU;
 		D3D12_GPU_DESCRIPTOR_HANDLE GPU;
 	private:
-		size_t index;
+		size_t index = -1;
 	};
 
 	class DescriptorHeap

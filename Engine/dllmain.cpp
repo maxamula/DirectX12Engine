@@ -3,7 +3,7 @@
 
 namespace engine
 {
-    HINSTANCE g_hInstance = nullptr;
+    HINSTANCE g_hInstance = {};
     extern LRESULT CALLBACK WndProcBase(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 }
 

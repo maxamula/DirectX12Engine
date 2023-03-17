@@ -37,6 +37,8 @@ namespace engine::gfx
 
 	void DescriptorHeap::Free(DESCRIPTOR_HANDLE handle)
 	{
+		if (handle.index == -1)
+			return;
 		std::lock_guard<std::mutex> lock(m_mutex);
 		assert(handle.index < m_cap);
 		m_available[handle.index] = true;

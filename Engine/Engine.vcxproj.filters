@@ -4,7 +4,6 @@
     <ClInclude Include="common.h" />
     <ClInclude Include="Graphics\graphics.h" />
     <ClInclude Include="Graphics\cmdqueue.h" />
-    <ClInclude Include="Graphics\texture.h" />
     <ClInclude Include="Graphics\rendersurface.h" />
     <ClInclude Include="Graphics\descriptorheap.h" />
     <ClInclude Include="application.h" />
@@ -19,13 +18,11 @@
     <ClInclude Include="Content\content.h" />
     <ClInclude Include="script.h" />
     <ClInclude Include="engine.h" />
-    <ClInclude Include="Graphics\depthtexture.h" />
-    <ClInclude Include="Graphics\rendertexture.h" />
+    <ClInclude Include="Graphics\gresource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\graphics.cpp" />
     <ClCompile Include="Graphics\cmdqueue.cpp" />
-    <ClCompile Include="Graphics\texture.cpp" />
     <ClCompile Include="Graphics\rendersurface.cpp" />
     <ClCompile Include="Graphics\descriptorheap.cpp" />
     <ClCompile Include="application.cpp" />
@@ -39,8 +36,7 @@
     <ClCompile Include="Graphics\rootsig.cpp" />
     <ClCompile Include="Content\content.cpp" />
     <ClCompile Include="script.cpp" />
-    <ClCompile Include="Graphics\depthtexture.cpp" />
-    <ClCompile Include="Graphics\rendertexture.cpp" />
+    <ClCompile Include="Graphics\gresource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
