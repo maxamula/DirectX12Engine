@@ -16,7 +16,7 @@ namespace Editor.Project
             get => _title;
             set
             {
-                if(_title != value)
+                if (_title != value)
                 {
                     _title = value;
                     OnPropertyChanged(nameof(Title));
@@ -49,8 +49,8 @@ namespace Editor.Project
         public SceneNode()
         {
             Title = "Scene";
-            Output.Add(new Connector() { Title = "Output"});
-        }  
+            Output.Add(new Connector() { Title = "Output" });
+        }
     }
 
     public class WindowNode : WindowGraphNode
@@ -60,7 +60,7 @@ namespace Editor.Project
             Title = "Window";
             Input.Add(new Connector() { Title = "Input" });
         }
-        public override string Title 
+        public override string Title
         {
             get => _title;
             set

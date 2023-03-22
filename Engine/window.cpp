@@ -1,10 +1,18 @@
 #include "window.h"
 #include "Graphics/graphics.h"
 #include "Graphics/rendersurface.h"
+#include "scenegraph.h"
 
 
 namespace engine
 {
+	class WindowImpl;
+	namespace
+	{
+		std::vector<WindowImpl*> aliveWindows;
+		std::multimap<Scene*, WindowImpl*> sceneWindows;
+	}
+
 	class WindowImpl : public Window
 	{
 		friend LRESULT CALLBACK WndProcBase(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
@@ -20,7 +28,7 @@ namespace engine
 			GetWindowRect(m_hWnd, &m_wndRect);
 			GetClientRect(m_hWnd, &m_clientRect);
 			SetWindowLongPtr(m_hWnd, 0, (LONG_PTR)this);
-
+			
 			// create rtv && swapchain
 			new (&m_surface) gfx::RenderSurface(m_hWnd, m_width, m_height);
 		}

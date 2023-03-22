@@ -1,4 +1,5 @@
-﻿using Editor.Utils;
+﻿using Editor.GameProject;
+using Editor.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Editor.Project
 {
@@ -64,8 +66,8 @@ namespace Editor.Project
                 return string.Empty;
             if (template == null)
                 return string.Empty;
-            if (!Path.EndsInDirectorySeparator(ProjectPath))   // Append separator if path does not end with it
-                ProjectPath += @"\";
+            if (!ProjectPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                ProjectPath += Path.DirectorySeparatorChar;
             var path = $@"{ProjectPath}{ProjectName}\";
             try
             {
@@ -88,7 +90,7 @@ namespace Editor.Project
                 File.WriteAllText(projectPath, projectXml);
 
                 // TODO
-                //CreateMSVCSolution(template, path);
+                CreateMSVCSolution(template, path);
 
                 return path;
             }
@@ -106,19 +108,38 @@ namespace Editor.Project
             Debug.Assert(File.Exists(Path.Combine(template.TemplatePath, "MSVCProject")));
 
             var solution = File.ReadAllText(Path.Combine(template.TemplatePath, "MSVCSolution"));
-            solution = string.Format(solution, ProjectName, "{" + Guid.NewGuid().ToString().ToUpper() + "}", "{" + Guid.NewGuid().ToString().ToUpper() + "}");
+              solution = string.Format(solution, "{" + Guid.NewGuid().ToString().ToUpper() + "}", ProjectName, "{" + Guid.NewGuid().ToString().ToUpper() + "}", "{" + Guid.NewGuid().ToString().ToUpper() + "}");
             File.WriteAllText(Path.GetFullPath(Path.Combine(path, $"{ProjectName}.sln")), solution);
 
-            var project = File.ReadAllText(Path.Combine(template.TemplatePath, "MSVCProject"));
-            project = string.Format(project, ProjectName, "{" + Guid.NewGuid().ToString().ToUpper() + "}");
-            File.WriteAllText(Path.GetFullPath(Path.Combine(path, $"GameCode\\{ProjectName}.vcxproj")), project);
+            Directory.CreateDirectory(Path.Combine(path, $"GameCode\\GameAssembly"));
+            Directory.CreateDirectory(Path.Combine(path, $"GameCode\\Launcher"));
+            // GameAssembly
+            var projectGA = File.ReadAllText(Path.Combine(template.TemplatePath, "MSVCProject"));
+            projectGA = string.Format(projectGA, "GameAssembly", "{" + Guid.NewGuid().ToString().ToUpper() + "}");
+            File.WriteAllText(Path.GetFullPath(Path.Combine(path, $"GameCode\\GameAssembly\\GameAssembly.vcxproj")), projectGA);
+
+            // Launcher
+            var projectLN = File.ReadAllText(Path.Combine(template.TemplatePath, "MSVCProject"));
+            projectLN = string.Format(projectLN, ProjectName, "{" + Guid.NewGuid().ToString().ToUpper() + "}");
+            File.WriteAllText(Path.GetFullPath(Path.Combine(path, $"GameCode\\Launcher\\{ProjectName}.vcxproj")), projectLN);
             // Create folders for engine binaries/includes
             Directory.CreateDirectory(Path.Combine(path, $"GameCode\\Engine"));
 
-            /*Utils.ResourceWriter.WriteResource("Editor.Resources.Engine.Engine.dll", Path.Combine(path, $"GameCode\\Engine\\Engine.dll"));
-            Utils.ResourceWriter.WriteResource("Editor.Resources.Engine.Engine.lib", Path.Combine(path, $"GameCode\\Engine\\Engine.lib"));
-            Utils.ResourceWriter.WriteResource("Editor.Resources.Engine.Engine.h", Path.Combine(path, $"GameCode\\Engine\\API\\Engine.h"));
-            Utils.ResourceWriter.WriteResource("Editor.Resources.Engine.Common.h", Path.Combine(path, $"GameCode\\Engine\\Common\\Common.h"));*/
+            //Utils.ResourceWriter.WriteResource("GameProject.Engine.dll", Path.Combine(path, $"GameCode\\Engine\\Engine.dll"));
+            //Utils.ResourceWriter.WriteResource("GameProject.Engine.lib", Path.Combine(path, $"GameCode\\Engine\\Engine.lib"));
+            var cppmain = Path.GetFullPath(Path.Combine(path, $"GameCode\\Launcher\\main.cpp"));
+            GameProject.LauncherMainTemplate launcherTemplate = new GameProject.LauncherMainTemplate();
+            var _collection = new ObservableCollection<EngineWindow>(){ new EngineWindow() { Name = "g_mainWindow", Title = "My Window" } };
+            launcherTemplate.Session = new Dictionary<string, object>()
+            {
+                {"windows", new ReadOnlyObservableCollection<EngineWindow>(_collection) }
+            };
+            launcherTemplate.Initialize();
+            using (var sw = File.CreateText(cppmain))
+                sw.Write(launcherTemplate.TransformText()); 
+            GameProject.SolutionManager.AddFiles(Path.GetFullPath(Path.Combine(path, $"{ProjectName}.sln")), ProjectName, new string[] { cppmain });
+            //Utils.ResourceWriter.WriteResource("GameProject.Engine.h", Path.Combine(path, $"GameCode\\Engine\\API\\Engine.h"));
+            //Utils.ResourceWriter.WriteResource("Editor.Resources.Engine.Common.h", Path.Combine(path, $"GameCode\\Engine\\Common\\Common.h"));
         }
 
         // Properties
@@ -178,8 +199,8 @@ namespace Editor.Project
         private bool ValidatePath()
         {
             var path = ProjectPath;
-            if (!Path.EndsInDirectorySeparator(path))   // Append separator if path does not end with it
-                path += @"\";
+            if (!path.EndsWith(Path.DirectorySeparatorChar.ToString()))
+                path += Path.DirectorySeparatorChar;
             path += $@"{ProjectName}\";
             IsValid = false;
             if (string.IsNullOrEmpty(ProjectName.Trim()))

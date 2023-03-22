@@ -3,22 +3,23 @@
 using namespace engine;
 
 // Global decl
-std::set<int> existing_ids;
 
-__declspec(dllexport) std::unordered_map<uint64_t ,SCIPT_INFO> ScriptTable()	// guaranteed to be initialized before main
+__declspec(dllexport) std::unordered_map<uint64_t, SCIPT_INFO> ScriptTable()	// guaranteed to be initialized before main
 {
 	static std::unordered_map<uint64_t, SCIPT_INFO> table;
 	return table;
 }
 
+#ifndef _DEBUG
 uint8_t RegisterScript(uint64_t handle, ScriptCreator creator)
 {
-	ScriptTable()[handle] = { handle, creator };
+	ScriptTable()[handle] = { creator, ""};
 	return 0;
 }
-
-// This is the function that is called when the assembly is loaded
-__declspec(dllexport) void AssemblyMain()
+#else
+uint8_t RegisterScript(uint64_t handle, ScriptCreator creator, const char* name)
 {
-
+	ScriptTable()[handle] = { creator, name };
+	return 0;
 }
+#endif

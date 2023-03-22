@@ -1,8 +1,9 @@
-﻿using Editor.Content;
-using Editor.Project;
+﻿using Editor.Project;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,28 +15,29 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Diagnostics;
+using System.CodeDom.Compiler;
+using Editor.GameProject;
+using EnvDTE;
 
 namespace Editor
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : HandyControl.Controls.Window
     {
         public MainWindow()
         {
             InitializeComponent();
             Closing += OnMainWindowClosing;
-            //ShowProjectDialog();
+            ShowProjectDialog();
 
-            // =================== TEST ==================='
+            // =================== TEST ===================
 
-            var proj = new Project.Project("EMPTY");
-            proj.AddScene("dssda");
-            this.DataContext = proj;
-
-            // =================== TEST ==================='
+            // =================== TEST ===================
         }
+
 
         private void OnMainWindowClosing(object sender, EventArgs e)
         {
@@ -50,8 +52,16 @@ namespace Editor
             else
             {
                 Project.Project.Current?.Unload();          // if loading other project - unload old one
-                DataContext = projectDialog.DataContext;    // Pass project as context to main window
-                // TODO BUILD & LOAD GCDLL async
+                Project.Project project = (Project.Project)projectDialog.DataContext;
+                DataContext = project;    // Pass project as context to main window
+                // BUILD & LOAD GCDLL async
+                await Task.Run(() =>
+                {
+                    GameProject.SolutionManager.Build(project, Project.Project.GetConfigName(project.DllConfig), new Action(() =>
+                    {
+                        // Launch Render thread
+                    }));
+                });
             }
         }
 

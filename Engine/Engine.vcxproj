@@ -122,6 +122,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
+    <PreBuildEvent>
+      <Command>copy /Y $(SolutionDir)x64\Release\Engine.dll $(SolutionDir)Editor\GameProject\Engine.dll
+copy /Y $(SolutionDir)x64\Release\Engine.lib $(SolutionDir)Editor\GameProject\Engine.lib
+</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -145,6 +150,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
+    <PreBuildEvent>
+      <Command>copy /Y $(SolutionDir)x64\Release\Engine.dll $(SolutionDir)Editor\GameProject\Engine.dll
+copy /Y $(SolutionDir)x64\Release\Engine.lib $(SolutionDir)Editor\GameProject\Engine.lib
+</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

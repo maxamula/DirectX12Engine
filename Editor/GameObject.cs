@@ -9,6 +9,8 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Xml.Linq;
 
 
 namespace Editor
@@ -19,13 +21,26 @@ namespace Editor
         // Engine side
         private Engine.GameObject _engineObject;
         // CTROR
-        public GameObject(Project.Scene scene, Project.SceneGraphBase parent, Engine.GameObject _engine) 
+        public GameObject(Project.Scene scene, Project.SceneGraphBase parent, Engine.GameObject _engine)
         {
             Debug.Assert(scene != null);
             _scene = scene;
             _parent = parent;
             _engineObject = _engine;
             Objects = new ReadOnlyObservableCollection<GameObject>(_objects);
+        }
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext context)
+        {
+            Objects = new ReadOnlyObservableCollection<GameObject>(_objects);
+        }
+        public void _SetEngine(Engine.GameObject o)
+        {
+            _engineObject = o;
+            foreach(var child in _objects)
+            {
+                child._SetEngine(_engineObject.CreateObject());
+            }
         }
         // Manage graph
         public override GameObject CreateObject(string name)
@@ -54,14 +69,14 @@ namespace Editor
 
         // COMPONENTS MANAGEMENT
 
-        private Project.SceneGraphBase _parent;
-        private Project.Scene _scene;
+        [DataMember] private Project.SceneGraphBase _parent;
+        [DataMember] private Project.Scene _scene;
         public Project.Scene ParentScene
         {
             get => _scene;
             private set
             {
-                if(_scene != value)
+                if (_scene != value)
                 {
                     _scene = value;
                     OnPropertyChanged(nameof(ParentScene));
@@ -79,7 +94,7 @@ namespace Editor
             get => _name;
             set
             {
-                if(value != _name) 
+                if (value != _name)
                 {
                     _name = value;
                     OnPropertyChanged(nameof(Name));

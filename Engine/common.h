@@ -40,7 +40,11 @@
 #define WRITEMEM(val) memcpy((void*)&buf[at], &val, sizeof(val)); at += sizeof(val);
 
 // Script
+#ifndef _DEBUG
 #define REGISTER_SCRIPT(TYPE) class TYPE; namespace { const uint8_t _reg##TYPE{RegisterScript(std::hash<std::string>()(#TYPE), &engine::CreateScript<TYPE>)};}
+#else
+#define REGISTER_SCRIPT(TYPE) class TYPE; namespace { const uint8_t _reg##TYPE{RegisterScript(std::hash<std::string>()(#TYPE), &engine::CreateScript<TYPE>, #TYPE)};}
+#endif
 
 const uint32_t uint32_invalid = 0xFFFFFFFF;
 

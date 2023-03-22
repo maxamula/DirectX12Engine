@@ -6,7 +6,6 @@
     <ClInclude Include="Graphics\cmdqueue.h" />
     <ClInclude Include="Graphics\rendersurface.h" />
     <ClInclude Include="Graphics\descriptorheap.h" />
-    <ClInclude Include="application.h" />
     <ClInclude Include="window.h" />
     <ClInclude Include="Graphics\shaders.h" />
     <ClInclude Include="Dependencies\nameof.hpp" />
@@ -25,7 +24,6 @@
     <ClCompile Include="Graphics\cmdqueue.cpp" />
     <ClCompile Include="Graphics\rendersurface.cpp" />
     <ClCompile Include="Graphics\descriptorheap.cpp" />
-    <ClCompile Include="application.cpp" />
     <ClCompile Include="window.cpp" />
     <ClCompile Include="Graphics\shaders.cpp" />
     <ClCompile Include="Graphics\dllmain.cpp" />
@@ -37,6 +35,7 @@
     <ClCompile Include="Content\content.cpp" />
     <ClCompile Include="script.cpp" />
     <ClCompile Include="Graphics\gresource.cpp" />
+    <ClCompile Include="engine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

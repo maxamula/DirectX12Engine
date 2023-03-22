@@ -1,6 +1,7 @@
 #pragma once
 #include "common.h"
 #include "scenegraph.h"
+#include <unordered_map>
 
 namespace engine
 {
@@ -22,8 +23,8 @@ namespace engine
 
 	struct SCIPT_INFO
 	{
-		uint64_t id;
 		ScriptCreator creator;
+		std::string name;													// OPTIONAL: Used for editor only
 	};
 
 	struct Script
@@ -39,4 +40,5 @@ namespace engine
 
 	ENGINE_API bool LoadGCDLL(const wchar_t* path);
 	ENGINE_API bool UnloadGCDLL();
+	ENGINE_API LPSAFEARRAY GetScriptList();
 }

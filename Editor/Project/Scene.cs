@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Markup;
 
 namespace Editor.Project
 {
@@ -14,7 +15,7 @@ namespace Editor.Project
     abstract public class SceneGraphBase : VMBase
     {
         abstract public GameObject CreateObject(string name);
-        abstract public void Destroy(); 
+        abstract public void Destroy();
         abstract public void _Detach(GameObject obj);
     }
 
@@ -29,6 +30,18 @@ namespace Editor.Project
             _engineScene = new Engine.Scene();
             Objects = new ReadOnlyObservableCollection<GameObject>(_objects);
         }
+
+        [OnDeserialized]
+        private void OnDeserialized(StreamingContext context)
+        {
+            _engineScene = new Engine.Scene();
+            foreach(var child in _objects)
+            {
+                child._SetEngine(_engineScene.CreateObject());
+            }
+            Objects = new ReadOnlyObservableCollection<GameObject>(_objects);
+        }
+
         public override GameObject CreateObject(string name)
         {
             // Creating new object
@@ -45,7 +58,7 @@ namespace Editor.Project
             _engineScene.Destroy();
             // Remove from project
             //Project.RemoveScene(this);
-            
+
         }
         public override void _Detach(GameObject obj)
         {
@@ -53,17 +66,17 @@ namespace Editor.Project
             _objects.Remove(obj);
         }
         [DataMember] public Project Project { get; private set; }
-        private string _name;
-        [DataMember] public string Name
+        [DataMember(Name = "Name")] private string _name;
+        public string Name
         {
             get => _name;
             set
             {
-                 _name = $"Scene ({value})";
-                 OnPropertyChanged(nameof(Name));  
+                _name = $"Scene ({value})";
+                OnPropertyChanged(nameof(Name));
             }
         }
-        
+
         [DataMember] private ObservableCollection<GameObject> _objects = new ObservableCollection<GameObject>();
         public ReadOnlyObservableCollection<GameObject> Objects { get; private set; }
     }

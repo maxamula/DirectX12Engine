@@ -1,0 +1,75 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ parameter name="windows" type="System.Collections.ObjectModel.ReadOnlyObservableCollection<Editor.Project.EngineWindow>" #>
+#include <windows.h>
+#include <crtdbg.h>
+#include <stdint.h>
+#include <unordered_map>
+#include <thread>
+
+#include "script.h"
+
+struct SCIPT_INFO
+{
+	engine::ScriptCreator creator;
+	std::string name;
+};
+
+// Windows
+<#
+foreach(var window in windows)
+{#>
+Window& <#=window.Name#>;
+<#}#>
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+#ifdef _DEBUG
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif // _DEBUG
+	engine::LoadGCDLL(L"GameAssembly.dll");
+	engine::Init();
+	// init
+<# if(windows.Count > 0)
+{#>
+	GFX_WND_DESC wndDesc;
+<#}#>
+<#
+foreach(var window in windows)
+{#>
+
+	wndDesc.callback = NULL;
+	wndDesc.hParent = NULL;
+	wndDesc.szCaption = L"<#=window.Title#>";
+	<#=window.Name#> = *Window::Create(hInst, wndDesc);
+<#}#>
+	bool isRunning = true;
+	std::thread logicThread([&isRunning]() 
+	{
+		while (isRunning) 
+		{
+			engine::Update();
+		}
+	});
+	MSG msg;
+	while (isRunning)
+	{
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			if (msg.message == WM_QUIT)
+			{
+				isRunning = false;
+				logicThread.join();
+			}
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		engine::Render();
+	}
+	engine::UnloadGCDLL();
+	engine::Shutdown();
+	return 0;
+}
