@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace Editor
 {
-    [DataContract(Name = "GObj")]
+    [DataContract(Name = "Object")]
     public class GameObject : Project.SceneGraphBase
     {
         // Engine side
@@ -84,12 +84,12 @@ namespace Editor
             }
         }
 
-        private ObservableCollection<GameObject> _objects = new ObservableCollection<GameObject>();
+        [DataMember] private ObservableCollection<GameObject> _objects = new ObservableCollection<GameObject>();
         public ReadOnlyObservableCollection<GameObject> Objects { get; private set; }
 
         // MISC
         private string _name;
-        public string Name
+        [DataMember] public string Name
         {
             get => _name;
             set

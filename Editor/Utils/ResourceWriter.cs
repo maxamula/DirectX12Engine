@@ -28,5 +28,34 @@ namespace Editor.Utils
 
             }
         }
+
+        public static void WriteFolder(string resource, string path)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            string[] resourceNames = assembly.GetManifestResourceNames();
+
+            foreach (string resourceName in resourceNames)
+            {
+                if (resourceName.StartsWith(resource))
+                {
+                    string fileName = resourceName.Substring(resource.Length + 1);
+                    string filePath = Path.Combine(path, fileName);
+
+                    using (var inputStream = assembly.GetManifestResourceStream(resourceName))
+                    {
+                        try
+                        {
+                            var outStream = File.OpenWrite(filePath);
+                            inputStream.CopyTo(outStream);
+                            outStream.Close();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.Message);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

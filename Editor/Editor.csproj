@@ -75,10 +75,15 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="GameObject.cs" />
-    <Compile Include="GameProject\AssemblyMainTemplate.cs">
+    <Compile Include="GameProject\AssemblyMainCPPTemplate.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>AssemblyMainTemplate.tt</DependentUpon>
+      <DependentUpon>AssemblyMainCPPTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="GameProject\AssemblyMainHTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AssemblyMainHTemplate.tt</DependentUpon>
     </Compile>
     <Compile Include="GameProject\LauncherMainTemplate.cs">
       <AutoGen>True</AutoGen>
@@ -165,7 +170,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Resource Include="GameProject\Engine.lib" />
+    <EmbeddedResource Include="GameProject\Engine.lib" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -214,10 +219,21 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="GameProject\AssemblyMainTemplate.tt">
+    <Content Include="GameProject\AssemblyMainCPPTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>AssemblyMainTemplate.cs</LastGenOutput>
+      <LastGenOutput>AssemblyMainCPPTemplate.cs</LastGenOutput>
     </Content>
+    <Content Include="GameProject\AssemblyMainHTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>AssemblyMainHTemplate.cs</LastGenOutput>
+    </Content>
+    <EmbeddedResource Include="GameProject\EngineAPI\common.h" />
+    <EmbeddedResource Include="GameProject\EngineAPI\components.h" />
+    <EmbeddedResource Include="GameProject\EngineAPI\engine.h" />
+    <EmbeddedResource Include="GameProject\EngineAPI\resource.h" />
+    <EmbeddedResource Include="GameProject\EngineAPI\scenegraph.h" />
+    <EmbeddedResource Include="GameProject\EngineAPI\script.h" />
+    <EmbeddedResource Include="GameProject\EngineAPI\window.h" />
     <Content Include="GameProject\LauncherMainTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>LauncherMainTemplate.cs</LastGenOutput>
@@ -226,7 +242,8 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ScriptHTemplate.cs</LastGenOutput>
     </Content>
-    <Resource Include="GameProject\Engine.dll" />
+    <EmbeddedResource Include="GameProject\Engine.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

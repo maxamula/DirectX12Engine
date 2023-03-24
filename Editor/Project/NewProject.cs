@@ -113,6 +113,7 @@ namespace Editor.Project
 
             Directory.CreateDirectory(Path.Combine(path, $"GameCode\\GameAssembly"));
             Directory.CreateDirectory(Path.Combine(path, $"GameCode\\Launcher"));
+            
             // GameAssembly
             var projectGA = File.ReadAllText(Path.Combine(template.TemplatePath, "MSVCProject"));
             projectGA = string.Format(projectGA, "GameAssembly", "{" + Guid.NewGuid().ToString().ToUpper() + "}");
@@ -124,22 +125,11 @@ namespace Editor.Project
             File.WriteAllText(Path.GetFullPath(Path.Combine(path, $"GameCode\\Launcher\\{ProjectName}.vcxproj")), projectLN);
             // Create folders for engine binaries/includes
             Directory.CreateDirectory(Path.Combine(path, $"GameCode\\Engine"));
+            Directory.CreateDirectory(Path.Combine(path, $"GameCode\\Engine\\API"));
 
-            //Utils.ResourceWriter.WriteResource("GameProject.Engine.dll", Path.Combine(path, $"GameCode\\Engine\\Engine.dll"));
-            //Utils.ResourceWriter.WriteResource("GameProject.Engine.lib", Path.Combine(path, $"GameCode\\Engine\\Engine.lib"));
-            var cppmain = Path.GetFullPath(Path.Combine(path, $"GameCode\\Launcher\\main.cpp"));
-            GameProject.LauncherMainTemplate launcherTemplate = new GameProject.LauncherMainTemplate();
-            var _collection = new ObservableCollection<EngineWindow>(){ new EngineWindow() { Name = "g_mainWindow", Title = "My Window" } };
-            launcherTemplate.Session = new Dictionary<string, object>()
-            {
-                {"windows", new ReadOnlyObservableCollection<EngineWindow>(_collection) }
-            };
-            launcherTemplate.Initialize();
-            using (var sw = File.CreateText(cppmain))
-                sw.Write(launcherTemplate.TransformText()); 
-            GameProject.SolutionManager.AddFiles(Path.GetFullPath(Path.Combine(path, $"{ProjectName}.sln")), ProjectName, new string[] { cppmain });
-            //Utils.ResourceWriter.WriteResource("GameProject.Engine.h", Path.Combine(path, $"GameCode\\Engine\\API\\Engine.h"));
-            //Utils.ResourceWriter.WriteResource("Editor.Resources.Engine.Common.h", Path.Combine(path, $"GameCode\\Engine\\Common\\Common.h"));
+            Utils.ResourceWriter.WriteResource("Editor.GameProject.Engine.dll", Path.Combine(path, $"GameCode\\Engine\\Engine.dll"));
+            Utils.ResourceWriter.WriteResource("Editor.GameProject.Engine.lib", Path.Combine(path, $"GameCode\\Engine\\Engine.lib"));
+            Utils.ResourceWriter.WriteFolder("Editor.GameProject.EngineAPI", Path.Combine(path, $"GameCode\\Engine\\API"));
         }
 
         // Properties

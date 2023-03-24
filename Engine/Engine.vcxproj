@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="application.h" />
     <ClInclude Include="components.h" />
     <ClInclude Include="Content\content.h" />
     <ClInclude Include="Dependencies\nameof.hpp" />
@@ -31,10 +30,10 @@
     <ClInclude Include="window.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="application.cpp" />
     <ClCompile Include="components.cpp" />
     <ClCompile Include="Content\content.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="engine.cpp" />
     <ClCompile Include="Graphics\gpass.cpp" />
     <ClCompile Include="Graphics\dllmain.cpp" />
     <ClCompile Include="Graphics\descriptorheap.cpp" />
@@ -125,7 +124,7 @@
     <PreBuildEvent>
       <Command>copy /Y $(SolutionDir)x64\Release\Engine.dll $(SolutionDir)Editor\GameProject\Engine.dll
 copy /Y $(SolutionDir)x64\Release\Engine.lib $(SolutionDir)Editor\GameProject\Engine.lib
-</Command>
+xcopy "$(ProjectDir)*.h" "$(SolutionDir)Editor\GameProject\EngineAPI" /s</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -153,7 +152,7 @@ copy /Y $(SolutionDir)x64\Release\Engine.lib $(SolutionDir)Editor\GameProject\En
     <PreBuildEvent>
       <Command>copy /Y $(SolutionDir)x64\Release\Engine.dll $(SolutionDir)Editor\GameProject\Engine.dll
 copy /Y $(SolutionDir)x64\Release\Engine.lib $(SolutionDir)Editor\GameProject\Engine.lib
-</Command>
+xcopy "$(ProjectDir)*.h" "$(SolutionDir)Editor\GameProject\EngineAPI" /s</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

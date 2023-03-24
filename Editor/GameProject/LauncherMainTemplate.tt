@@ -11,6 +11,9 @@
 #include <thread>
 
 #include "script.h"
+#include "window.h"
+
+using namespace engine;
 
 struct SCIPT_INFO
 {
@@ -22,7 +25,7 @@ struct SCIPT_INFO
 <#
 foreach(var window in windows)
 {#>
-Window& <#=window.Name#>;
+__declspec(dllimport) extern Window* <#=window.Name#>;
 <#}#>
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -43,15 +46,15 @@ foreach(var window in windows)
 
 	wndDesc.callback = NULL;
 	wndDesc.hParent = NULL;
-	wndDesc.szCaption = L"<#=window.Title#>";
-	<#=window.Name#> = *Window::Create(hInst, wndDesc);
+	wndDesc.szCaption = (wchar_t*)L"<#=window.Title#>";
+	<#=window.Name#> = *Window::Create(hInstance, wndDesc);
 <#}#>
 	bool isRunning = true;
 	std::thread logicThread([&isRunning]() 
 	{
 		while (isRunning) 
 		{
-			engine::Update();
+			//engine::Update();
 		}
 	});
 	MSG msg;
@@ -67,7 +70,7 @@ foreach(var window in windows)
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		engine::Render();
+		// TODO render
 	}
 	engine::UnloadGCDLL();
 	engine::Shutdown();

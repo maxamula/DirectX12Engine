@@ -11,16 +11,16 @@ namespace Editor.GameProject
 {
     using System.Linq;
     using System.Text;
-    using System.Collections.Generic;
+    using System.Collections;
     using System;
     
     /// <summary>
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+    #line 1 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public partial class LauncherMainTemplate : LauncherMainTemplateBase
+    public partial class AssemblyMainHTemplate : AssemblyMainHTemplateBase
     {
 #line hidden
         /// <summary>
@@ -28,132 +28,37 @@ namespace Editor.GameProject
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write(@"#include <windows.h>
-#include <crtdbg.h>
-#include <stdint.h>
-#include <unordered_map>
-#include <thread>
-
-#include ""script.h""
-#include ""window.h""
-
-using namespace engine;
-
-struct SCIPT_INFO
-{
-	engine::ScriptCreator creator;
-	std::string name;
-};
-
-// Windows
-");
+            this.Write("#pragma once\r\n#include <unordered_map>\r\nusing namespace engine;\r\n\r\n// Global decl" +
+                    "\r\nextern HINSTANCE hInst\r\n");
             
-            #line 25 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            #line 13 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
 
 foreach(var window in windows)
 {
             
             #line default
             #line hidden
-            this.Write("__declspec(dllimport) extern Window* ");
+            this.Write("__declspec(dllexport) extern Window* ");
             
-            #line 28 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            #line 16 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(window.Name));
             
             #line default
             #line hidden
             this.Write(";\r\n");
             
-            #line 29 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            #line 17 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
 }
             
             #line default
             #line hidden
-            this.Write(@"
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
-{
-#ifdef _DEBUG
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-#endif // _DEBUG
-	engine::LoadGCDLL(L""GameAssembly.dll"");
-	engine::Init();
-	// init
-");
-            
-            #line 39 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
- if(windows.Count > 0)
-{
-            
-            #line default
-            #line hidden
-            this.Write("\tGFX_WND_DESC wndDesc;\r\n");
-            
-            #line 42 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
-}
-            
-            #line default
-            #line hidden
-            
-            #line 43 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
-
-foreach(var window in windows)
-{
-            
-            #line default
-            #line hidden
-            this.Write("\r\n\twndDesc.callback = NULL;\r\n\twndDesc.hParent = NULL;\r\n\twndDesc.szCaption = (wcha" +
-                    "r_t*)L\"");
-            
-            #line 49 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(window.Title));
-            
-            #line default
-            #line hidden
-            this.Write("\";\r\n\t");
-            
-            #line 50 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(window.Name));
-            
-            #line default
-            #line hidden
-            this.Write(" = *Window::Create(hInstance, wndDesc);\r\n");
-            
-            #line 51 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
-}
-            
-            #line default
-            #line hidden
-            this.Write(@"	bool isRunning = true;
-	std::thread logicThread([&isRunning]() 
-	{
-		while (isRunning) 
-		{
-			//engine::Update();
-		}
-	});
-	MSG msg;
-	while (isRunning)
-	{
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			if (msg.message == WM_QUIT)
-			{
-				isRunning = false;
-				logicThread.join();
-			}
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-		// TODO render
-	}
-	engine::UnloadGCDLL();
-	engine::Shutdown();
-	return 0;
-}");
+            this.Write("\r\n__declspec(dllexport) std::unordered_map<uint64_t ,SCIPT_INFO>& ScriptTable();\t" +
+                    "// guaranteed to be initialized before main\r\nuint8_t RegisterScript(uint64_t han" +
+                    "dle, ScriptCreator creator);");
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 1 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+        #line 1 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
 
 private global::System.Collections.ObjectModel.ReadOnlyObservableCollection<Editor.Project.EngineWindow> _windowsField;
 
@@ -208,7 +113,7 @@ if ((windowsValueAcquired == false))
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public class LauncherMainTemplateBase
+    public class AssemblyMainHTemplateBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

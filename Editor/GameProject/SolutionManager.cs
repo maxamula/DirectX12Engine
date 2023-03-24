@@ -136,7 +136,7 @@ namespace Editor.GameProject
         }
 
         private static Action[] _callbacks; // callbacks that will be called after build is done and successfull
-        /*public static void Build(Project.Project project, string buildConfig, params Action[] callbacks)
+        public static void Build(Project.Project project, string buildConfig, params Action[] callbacks)
         {
             _callbacks = callbacks;
             project.IsBuildAvailable = false;
@@ -146,7 +146,6 @@ namespace Editor.GameProject
                 project.IsBuildAvailable = true;
                 return;
             }
-            CLIEngine.Script.UnloadGCDLL();
             OpenVS(project.Path + $"{project.Name}\\" + $"{project.Name}.sln");
             try
             {
@@ -175,9 +174,9 @@ namespace Editor.GameProject
                 Debug.WriteLine(ex.Message);
                 project.IsBuildAvailable = true;
             }
-        }*/
+        }
         private static bool _buildDone;
-       /* private static void OnBuildDone(string proj, string ProjectConfig, string Platform, string SolutionConfig, bool Success)
+        private static void OnBuildDone(string proj, string ProjectConfig, string Platform, string SolutionConfig, bool Success)
         {
             if (!_buildDone) // In case this event will be called several times
             {
@@ -186,23 +185,20 @@ namespace Editor.GameProject
                 Application.Current.Dispatcher.Invoke(new Action(() => { project = Project.Project.Current; }));
                 project.IsBuildAvailable = true;
                 if (Success)
-                {
-                    if (File.Exists(project.GCDllPath))
-                    {
-                        CLIEngine.Script.LoadGCDLL(project.GCDllPath);
-                        project.AvailableScripts = CLIEngine.Script.GetScriptNames();
-                    }
+                {                
                     foreach (var callback in _callbacks) // invoke all callbacks
                     {
-                        callback.Invoke();
+                        if(callback != null)
+                            callback.Invoke();
                     }
                 }
             }
-        }*/
-        /*public static void Run(Project.Project project, string configName, bool debug)
+        }
+        public static void Run(Project.Project project, string configName, bool debug)
         {
             // TODO save scenes to binary file
-            Build(project, configName, new Action(() => {
+            Build(project, configName, new Action(() =>
+            {
 
                 if (_vsInstance != null)
                 {
@@ -215,7 +211,7 @@ namespace Editor.GameProject
                     }
                 }
             }));
-        }*/
+        }
 
 
         private static EnvDTE80.DTE2 _vsInstance = null; // visual studio instance

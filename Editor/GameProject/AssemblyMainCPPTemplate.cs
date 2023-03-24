@@ -11,16 +11,16 @@ namespace Editor.GameProject
 {
     using System.Linq;
     using System.Text;
-    using System.Collections;
+    using System.Collections.Generic;
     using System;
     
     /// <summary>
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainTemplate.tt"
+    #line 1 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainCPPTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public partial class AssemblyMainTemplate : AssemblyMainTemplateBase
+    public partial class AssemblyMainCPPTemplate : AssemblyMainCPPTemplateBase
     {
 #line hidden
         /// <summary>
@@ -28,32 +28,31 @@ namespace Editor.GameProject
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("#pragma once\r\n#include <unordered_map>\r\nusing namespace engine;\r\n\r\n// Global decl" +
-                    "\r\nextern HINSTANCE hInst\r\n");
+            this.Write("#include \"assemblymain.h\"\r\n\r\n// Global decl\r\nextern HINSTANCE hInst;\r\n");
             
-            #line 13 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainTemplate.tt"
+            #line 11 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainCPPTemplate.tt"
 
 foreach(var window in windows)
 {
             
             #line default
             #line hidden
-            this.Write("__declspec(dllexport) Window& ");
+            this.Write("__declspec(dllexport) Window* ");
             
-            #line 16 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainTemplate.tt"
+            #line 14 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainCPPTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(window.Name));
             
             #line default
             #line hidden
             this.Write(";\r\n");
             
-            #line 17 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainTemplate.tt"
+            #line 15 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainCPPTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write(@"
-__declspec(dllexport) std::unordered_map<uint64_t ,SCIPT_INFO>& ScriptTable()	// guaranteed to be initialized before main
+__declspec(dllexport) std::unordered_map<uint64_t ,SCIPT_INFO>& ScriptTable()
 {
 	static std::unordered_map<uint64_t, SCIPT_INFO> table;
 	return table;
@@ -67,7 +66,7 @@ uint8_t RegisterScript(uint64_t handle, ScriptCreator creator)
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 1 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainTemplate.tt"
+        #line 1 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainCPPTemplate.tt"
 
 private global::System.Collections.ObjectModel.ReadOnlyObservableCollection<Editor.Project.EngineWindow> _windowsField;
 
@@ -122,7 +121,7 @@ if ((windowsValueAcquired == false))
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public class AssemblyMainTemplateBase
+    public class AssemblyMainCPPTemplateBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

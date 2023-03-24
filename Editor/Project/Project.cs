@@ -1,5 +1,8 @@
-﻿using Editor.Utils;
+﻿using Editor.GameProject;
+using Editor.Utils;
 using Engine;
+using EnvDTE;
+using HandyControl.Controls;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -65,6 +68,12 @@ namespace Editor.Project
             Windows = new ReadOnlyObservableCollection<EngineWindow>(_windows);
         }
         // LOAD/UNLOAD
+        public static void Save(Project project)
+        {
+            Debug.Assert(project != null);
+            Utils.Serializer.Serialize<Project>(project, project.Path + $"{project.Name}\\{project.Name}.ahh");
+            Growl.Success("Project saved successfully");
+        }
         public static Project Load(string file)
         {
             Debug.Assert(File.Exists(file));
@@ -85,6 +94,38 @@ namespace Editor.Project
             Debug.Assert(_scenes.Contains(scene));
             scene.Destroy();
             _scenes.Remove(scene);
+        }
+        // SCRIPTING STUFF HERE
+        private bool _isBuildAvailable = true;
+        public bool IsBuildAvailable
+        {
+            get => _isBuildAvailable;
+            set
+            {
+                if (_isBuildAvailable != value)
+                {
+                    _isBuildAvailable = value;
+                    OnPropertyChanged(nameof(IsBuildAvailable));
+                }
+            }
+        }
+        private string GCDllPath { get => $@"{Path}{Name}\x64\Debug\GameAssembly.dll"; }
+        public void BuildGameAssembly(Action callback = null)
+        {
+            SolutionManager.Build(this, "Debug", new Action(() =>
+            {
+                if (File.Exists(GCDllPath))
+                {
+                    Engine.Scripting.UnloadGCDLL();
+                    Engine.Scripting.LoadGCDLL(GCDllPath);
+                    //project.AvailableScripts = CLIEngine.Script.GetScriptNames();
+                }
+                else
+                {
+                    Debug.WriteLine($"GameAssembly.dll does not exist at {GCDllPath}");
+                    Growl.Error($"GameAssembly.dll does not exist at {GCDllPath}");
+                }
+            }), callback);
         }
         // WINDOWS
         [DataMember] private ObservableCollection<EngineWindow> _windows = new ObservableCollection<EngineWindow>();

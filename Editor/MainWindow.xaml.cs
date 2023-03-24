@@ -34,7 +34,7 @@ namespace Editor
             ShowProjectDialog();
 
             // =================== TEST ===================
-
+            //Utils.ResourceWriter.WriteResource("Editor.GameProject.Engine.dll", "TestResource.txt");
             // =================== TEST ===================
         }
 
@@ -57,10 +57,7 @@ namespace Editor
                 // BUILD & LOAD GCDLL async
                 await Task.Run(() =>
                 {
-                    GameProject.SolutionManager.Build(project, Project.Project.GetConfigName(project.DllConfig), new Action(() =>
-                    {
-                        // Launch Render thread
-                    }));
+                    project.BuildGameAssembly();    // TODO: add callback to launch rendering thread
                 });
             }
         }
@@ -72,6 +69,15 @@ namespace Editor
                 Project.ProjectCoreDialog dialog = new Project.ProjectCoreDialog();
                 dialog.ShowDialog();
             }
+        }
+        private void OnAddSceneBtnClick(object sender, EventArgs e)
+        {
+            var context = this.DataContext as Project.Project;
+            context.AddScene("NewScene" + context.Scenes.Count);
+        }
+        private void OnSaveBtnClicked(object sender, EventArgs e)
+        {
+            Project.Project.Save(this.DataContext as Project.Project);
         }
     }
 }

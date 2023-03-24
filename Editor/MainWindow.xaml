@@ -9,6 +9,25 @@
         mc:Ignorable="d"
         PreviewKeyDown="Window_PreviewKeyDown"
         Title="MainWindow" Height="720" Width="1280">
+    <hc:Window.NonClientAreaContent>
+        <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Menu Grid.Column="0"  Margin="20 0 0 0">
+                <MenuItem Header="Save" Click="OnSaveBtnClicked"/>
+                <MenuItem Header="Project">
+                    <MenuItem Header="Add Scene" Click="OnAddSceneBtnClick"/>
+                </MenuItem>
+                <MenuItem Header="Scripting">
+                    <MenuItem Header="Create script"/>
+                    <MenuItem Header="Create scriptable obj"/>
+                </MenuItem>
+            </Menu>
+        </Grid>
+    </hc:Window.NonClientAreaContent>
     <Grid Background="white">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="3*" MaxWidth="400"/>
