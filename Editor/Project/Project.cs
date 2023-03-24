@@ -116,7 +116,6 @@ namespace Editor.Project
             {
                 if (File.Exists(GCDllPath))
                 {
-                    Engine.Scripting.UnloadGCDLL();
                     Engine.Scripting.LoadGCDLL(GCDllPath);
                     //project.AvailableScripts = CLIEngine.Script.GetScriptNames();
                 }

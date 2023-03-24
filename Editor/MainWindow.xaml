@@ -52,6 +52,8 @@
             <ToolBar Grid.Row="0" VerticalAlignment="Top" MinHeight="30">
                 <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal">
                     <!-- TOOLBOX BTNS HERE-->
+                    <Button Content="Compile" Click="OnCompileClick"/>
+                    <Button Content="Run" Margin="5 0 0 0" Click="OnRunClick"/>
                 </StackPanel>
             </ToolBar>
             <Border Grid.Row="1" Margin="5" Background="Gray"/>

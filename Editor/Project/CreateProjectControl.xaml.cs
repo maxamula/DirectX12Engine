@@ -39,10 +39,9 @@ namespace Editor.Project
                 var project = OpenProject.Open(new ProjectData() { ProjectName = context.ProjectName, ProjectPath = $@"{context.ProjectPath}{context.ProjectName}\" });
 
                 // Create initial source files for project
-                var _collection = new ObservableCollection<EngineWindow>() { new EngineWindow() { Name = "g_mainWindow", Title = "My Window" } }; // TEMP
                 var parameters = new Dictionary<string, object>()
                 {
-                    {"windows", new ReadOnlyObservableCollection<EngineWindow>(_collection) }
+                    {"windows", project.Windows }
                 };
 
                 var launcherMainCpp = System.IO.Path.GetFullPath(System.IO.Path.Combine(projectPath, $"GameCode\\Launcher\\main.cpp"));

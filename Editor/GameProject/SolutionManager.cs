@@ -140,13 +140,14 @@ namespace Editor.GameProject
         {
             _callbacks = callbacks;
             project.IsBuildAvailable = false;
+            OpenVS(project.Path + $"{project.Name}\\" + $"{project.Name}.sln");
             if (IsBusy())
             {
                 Debug.WriteLine("Visual studio is busy");
                 project.IsBuildAvailable = true;
                 return;
             }
-            OpenVS(project.Path + $"{project.Name}\\" + $"{project.Name}.sln");
+            Engine.Scripting.UnloadGCDLL();
             try
             {
                 if (!_vsInstance.Solution.IsOpen)
@@ -199,7 +200,6 @@ namespace Editor.GameProject
             // TODO save scenes to binary file
             Build(project, configName, new Action(() =>
             {
-
                 if (_vsInstance != null)
                 {
                     ProcessStartInfo process = new ProcessStartInfo();

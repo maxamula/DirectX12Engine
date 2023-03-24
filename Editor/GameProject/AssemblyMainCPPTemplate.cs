@@ -58,11 +58,19 @@ __declspec(dllexport) std::unordered_map<uint64_t ,SCIPT_INFO>& ScriptTable()
 	return table;
 }
 
+#ifndef _DEBUG
 uint8_t RegisterScript(uint64_t handle, ScriptCreator creator)
 {
-	ScriptTable()[handle] = { creator,  };
+	ScriptTable()[handle] = { creator, """" };
 	return 0;
-}");
+}
+#else
+uint8_t RegisterScript(uint64_t handle, ScriptCreator creator, const char* name)
+{
+	ScriptTable()[handle] = { creator, name };
+	return 0;
+}
+#endif");
             return this.GenerationEnvironment.ToString();
         }
         

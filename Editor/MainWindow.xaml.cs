@@ -79,5 +79,15 @@ namespace Editor
         {
             Project.Project.Save(this.DataContext as Project.Project);
         }
+        private void OnCompileClick(object sender, EventArgs e)
+        {
+            var project = this.DataContext as Project.Project;
+            project.BuildGameAssembly();
+        }
+        private void OnRunClick(object sender, EventArgs e)
+        {
+            var project = this.DataContext as Project.Project;
+            SolutionManager.Run(project, "Release", true);
+        }
     }
 }

@@ -13,7 +13,6 @@ namespace engine
 			return false;
 		hGCDll = LoadLibraryW(dllPath);
 		ScriptTable = (SCRIPT_TABLE)GetProcAddress(hGCDll, "ScriptTable");
-		assert(hGCDll);
 		return hGCDll ? true : false;
 	}
 
