@@ -6,10 +6,12 @@
 <#@ parameter name="windows" type="System.Collections.ObjectModel.ReadOnlyObservableCollection<Editor.Project.EngineWindow>" #>
 #pragma once
 #include <unordered_map>
+
+#include "window.h"
 using namespace engine;
 
 // Global decl
-extern HINSTANCE hInst
+extern HINSTANCE hInst;
 <#
 foreach(var window in windows)
 {#>

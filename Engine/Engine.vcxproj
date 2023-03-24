@@ -122,10 +122,14 @@
       <EnableUAC>false</EnableUAC>
     </Link>
     <PreBuildEvent>
-      <Command>copy /Y $(SolutionDir)x64\Release\Engine.dll $(SolutionDir)Editor\GameProject\Engine.dll
-copy /Y $(SolutionDir)x64\Release\Engine.lib $(SolutionDir)Editor\GameProject\Engine.lib
-xcopy "$(ProjectDir)*.h" "$(SolutionDir)Editor\GameProject\EngineAPI" /s</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>xcopy "$(ProjectDir)*.h" "$(SolutionDir)Editor\GameProject\EngineAPI" /s
+xcopy /Y "$(SolutionDir)x64\$(Configuration)\Engine.dll" "$(SolutionDir)Editor\GameProject\Engine.dll"
+xcopy /Y "$(SolutionDir)x64\$(Configuration)\Engine.lib" "$(SolutionDir)Editor\GameProject\Engine.lib"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -150,10 +154,14 @@ xcopy "$(ProjectDir)*.h" "$(SolutionDir)Editor\GameProject\EngineAPI" /s</Comman
       <EnableUAC>false</EnableUAC>
     </Link>
     <PreBuildEvent>
-      <Command>copy /Y $(SolutionDir)x64\Release\Engine.dll $(SolutionDir)Editor\GameProject\Engine.dll
-copy /Y $(SolutionDir)x64\Release\Engine.lib $(SolutionDir)Editor\GameProject\Engine.lib
-xcopy "$(ProjectDir)*.h" "$(SolutionDir)Editor\GameProject\EngineAPI" /s</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>xcopy "$(ProjectDir)*.h" "$(SolutionDir)Editor\GameProject\EngineAPI" /s
+xcopy /Y "$(SolutionDir)x64\$(Configuration)\Engine.dll" "$(SolutionDir)Editor\GameProject\Engine.dll"
+xcopy /Y "$(SolutionDir)x64\$(Configuration)\Engine.lib" "$(SolutionDir)Editor\GameProject\Engine.lib"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

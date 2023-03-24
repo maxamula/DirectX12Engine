@@ -28,7 +28,7 @@ namespace Editor.GameProject
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("#include \"assemblymain.h\"\r\n\r\n// Global decl\r\nextern HINSTANCE hInst;\r\n");
+            this.Write("#include \"assemblymain.h\"\r\n\r\n// Global decl\r\nextern HINSTANCE hInst;  \r\n");
             
             #line 11 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainCPPTemplate.tt"
 
@@ -60,7 +60,7 @@ __declspec(dllexport) std::unordered_map<uint64_t ,SCIPT_INFO>& ScriptTable()
 
 uint8_t RegisterScript(uint64_t handle, ScriptCreator creator)
 {
-	ScriptTable()[handle] = { handle, creator };
+	ScriptTable()[handle] = { creator,  };
 	return 0;
 }");
             return this.GenerationEnvironment.ToString();

@@ -116,7 +116,7 @@ foreach(var window in windows)
             
             #line default
             #line hidden
-            this.Write(" = *Window::Create(hInstance, wndDesc);\r\n");
+            this.Write(" = Window::Create(hInstance, wndDesc);\r\n");
             
             #line 51 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
 }

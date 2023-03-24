@@ -28,10 +28,10 @@ namespace Editor.GameProject
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("#pragma once\r\n#include <unordered_map>\r\nusing namespace engine;\r\n\r\n// Global decl" +
-                    "\r\nextern HINSTANCE hInst\r\n");
+            this.Write("#pragma once\r\n#include <unordered_map>\r\n\r\n#include \"window.h\"\r\nusing namespace en" +
+                    "gine;\r\n\r\n// Global decl\r\nextern HINSTANCE hInst;\r\n");
             
-            #line 13 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
+            #line 15 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
 
 foreach(var window in windows)
 {
@@ -40,14 +40,14 @@ foreach(var window in windows)
             #line hidden
             this.Write("__declspec(dllexport) extern Window* ");
             
-            #line 16 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
+            #line 18 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(window.Name));
             
             #line default
             #line hidden
             this.Write(";\r\n");
             
-            #line 17 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
+            #line 19 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
 }
             
             #line default

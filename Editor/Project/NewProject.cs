@@ -105,7 +105,8 @@ namespace Editor.Project
         private void CreateMSVCSolution(ProjectTemplate template, string path)
         {
             Debug.Assert(File.Exists(Path.Combine(template.TemplatePath, "MSVCSolution")));
-            Debug.Assert(File.Exists(Path.Combine(template.TemplatePath, "MSVCProject")));
+            Debug.Assert(File.Exists(Path.Combine(template.TemplatePath, "LAProject")));
+            Debug.Assert(File.Exists(Path.Combine(template.TemplatePath, "GAProject")));
 
             var solution = File.ReadAllText(Path.Combine(template.TemplatePath, "MSVCSolution"));
               solution = string.Format(solution, "{" + Guid.NewGuid().ToString().ToUpper() + "}", ProjectName, "{" + Guid.NewGuid().ToString().ToUpper() + "}", "{" + Guid.NewGuid().ToString().ToUpper() + "}");
@@ -115,12 +116,12 @@ namespace Editor.Project
             Directory.CreateDirectory(Path.Combine(path, $"GameCode\\Launcher"));
             
             // GameAssembly
-            var projectGA = File.ReadAllText(Path.Combine(template.TemplatePath, "MSVCProject"));
+            var projectGA = File.ReadAllText(Path.Combine(template.TemplatePath, "GAProject"));
             projectGA = string.Format(projectGA, "GameAssembly", "{" + Guid.NewGuid().ToString().ToUpper() + "}");
             File.WriteAllText(Path.GetFullPath(Path.Combine(path, $"GameCode\\GameAssembly\\GameAssembly.vcxproj")), projectGA);
 
             // Launcher
-            var projectLN = File.ReadAllText(Path.Combine(template.TemplatePath, "MSVCProject"));
+            var projectLN = File.ReadAllText(Path.Combine(template.TemplatePath, "LAProject"));
             projectLN = string.Format(projectLN, ProjectName, "{" + Guid.NewGuid().ToString().ToUpper() + "}");
             File.WriteAllText(Path.GetFullPath(Path.Combine(path, $"GameCode\\Launcher\\{ProjectName}.vcxproj")), projectLN);
             // Create folders for engine binaries/includes

@@ -7,7 +7,7 @@
 #include "assemblymain.h"
 
 // Global decl
-extern HINSTANCE hInst;
+extern HINSTANCE hInst;  
 <#
 foreach(var window in windows)
 {#>

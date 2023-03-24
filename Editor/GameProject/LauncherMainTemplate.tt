@@ -47,7 +47,7 @@ foreach(var window in windows)
 	wndDesc.callback = NULL;
 	wndDesc.hParent = NULL;
 	wndDesc.szCaption = (wchar_t*)L"<#=window.Title#>";
-	<#=window.Name#> = *Window::Create(hInstance, wndDesc);
+	<#=window.Name#> = Window::Create(hInstance, wndDesc);
 <#}#>
 	bool isRunning = true;
 	std::thread logicThread([&isRunning]() 
