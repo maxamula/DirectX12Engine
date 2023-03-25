@@ -6,6 +6,7 @@ using HandyControl.Controls;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace Editor.Project
     {
         private string _name;
         [DataMember]
+        [Category("Default properties")]
         public string Name
         {
             get => _name;
@@ -36,6 +38,7 @@ namespace Editor.Project
         }
         private string _title;
         [DataMember]
+        [Category("Default properties")]
         public string Title
         {
             get => _title;
@@ -48,6 +51,82 @@ namespace Editor.Project
                 }
             }
         }
+        private ushort _width;
+        [DataMember]
+        [Category("Default properties")]
+        public ushort Width
+        {
+            get => _width;
+            set
+            {
+                if (_width != value)
+                {
+                    _width = value;
+                    OnPropertyChanged(nameof(Width));
+                }
+            }
+        }
+        private ushort _height;
+        [DataMember]
+        [Category("Default properties")]
+        public ushort Height
+        {
+            get => _height;
+            set
+            {
+                if (_height != value)
+                {
+                    _height = value;
+                    OnPropertyChanged(nameof(Height));
+                }
+            }
+        }
+        private string _procedure;
+        [DataMember]
+        [Category("Default properties")]
+        public string Procedure
+        {
+            get => _procedure;
+            set
+            {
+                if (_procedure != value)
+                {
+                    _procedure = value;
+                    OnPropertyChanged(nameof(Procedure));
+                }
+            }
+        }
+        private bool _isFullScreen;
+        [DataMember]
+        [Category("Default properties")]
+        public bool IsFullScreen
+        {
+            get => _isFullScreen;
+            set
+            {
+                if (_isFullScreen != value)
+                {
+                    _isFullScreen = value;
+                    OnPropertyChanged(nameof(IsFullScreen));
+                }
+            }
+        }
+        private bool _showOnStartup;
+        [DataMember]
+        [Category("Default properties")]
+        public bool ShowOnStartup
+        {
+            get => _showOnStartup;
+            set
+            {
+                if (_showOnStartup != value)
+                {
+                    _showOnStartup = value;
+                    OnPropertyChanged(nameof(ShowOnStartup));
+                }
+            }
+        }
+        
     }
 
     [DataContract(Name = "Project")]
@@ -60,6 +139,10 @@ namespace Editor.Project
             Path = "C:\\Users\\EXAMPLE_PATH\\REMOVE_LATER";
             Scenes = new ReadOnlyObservableCollection<Scene>(_scenes);
             Windows = new ReadOnlyObservableCollection<EngineWindow>(_windows);
+            _windows.Add(new EngineWindow() { Height = 720, Width = 1280, Name = "g_mainWindow", IsFullScreen = false, Procedure = null, Title = "TITLE HERE"});
+            _windows.Add(new EngineWindow() { Height = 720, Width = 1280, Name = "aah", IsFullScreen = false, Procedure = null, Title = "TITLE HERE"});
+            _windows.Add(new EngineWindow() { Height = 720, Width = 1280, Name = "g_sideWindow", IsFullScreen = false, Procedure = null, Title = "TITLE HERE"});
+            _windows.Add(new EngineWindow() { Height = 720, Width = 1280, Name = "g_camWindow", IsFullScreen = false, Procedure = null, Title = "TITLE HERE"});
         }
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
@@ -122,13 +205,13 @@ namespace Editor.Project
                 else
                 {
                     Debug.WriteLine($"GameAssembly.dll does not exist at {GCDllPath}");
-                    Growl.Error($"GameAssembly.dll does not exist at {GCDllPath}");
+                    Growl.Warning($"GameAssembly.dll does not exist at {GCDllPath}");
                 }
             }), callback);
         }
         // WINDOWS
         [DataMember] private ObservableCollection<EngineWindow> _windows = new ObservableCollection<EngineWindow>();
-        public ReadOnlyObservableCollection<EngineWindow> Windows;
+        public ReadOnlyObservableCollection<EngineWindow> Windows { get; set; }
 
 
         [DataMember(Name = "Scenes")] private ObservableCollection<Scene> _scenes = new ObservableCollection<Scene>();

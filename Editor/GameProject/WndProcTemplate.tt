@@ -1,0 +1,20 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ parameter name="procName" type="System.String" #>
+#include "common.h"
+#include "window.h"
+
+LRESULT CALLBACK <#=procName#>(Window* This, HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+	switch (msg)
+	{
+	case WM_CLOSE:
+		if(MessageBox(NULL, "Are you sure?", "Exit", MB_OKCANCEL) == IDOK)
+			PostQuitMessage();
+		break;
+	}
+	return DefWindowProc(hwnd, msg, wparam, lparam);
+}

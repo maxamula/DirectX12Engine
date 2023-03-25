@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.CodeDom.Compiler;
 using Editor.GameProject;
 using EnvDTE;
+using Editor.Utils;
 
 namespace Editor
 {
@@ -31,10 +32,11 @@ namespace Editor
         {
             InitializeComponent();
             Closing += OnMainWindowClosing;
-            ShowProjectDialog();
+            //ShowProjectDialog();
 
             // =================== TEST ===================
-            //Utils.ResourceWriter.WriteResource("Editor.GameProject.Engine.dll", "TestResource.txt");
+            Project.Project project = new Project.Project("dd");
+            this.DataContext = project;
             // =================== TEST ===================
         }
 
@@ -66,7 +68,9 @@ namespace Editor
         {
             if (e.Key == Key.F1)
             {
-                Project.ProjectCoreDialog dialog = new Project.ProjectCoreDialog();
+                //Project.ProjectCoreDialog dialog = new Project.ProjectCoreDialog();
+                WindowDialog dialog = new WindowDialog();
+                dialog.DataContext = this.DataContext;
                 dialog.ShowDialog();
             }
         }

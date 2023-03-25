@@ -74,6 +74,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\WindowsView.xaml.cs">
+      <DependentUpon>WindowsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GameObject.cs" />
     <Compile Include="GameProject\AssemblyMainCPPTemplate.cs">
       <AutoGen>True</AutoGen>
@@ -96,10 +99,22 @@
       <DependentUpon>ScriptHTemplate.tt</DependentUpon>
     </Compile>
     <Compile Include="GameProject\SolutionManager.cs" />
+    <Compile Include="GameProject\WndProcTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>WndProcTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Project\WindowDialog.xaml.cs">
+      <DependentUpon>WindowDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils\ResourceWriter.cs" />
     <Compile Include="Utils\Serializer.cs" />
     <Compile Include="Utils\VMBase.cs" />
     <Page Include="Controls\SceneView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\WindowsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -131,6 +146,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Project\ProjectDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Project\WindowDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -227,6 +246,11 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>AssemblyMainHTemplate.cs</LastGenOutput>
     </Content>
+    <Content Include="GameProject\WndProcTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>WndProcTemplate.cs</LastGenOutput>
+    </Content>
+    <Resource Include="Resources\screen.png" />
     <EmbeddedResource Include="GameProject\EngineAPI\common.h" />
     <EmbeddedResource Include="GameProject\EngineAPI\components.h" />
     <EmbeddedResource Include="GameProject\EngineAPI\engine.h" />

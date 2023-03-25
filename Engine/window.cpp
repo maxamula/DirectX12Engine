@@ -132,9 +132,6 @@ namespace engine
 		WindowImpl* This = (WindowImpl*)GetWindowLongPtr(hwnd, 0);
 		switch (msg)
 		{
-		case WM_CLOSE:
-			This->CloseWnd();
-			break;
 		case WM_DESTROY:
 			This->m_surface.Release();
 			delete This;

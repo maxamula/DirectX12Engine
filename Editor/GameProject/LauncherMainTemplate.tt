@@ -21,6 +21,16 @@ struct SCIPT_INFO
 	std::string name;
 };
 
+// Wnd procs
+<#
+System.Collections.Generic.List<string> _usedProc = new System.Collections.Generic.List<string>();
+foreach(var window in windows)
+{#>
+<#if(!_usedProc.Contains(window.Procedure) && window.Procedure != null) {#>
+__declspec(dllimport) extern LRESULT <#=window.Procedure#>(Window* This, HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+<#_usedProc.Add(window.Procedure);#>
+<#}#>
+<#}#>
 // Windows
 <#
 foreach(var window in windows)
@@ -44,10 +54,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 foreach(var window in windows)
 {#>
 
-	wndDesc.callback = NULL;
-	wndDesc.hParent = NULL;
+<#if(window.Procedure != null){#>wndDesc.callback = <#=window.Procedure#>;<#}#>
+	wndDesc.hParent = nullptr;
 	wndDesc.szCaption = (wchar_t*)L"<#=window.Title#>";
 	<#=window.Name#> = Window::Create(hInstance, wndDesc);
+	<#if(window.ShowOnStartup)#>
+	<#=window.Name#>.ShowWnd();
 <#}#>
 	bool isRunning = true;
 	std::thread logicThread([&isRunning]() 

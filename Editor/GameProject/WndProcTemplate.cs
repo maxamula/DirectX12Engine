@@ -11,16 +11,16 @@ namespace Editor.GameProject
 {
     using System.Linq;
     using System.Text;
-    using System.Collections;
+    using System.Collections.Generic;
     using System;
     
     /// <summary>
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
+    #line 1 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\WndProcTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public partial class AssemblyMainHTemplate : AssemblyMainHTemplateBase
+    public partial class WndProcTemplate : WndProcTemplateBase
     {
 #line hidden
         /// <summary>
@@ -28,90 +28,39 @@ namespace Editor.GameProject
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("#pragma once\r\n#include <unordered_map>\r\n\r\n#include \"window.h\"\r\nusing namespace en" +
-                    "gine;\r\n\r\n// Global decl\r\nextern HINSTANCE hInst;\r\n// WND procs\r\n");
+            this.Write("#include \"common.h\"\r\n#include \"window.h\"\r\n\r\nLRESULT CALLBACK ");
             
-            #line 16 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
-
-System.Collections.Generic.List<string> _usedProc = new System.Collections.Generic.List<string>();
-foreach(var window in windows)
+            #line 10 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\WndProcTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(procName));
+            
+            #line default
+            #line hidden
+            this.Write(@"(Window* This, HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-            
-            #line default
-            #line hidden
-            
-            #line 20 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
-if(!_usedProc.Contains(window.Procedure) && window.Procedure != null) {
-            
-            #line default
-            #line hidden
-            this.Write("__declspec(dllexport) extern LRESULT ");
-            
-            #line 21 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(window.Procedure));
-            
-            #line default
-            #line hidden
-            this.Write("(Window* This, HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);\r\n");
-            
-            #line 22 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
-_usedProc.Add(window.Procedure);
-            
-            #line default
-            #line hidden
-            
-            #line 23 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
-}
-            
-            #line default
-            #line hidden
-            
-            #line 24 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
-}
-            
-            #line default
-            #line hidden
-            this.Write("\r\n");
-            
-            #line 26 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
-
-foreach(var window in windows)
-{
-            
-            #line default
-            #line hidden
-            this.Write("__declspec(dllexport) extern Window* ");
-            
-            #line 29 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(window.Name));
-            
-            #line default
-            #line hidden
-            this.Write(";\r\n");
-            
-            #line 30 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
-}
-            
-            #line default
-            #line hidden
-            this.Write("\r\n__declspec(dllexport) std::unordered_map<uint64_t ,SCIPT_INFO>& ScriptTable();\t" +
-                    "// guaranteed to be initialized before main\r\nuint8_t RegisterScript(uint64_t han" +
-                    "dle, ScriptCreator creator);");
+	switch (msg)
+	{
+	case WM_CLOSE:
+		if(MessageBox(NULL, ""Are you sure?"", ""Exit"", MB_OKCANCEL) == IDOK)
+			PostQuitMessage();
+		break;
+	}
+	return DefWindowProc(hwnd, msg, wparam, lparam);
+}");
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 1 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\AssemblyMainHTemplate.tt"
+        #line 1 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\WndProcTemplate.tt"
 
-private global::System.Collections.ObjectModel.ReadOnlyObservableCollection<Editor.Project.EngineWindow> _windowsField;
+private string _procNameField;
 
 /// <summary>
-/// Access the windows parameter of the template.
+/// Access the procName parameter of the template.
 /// </summary>
-private global::System.Collections.ObjectModel.ReadOnlyObservableCollection<Editor.Project.EngineWindow> windows
+private string procName
 {
     get
     {
-        return this._windowsField;
+        return this._procNameField;
     }
 }
 
@@ -123,18 +72,18 @@ public virtual void Initialize()
 {
     if ((this.Errors.HasErrors == false))
     {
-bool windowsValueAcquired = false;
-if (this.Session.ContainsKey("windows"))
+bool procNameValueAcquired = false;
+if (this.Session.ContainsKey("procName"))
 {
-    this._windowsField = ((global::System.Collections.ObjectModel.ReadOnlyObservableCollection<Editor.Project.EngineWindow>)(this.Session["windows"]));
-    windowsValueAcquired = true;
+    this._procNameField = ((string)(this.Session["procName"]));
+    procNameValueAcquired = true;
 }
-if ((windowsValueAcquired == false))
+if ((procNameValueAcquired == false))
 {
-    object data = global::System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("windows");
+    object data = global::System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("procName");
     if ((data != null))
     {
-        this._windowsField = ((global::System.Collections.ObjectModel.ReadOnlyObservableCollection<Editor.Project.EngineWindow>)(data));
+        this._procNameField = ((string)(data));
     }
 }
 
@@ -155,7 +104,7 @@ if ((windowsValueAcquired == false))
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "17.0.0.0")]
-    public class AssemblyMainHTemplateBase
+    public class WndProcTemplateBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;
