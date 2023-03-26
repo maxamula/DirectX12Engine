@@ -124,7 +124,9 @@ namespace engine
 
 	Window* Window::Create(HINSTANCE hInst, GFX_WND_DESC& desc)
 	{
-		return new WindowImpl(hInst, desc);
+		WindowImpl* wnd = new WindowImpl(hInst, desc);
+		aliveWindows.push_back(wnd);
+		return wnd;
 	}
 
 	LRESULT CALLBACK WndProcBase(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
@@ -133,6 +135,12 @@ namespace engine
 		switch (msg)
 		{
 		case WM_DESTROY:
+			for(auto it = aliveWindows.begin(); it < aliveWindows.end(); it++)
+				if (*it == This)
+				{
+					aliveWindows.erase(it);
+					break;
+				}
 			This->m_surface.Release();
 			delete This;
 			return DefWindowProc(hwnd, msg, wparam, lparam);
@@ -152,7 +160,9 @@ namespace engine
 				This->_UpdateSize();
 			break;
 		case WM_QUIT:
-			This->Destroy();
+			std::vector<WindowImpl*> del = aliveWindows;
+			for (WindowImpl* wnd : del)
+				wnd->Destroy();
 			break;
 		}
 		return (This && This->m_callback) ? This->m_callback(This, hwnd, msg, wparam, lparam) : DefWindowProc(hwnd, msg, wparam, lparam);

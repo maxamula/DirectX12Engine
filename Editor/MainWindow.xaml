@@ -20,6 +20,7 @@
                 <MenuItem Header="Save" Click="OnSaveBtnClicked"/>
                 <MenuItem Header="Project">
                     <MenuItem Header="Add Scene" Click="OnAddSceneBtnClick"/>
+                    <MenuItem Header="Manage windows" Click="OnManageWindowsClick"/>
                 </MenuItem>
                 <MenuItem Header="Scripting">
                     <MenuItem Header="Create script"/>

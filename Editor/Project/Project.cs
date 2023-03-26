@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -29,11 +30,11 @@ namespace Editor.Project
             get => _name;
             set
             {
-                if (_name != value)
+                if (_name != value && _Validate(value))
                 {
                     _name = value;
                     OnPropertyChanged(nameof(Name));
-                }
+                }    
             }
         }
         private string _title;
@@ -89,10 +90,15 @@ namespace Editor.Project
             get => _procedure;
             set
             {
-                if (_procedure != value)
+                if (value == "")
+                {
+                    _procedure = null;
+                    OnPropertyChanged(nameof(Name));
+                }
+                if (_procedure != value && _Validate(value))
                 {
                     _procedure = value;
-                    OnPropertyChanged(nameof(Procedure));
+                    OnPropertyChanged(nameof(Name));
                 }
             }
         }
@@ -127,6 +133,19 @@ namespace Editor.Project
             }
         }
         
+
+        private bool _Validate(string s)
+        {
+            bool result = true;
+            if (s == null)
+                result = false;
+            if (s.Length == 0)
+                result = false;
+            if (s.Contains(" ") || s.Contains("*") || s.Contains("&"))
+                result = false;
+
+            return result;
+        }
     }
 
     [DataContract(Name = "Project")]
@@ -139,10 +158,7 @@ namespace Editor.Project
             Path = "C:\\Users\\EXAMPLE_PATH\\REMOVE_LATER";
             Scenes = new ReadOnlyObservableCollection<Scene>(_scenes);
             Windows = new ReadOnlyObservableCollection<EngineWindow>(_windows);
-            _windows.Add(new EngineWindow() { Height = 720, Width = 1280, Name = "g_mainWindow", IsFullScreen = false, Procedure = null, Title = "TITLE HERE"});
-            _windows.Add(new EngineWindow() { Height = 720, Width = 1280, Name = "aah", IsFullScreen = false, Procedure = null, Title = "TITLE HERE"});
-            _windows.Add(new EngineWindow() { Height = 720, Width = 1280, Name = "g_sideWindow", IsFullScreen = false, Procedure = null, Title = "TITLE HERE"});
-            _windows.Add(new EngineWindow() { Height = 720, Width = 1280, Name = "g_camWindow", IsFullScreen = false, Procedure = null, Title = "TITLE HERE"});
+            _windows.Add(new EngineWindow() { Height = 720, Width = 1280, Name = "g_mainWindow", IsFullScreen = false, Procedure = null, Title = "My window"});
         }
         [OnDeserialized]
         private void OnDeserialized(StreamingContext context)
@@ -209,6 +225,36 @@ namespace Editor.Project
                 }
             }), callback);
         }
+
+        public void UpdateGPFiles()
+        {
+            var parameters = new Dictionary<string, object>()
+            {
+                {"windows", this.Windows }
+            };
+            var projectPath = $@"{Path}{Name}\";
+            var launcherMainCpp = System.IO.Path.GetFullPath(System.IO.Path.Combine(projectPath, $"GameCode\\Launcher\\main.cpp"));
+            GameProject.LauncherMainTemplate launcherTemplate = new GameProject.LauncherMainTemplate();
+            launcherTemplate.Session = parameters;
+            launcherTemplate.Initialize();
+            using (var sw = File.CreateText(launcherMainCpp))
+                sw.Write(launcherTemplate.TransformText());
+
+            var assemblyMainH = System.IO.Path.GetFullPath(System.IO.Path.Combine(projectPath, $"GameCode\\GameAssembly\\assemblymain.h"));
+            GameProject.AssemblyMainHTemplate assemblyMainHTemplate = new GameProject.AssemblyMainHTemplate();
+            assemblyMainHTemplate.Session = parameters;
+            assemblyMainHTemplate.Initialize();
+            using (var sw = File.CreateText(assemblyMainH))
+                sw.Write(assemblyMainHTemplate.TransformText());
+
+            var assemblyMainCpp = System.IO.Path.GetFullPath(System.IO.Path.Combine(projectPath, $"GameCode\\GameAssembly\\assemblymain.cpp"));
+            GameProject.AssemblyMainCPPTemplate assemblyMainCppTemplate = new GameProject.AssemblyMainCPPTemplate();
+            assemblyMainCppTemplate.Session = parameters;
+            assemblyMainCppTemplate.Initialize();
+            using (var sw = File.CreateText(assemblyMainCpp))
+                sw.Write(assemblyMainCppTemplate.TransformText());
+        }
+
         // WINDOWS
         [DataMember] private ObservableCollection<EngineWindow> _windows = new ObservableCollection<EngineWindow>();
         public ReadOnlyObservableCollection<EngineWindow> Windows { get; set; }

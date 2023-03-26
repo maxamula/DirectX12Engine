@@ -71,8 +71,6 @@ namespace engine::gfx::gpass
 		}
 	}
 
-
-
 	void Initialize()
 	{
 		assert(CreateBuffers(100, 100));

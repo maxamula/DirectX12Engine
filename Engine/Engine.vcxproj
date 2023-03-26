@@ -23,6 +23,7 @@
     <ClInclude Include="Graphics\rendersurface.h" />
     <ClInclude Include="Graphics\shaders.h" />
     <ClInclude Include="Graphics\gresource.h" />
+    <ClInclude Include="Graphics\pso.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Graphics\rootsig.h" />
     <ClInclude Include="scenegraph.h" />
@@ -43,6 +44,7 @@
     <ClCompile Include="Graphics\shaders.cpp" />
     <ClCompile Include="Graphics\rootsig.cpp" />
     <ClCompile Include="Graphics\gresource.cpp" />
+    <ClCompile Include="Graphics\pso.cpp" />
     <ClCompile Include="scenegraph.cpp" />
     <ClCompile Include="script.cpp" />
     <ClCompile Include="window.cpp" />

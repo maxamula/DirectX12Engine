@@ -35,5 +35,10 @@ namespace Editor.Project
         {
             SelectedWindow = (EngineWindow)((sender as Border).DataContext);
         }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            (this.DataContext as Project).UpdateGPFiles();
+        }
     }
 }

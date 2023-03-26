@@ -74,9 +74,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Controls\WindowsView.xaml.cs">
-      <DependentUpon>WindowsView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="GameObject.cs" />
     <Compile Include="GameProject\AssemblyMainCPPTemplate.cs">
       <AutoGen>True</AutoGen>
@@ -111,10 +108,6 @@
     <Compile Include="Utils\Serializer.cs" />
     <Compile Include="Utils\VMBase.cs" />
     <Page Include="Controls\SceneView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\WindowsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -250,6 +243,8 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>WndProcTemplate.cs</LastGenOutput>
     </Content>
+    <Resource Include="Resources\addwnd.png" />
+    <Resource Include="Resources\wndproc.png" />
     <Resource Include="Resources\screen.png" />
     <EmbeddedResource Include="GameProject\EngineAPI\common.h" />
     <EmbeddedResource Include="GameProject\EngineAPI\components.h" />

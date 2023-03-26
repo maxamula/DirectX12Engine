@@ -24,7 +24,7 @@ namespace engine::gfx
 	class CommandQueue;
 	class DescriptorHeap;
 
-	extern ID3D12Device* device;
+	extern ID3D12Device8* device;
 	extern IDXGIFactory7* dxgiFactory;
 	extern IDXGIAdapter4* dxgiAdapter;
 	extern CommandQueue g_cmdQueue;

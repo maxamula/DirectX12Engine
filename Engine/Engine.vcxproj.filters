@@ -18,6 +18,7 @@
     <ClInclude Include="script.h" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="Graphics\gresource.h" />
+    <ClInclude Include="Graphics\pso.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\graphics.cpp" />
@@ -36,6 +37,7 @@
     <ClCompile Include="script.cpp" />
     <ClCompile Include="Graphics\gresource.cpp" />
     <ClCompile Include="engine.cpp" />
+    <ClCompile Include="Graphics\pso.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

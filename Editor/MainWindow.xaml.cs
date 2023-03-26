@@ -32,11 +32,12 @@ namespace Editor
         {
             InitializeComponent();
             Closing += OnMainWindowClosing;
-            //ShowProjectDialog();
+            ShowProjectDialog();
 
             // =================== TEST ===================
-            Project.Project project = new Project.Project("dd");
-            this.DataContext = project;
+            /*Project.Project project = new Project.Project("dd");
+            Utils.Serializer.Serialize(project, "test");*/
+            //this.DataContext = project;
             // =================== TEST ===================
         }
 
@@ -92,6 +93,12 @@ namespace Editor
         {
             var project = this.DataContext as Project.Project;
             SolutionManager.Run(project, "Release", true);
+        }
+        private void OnManageWindowsClick(object sender, EventArgs e)
+        {
+            WindowDialog dialog = new WindowDialog();
+            dialog.DataContext = this.DataContext;
+            dialog.ShowDialog();
         }
     }
 }
