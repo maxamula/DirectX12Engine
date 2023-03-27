@@ -88,7 +88,7 @@ namespace engine
 
 		void Fullscreen(bool bState) override
 		{
-
+			m_bFullscreen = bState;
 		}
 
 		bool IsFullscreen() const override { return m_bFullscreen; };
@@ -160,9 +160,7 @@ namespace engine
 				This->_UpdateSize();
 			break;
 		case WM_QUIT:
-			std::vector<WindowImpl*> del = aliveWindows;
-			for (WindowImpl* wnd : del)
-				wnd->Destroy();
+			return DefWindowProc(hwnd, msg, wparam, lparam);
 			break;
 		}
 		return (This && This->m_callback) ? This->m_callback(This, hwnd, msg, wparam, lparam) : DefWindowProc(hwnd, msg, wparam, lparam);

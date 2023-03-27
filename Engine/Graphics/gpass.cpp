@@ -13,8 +13,10 @@ namespace engine::gfx::gpass
 	{
 		RenderTexture g_mainBuffer;
 		DepthTexture g_depthBuffer;
+		UVec2 g_gfeomBufferSize = { 100, 100 };
 		const DXGI_FORMAT g_mainBufferFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
 		const DXGI_FORMAT g_depthBufferFormat = DXGI_FORMAT_D32_FLOAT;
+
 
 		bool CreateBuffers(uint32_t width, uint32_t height)
 		{

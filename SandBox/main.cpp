@@ -13,8 +13,9 @@ LRESULT CALLBACK MyProc(Window* This, HWND hwnd, UINT msg, WPARAM wparam, LPARAM
 	switch (msg)
 	{
 	case WM_CLOSE:
-		/*if (MessageBox(NULL, L"Are you sure?", L"Exit", MB_OKCANCEL) == IDOK)
-			PostQuitMessage(1);*/
+		if (MessageBox(NULL, L"Are you sure?", L"Exit", MB_OKCANCEL) == IDOK)
+			PostQuitMessage(1);
+		return 0;
 		break;
 	}
 	return DefWindowProc(hwnd, msg, wparam, lparam);
@@ -33,12 +34,8 @@ int main()
 	wndDesc.width = 600;
 	wndDesc.height = 400;
 	g_mainWindow = Window::Create(NULL, wndDesc);
+	//g_mainWindow->Fullscreen(true);
 	g_mainWindow->ShowWnd();
-	/*wndDesc.szCaption = (wchar_t*)L"My window 1";
-	wndDesc.width = 800;
-	wndDesc.height = 600;
-	g_mainWindow1 = Window::Create(NULL, wndDesc);
-	g_mainWindow1->ShowWnd();*/
 	bool isRunning = true;
 	MSG msg;
 	while (isRunning)
@@ -54,6 +51,7 @@ int main()
 		}
 		// TODO render
 	}
+	g_mainWindow->Destroy();
 	engine::Shutdown();
 
 	return 0;

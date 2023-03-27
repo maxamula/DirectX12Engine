@@ -30,7 +30,7 @@ namespace engine::gfx
 		Texture(TEXTURE_DESC& desc);
 
 		// DESTRUCTOR
-		~Texture() { Release(); }
+		~Texture() { assert(!m_res); }
 
 		inline ID3D12Resource* Resource() const { return m_res; }
 		inline DESCRIPTOR_HANDLE SRVAllocation() const { return m_srv; }
@@ -47,7 +47,6 @@ namespace engine::gfx
 	public:
 		RenderTexture() = default;
 		RenderTexture(TEXTURE_DESC& desc);
-		~RenderTexture() { Release(); }
 		DISABLE_COPY(RenderTexture);
 		// Move
 		RenderTexture(RenderTexture&& o);
@@ -69,7 +68,6 @@ namespace engine::gfx
 	public:
 		DepthTexture() = default;
 		DepthTexture(TEXTURE_DESC& desc);
-		~DepthTexture() { Release(); }
 		DISABLE_COPY(DepthTexture);
 		// Move
 		DepthTexture(DepthTexture&& o);

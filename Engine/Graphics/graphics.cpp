@@ -60,13 +60,13 @@ namespace engine::gfx
 		new (&g_uavHeap) DescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, 512);
 
 		shaders::Initialize();
-		//gpass::Initialize();
+		gpass::Initialize();
 	}
 
 	void ShutdownD3D()
 	{
 		// Release all resources
-		//gpass::Shutdown();
+		gpass::Shutdown();
 		shaders::Shutdown();
 		RELEASE(device);
 		RELEASE(dxgiFactory);

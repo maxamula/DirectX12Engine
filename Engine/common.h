@@ -62,3 +62,8 @@ struct Vec4
 {
 	float x, y, z, w;
 };
+
+struct UVec2
+{
+	uint32_t x, y;
+};
