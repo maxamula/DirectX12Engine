@@ -18,10 +18,11 @@ namespace engine::gfx
 			device->CreateCommandAllocator(type, IID_PPV_ARGS(&m_cmdAlloc[i]));
 			wchar_t name[25];
 			swprintf_s(name, L"Command allocator (%d)", i);
+			SET_NAME(m_cmdAlloc[i], name);
 		}	
 		// Create command list
 		device->CreateCommandList(0, type, m_cmdAlloc[0], nullptr, IID_PPV_ARGS(&m_cmdList));
-		m_cmdList->SetName(L"Main command list");
+		SET_NAME(m_cmdList, L"Main command list");
 		m_cmdList->Close();
 		// Create fence
 		device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));

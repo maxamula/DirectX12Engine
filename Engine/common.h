@@ -10,7 +10,7 @@
 #include <assert.h>
 
 // COMPILE SETTINGS
-#define _DEBUG_GRAPHICS
+//#define _DEBUG_GRAPHICS
 
 
 #ifdef _BUILD_ENGINE
@@ -26,6 +26,11 @@
 #define assert_throw(x, msg) if(!(x)) { throw std::exception(msg); }
 #define DEVICE_CHECK assert_throw(device, "Device not initialized")
 #define succeed(x, msg) if(FAILED(x)) { throw std::exception(msg); }
+#ifdef _DEBUG
+#define SET_NAME(x, name) x->SetName(name)
+#else
+#define SET_NAME(x, name) ((void)0)
+#endif
 
 #define WIN32_LEAN_AND_MEAN
 #undef min

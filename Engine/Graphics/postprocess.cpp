@@ -30,10 +30,10 @@ namespace engine::gfx::fx
 
 			RootParameter params[FX_ROOT_PARAM::NUM_ROOT_PARAMS] = {};
 			params[FX_ROOT_PARAM::ROOT_CONSTANSTS].AsConstants(1, D3D12_SHADER_VISIBILITY_ALL, 1);
-			RootSignature rootSig(&params[0], std::size(params));
+			RootSignature rootSig(&params[0], (uint32_t)std::size(params));
 			g_fxRootSig = rootSig.Create();
 			assert(g_fxRootSig);
-			g_fxRootSig->SetName(L"FX Root signature");
+			SET_NAME(g_fxRootSig, L"FX Root signature");
 
 			// PSO
 			struct
@@ -52,7 +52,7 @@ namespace engine::gfx::fx
 			stream.rtvFormats = rtvFormats;
 
 			g_fxPso = CreatePSO(&stream, sizeof(stream));
-			g_fxPso->SetName(L"FX PSO");
+			SET_NAME(g_fxPso, L"FX PSO");
 
 			return g_fxPso && g_fxRootSig;
 		}

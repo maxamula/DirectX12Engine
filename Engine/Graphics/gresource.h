@@ -49,7 +49,7 @@ namespace engine::gfx
 
 		Texture(TEXTURE_DESC& desc);
 		// DESTRUCTOR
-		~Texture() { assert_throw(!m_res, "Texture was not released"); }
+		~Texture() { assert(!m_res); }
 
 		inline void Update(D3D12_SHADER_RESOURCE_VIEW_DESC* pSrvDesc = nullptr) { device->CreateShaderResourceView(m_res, pSrvDesc, m_srv.CPU); }
 		inline ID3D12Resource* Resource() const { return m_res; }

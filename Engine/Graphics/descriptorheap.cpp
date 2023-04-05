@@ -14,7 +14,7 @@ namespace engine::gfx
 
 	DescriptorHeap::~DescriptorHeap()
 	{
-		assert_throw(m_heap.get() == NULL, "Descriptor heap wasn't released properly.");
+		assert(m_heap.get() == NULL);
 	}
 
 	void DescriptorHeap::Release()
@@ -25,7 +25,7 @@ namespace engine::gfx
 	DESCRIPTOR_HANDLE DescriptorHeap::Allocate()
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
-		size_t index = _GetFreeIndex();
+		uint32_t index = _GetFreeIndex();
 		assert_throw(index != -1, "Descriptor heap is full.");
 		m_available[index] = false;
 		DESCRIPTOR_HANDLE handle;
@@ -44,9 +44,9 @@ namespace engine::gfx
 		m_available[handle.index] = true;
 	}
 
-	size_t DescriptorHeap::_GetFreeIndex() const
+	uint32_t DescriptorHeap::_GetFreeIndex() const
 	{
-		for (size_t i = 0; i < m_cap; i++)
+		for (uint32_t i = 0; i < m_cap; i++)
 		{
 			if (m_available[i])
 			{

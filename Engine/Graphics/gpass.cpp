@@ -45,7 +45,7 @@ namespace engine::gfx::gpass
 				texDesc.clearValue.Format = desc.Format;
 				memcpy(&texDesc.clearValue.Color, &CLEAR_COLOR[0], sizeof(float) * std::size(CLEAR_COLOR));
 				g_mainBuffer = RenderTexture(texDesc);
-				g_mainBuffer.Resource()->SetName(L"GPass Main Buffer");
+				SET_NAME(g_mainBuffer.Resource(), L"GPass Main Buffer");
 			}
 
 			desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
@@ -70,10 +70,10 @@ namespace engine::gfx::gpass
 			assert_throw(!g_gpassPso && !g_gpassRootsig, "GPass PSO or root signature already created");
 			RootParameter params[1] = {};
 			params[0].AsConstants(1, D3D12_SHADER_VISIBILITY_ALL, 1);
-			RootSignature rootSig(&params[0], std::size(params));
+			RootSignature rootSig(&params[0], (uint32_t)std::size(params));
 			g_gpassRootsig = rootSig.Create();
 			assert(g_gpassRootsig);
-			g_gpassRootsig->SetName(L"GPass Root signature");
+			SET_NAME(g_gpassRootsig, L"GPass Root signature");
 
 			// PSO
 			struct
@@ -94,7 +94,7 @@ namespace engine::gfx::gpass
 			stream.rtvFormats = rtvFormats;
 
 			g_gpassPso = CreatePSO(&stream, sizeof(stream));
-			g_gpassPso->SetName(L"GPASS PSO");
+			SET_NAME(g_gpassPso, L"GPass PSO");
 
 			return g_gpassPso && g_gpassRootsig;
 		}

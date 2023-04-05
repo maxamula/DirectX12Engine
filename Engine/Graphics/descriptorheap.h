@@ -10,8 +10,8 @@ namespace engine::gfx
 	struct DESCRIPTOR_HANDLE
 	{
 		friend class DescriptorHeap;
-		D3D12_CPU_DESCRIPTOR_HANDLE CPU;
-		D3D12_GPU_DESCRIPTOR_HANDLE GPU;
+		D3D12_CPU_DESCRIPTOR_HANDLE CPU = {};
+		D3D12_GPU_DESCRIPTOR_HANDLE GPU = {};
 		inline uint32_t GetIndex() const { return index; }
 	private:
 		uint32_t index = -1;
@@ -30,7 +30,7 @@ namespace engine::gfx
 		inline ID3D12DescriptorHeap* GetDescriptorHeap() const { return m_heap->Heap(); }
 		inline size_t GetNumDescriptors() const { return m_size; }
 	private:
-		size_t _GetFreeIndex() const;
+		uint32_t _GetFreeIndex() const;
 		std::unique_ptr<DirectX::DescriptorHeap> m_heap = {};
 		boost::dynamic_bitset<unsigned int> m_available;
 		std::mutex m_mutex;

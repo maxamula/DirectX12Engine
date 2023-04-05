@@ -195,7 +195,7 @@ namespace engine::gfx
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		if (desc.pResDesc->Format == DXGI_FORMAT_D32_FLOAT)
 		{
-			desc.pResDesc->Format == DXGI_FORMAT_R32_TYPELESS;
+			desc.pResDesc->Format = DXGI_FORMAT_R32_TYPELESS;
 			srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		}
 

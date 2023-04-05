@@ -21,7 +21,7 @@ namespace engine::gfx
 		RenderSurface(RenderSurface&&) = delete;
 		RenderSurface& operator=(RenderSurface&&) = delete;
 		RenderSurface(HWND hWnd, unsigned short width, unsigned short height);
-		~RenderSurface() { assert_throw(m_pSwap == NULL, "RenderSurface not released!"); }
+		~RenderSurface() { assert(m_pSwap == NULL); }
 
 		inline void Present()
 		{

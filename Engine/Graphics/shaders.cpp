@@ -76,7 +76,7 @@ namespace engine
 				L"-Qstrip_debug"
 			};
 			IDxcResult* compileResult = nullptr;
-			succeed(m_compiler->Compile(&buffer, args, std::size(args), m_includeHandler, IID_PPV_ARGS(&compileResult)), "Failed to compile shader");
+			succeed(m_compiler->Compile(&buffer, args, _countof(args), m_includeHandler, IID_PPV_ARGS(&compileResult)), "Failed to compile shader");
 			assert(compileResult);
 			IDxcBlob* shader = nullptr;
 			IDxcBlobEncoding* errorBuffer = nullptr;
@@ -110,7 +110,7 @@ namespace engine
 				{
 					std::string_view view = nameof::nameof_enum<ENGINE_SHADER::id>(static_cast<ENGINE_SHADER::id>(shaderIndex));
 					wchar_t resourceName[MAX_RESOURSE_NAME];
-					MultiByteToWideChar(CP_UTF8, 0, view.data(), view.size(), resourceName, MAX_RESOURSE_NAME);
+					MultiByteToWideChar(CP_UTF8, 0, view.data(), (int)view.size(), resourceName, MAX_RESOURSE_NAME);
 					resourceName[view.size()] = L'\0';
 					HRSRC resource = FindResource(engine::g_hInstance, resourceName, L"ENGINE_SHADER");
 					// load resource in memory

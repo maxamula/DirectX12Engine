@@ -65,7 +65,7 @@ namespace engine::gfx
 				}
 			}
 		}
-		device->SetName(L"Device");
+		SET_NAME(device, L"Device");
 
 		new (&g_cmdQueue) CommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
 

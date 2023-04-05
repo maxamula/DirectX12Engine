@@ -150,7 +150,7 @@ namespace engine::gfx
 			succeed(m_pSwap->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_renderTargets[i].resource), "Failed to get back buffer.");
 			wchar_t name[17];
 			swprintf_s(name, L"Backbuffer (%d)", i);
-			m_renderTargets[i].resource->SetName(name);
+			SET_NAME(m_renderTargets[i].resource, name);
 			D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 			rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 			rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
@@ -169,7 +169,7 @@ namespace engine::gfx
 			succeed(m_pSwap->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_renderTargets[i].resource), "Failed to get backbuffer.");
 			wchar_t name[17];
 			swprintf_s(name, L"Backbuffer (%d)", i);
-			m_renderTargets[i].resource->SetName(name);
+			SET_NAME(m_renderTargets[i].resource, name);
 			m_renderTargets[i].allocation = g_rtvHeap.Allocate();
 			D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 			rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
