@@ -23,6 +23,9 @@
 #define SAFE_DELETE(p) { if(p) { delete p; p = nullptr; } }
 #define DISABLE_MOVE_COPY(class_name) class_name(const class_name&) = delete; class_name& operator=(const class_name&) = delete; class_name(class_name&&) = delete; class_name& operator=(class_name&&) = delete;
 #define DISABLE_COPY(class_name) class_name(const class_name&) = delete; class_name& operator=(const class_name&) = delete;
+#define assert_throw(x, msg) if(!(x)) { throw std::exception(msg); }
+#define DEVICE_CHECK assert_throw(device, "Device not initialized")
+#define succeed(x, msg) if(FAILED(x)) { throw std::exception(msg); }
 
 #define WIN32_LEAN_AND_MEAN
 #undef min

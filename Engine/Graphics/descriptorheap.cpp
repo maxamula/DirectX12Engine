@@ -4,7 +4,7 @@ namespace engine::gfx
 {
 	DescriptorHeap::DescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags, size_t capacity)
 	{
-		assert(device);
+		DEVICE_CHECK;
 		m_cap = capacity;
 		m_heap = std::make_unique<DirectX::DescriptorHeap>(device, type, flags, capacity);
 		m_available = boost::dynamic_bitset<unsigned int>(capacity);
@@ -14,7 +14,7 @@ namespace engine::gfx
 
 	DescriptorHeap::~DescriptorHeap()
 	{
-		assert(m_heap.get() == NULL);
+		assert_throw(m_heap.get() == NULL, "Descriptor heap wasn't released properly.");
 	}
 
 	void DescriptorHeap::Release()
@@ -26,7 +26,7 @@ namespace engine::gfx
 	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 		size_t index = _GetFreeIndex();
-		assert(index != -1);
+		assert_throw(index != -1, "Descriptor heap is full.");
 		m_available[index] = false;
 		DESCRIPTOR_HANDLE handle;
 		handle.index = index;
@@ -40,7 +40,7 @@ namespace engine::gfx
 		if ((int)handle.index == -1)
 			return;
 		std::lock_guard<std::mutex> lock(m_mutex);
-		assert(handle.index < m_cap);
+		assert_throw(handle.index < m_cap, "Descriptor handle is out of range.");
 		m_available[handle.index] = true;
 	}
 

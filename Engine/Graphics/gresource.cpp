@@ -64,14 +64,14 @@ namespace engine::gfx
 	Texture::Texture(Texture&& o)
 		: m_res(o.m_res), m_srv(o.m_srv)
 	{
-		assert(this != &o);
+		assert_throw(this != &o, "Self assignment");
 		o.m_res = nullptr;
 		o.m_srv = {};
 	}
 
 	Texture& Texture::operator=(Texture&& o)
 	{
-		assert(this != &o);
+		assert_throw(this != &o, "Self assignment");
 		Release();
 		m_res = o.m_res;
 		m_srv = o.m_srv;
@@ -82,7 +82,7 @@ namespace engine::gfx
 
 	Texture::Texture(TEXTURE_DESC& desc)
 	{
-		assert(device);
+		DEVICE_CHECK;
 		D3D12_CLEAR_VALUE* clearVal = (desc.pResDesc->Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET || desc.pResDesc->Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) ? &desc.clearValue : nullptr;
 
 		if (desc.resource)
@@ -91,7 +91,7 @@ namespace engine::gfx
 		}
 		else if (desc.pHeap)
 		{
-			assert(device->CreatePlacedResource(desc.pHeap, desc.allocInfo.Offset, desc.pResDesc, desc.initialState, clearVal, IID_PPV_ARGS(&m_res)) == S_OK);
+			succeed(device->CreatePlacedResource(desc.pHeap, desc.allocInfo.Offset, desc.pResDesc, desc.initialState, clearVal, IID_PPV_ARGS(&m_res)), "Failed to create placed resource");
 		}
 		else
 		{
@@ -103,7 +103,7 @@ namespace engine::gfx
 				0,
 				0
 			};
-			assert(device->CreateCommittedResource(&defaultHeap, D3D12_HEAP_FLAG_NONE, desc.pResDesc, desc.initialState, clearVal, IID_PPV_ARGS(&m_res)) == S_OK);
+			succeed(device->CreateCommittedResource(&defaultHeap, D3D12_HEAP_FLAG_NONE, desc.pResDesc, desc.initialState, clearVal, IID_PPV_ARGS(&m_res)), "Failed to create committed resource");
 		}
 		
 		assert(m_res);
@@ -124,7 +124,7 @@ namespace engine::gfx
 		: m_tex{desc}
 	{
 		m_mipCount = Resource()->GetDesc().MipLevels;
-		assert(m_mipCount && m_mipCount < MAX_MIPS);
+		assert_throw(m_mipCount && m_mipCount < MAX_MIPS, "Failed to create texture. Invalid mip count.");
 
 		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 		rtvDesc.Format = desc.pResDesc->Format;
@@ -141,7 +141,7 @@ namespace engine::gfx
 	RenderTexture::RenderTexture(RenderTexture&& o)
 		: m_tex(std::move(o.m_tex)), m_mipCount(o.m_mipCount)
 	{
-		assert(this != &o);
+		assert_throw(this != &o, "Self assignment");
 		for (uint32_t i = 0; i < MAX_MIPS; ++i)
 			m_rtv[i] = o.m_rtv[i];
 		o.m_mipCount = 0;
@@ -151,7 +151,7 @@ namespace engine::gfx
 
 	RenderTexture& RenderTexture::operator=(RenderTexture&& o)
 	{
-		assert(this != &o);
+		assert_throw(this != &o, "Self assignment");
 		m_tex.Release();
 		m_tex = std::move(o.m_tex);
 		m_mipCount = o.m_mipCount;
@@ -206,7 +206,7 @@ namespace engine::gfx
 		srvDesc.Texture2D.PlaneSlice = 0;
 		srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-		assert(!desc.pSrvDesc);
+		assert_throw(!desc.pSrvDesc, "Depth texture cannot have a custom SRV description");
 		desc.pSrvDesc = &srvDesc;
 		m_tex = Texture(desc);
 
@@ -223,13 +223,13 @@ namespace engine::gfx
 	DepthTexture::DepthTexture(DepthTexture&& o)
 		: m_tex(std::move(o.m_tex)), m_dsv(o.m_dsv)
 	{
-		assert(this != &o);
+		assert_throw(this != &o, "Self assignment");
 		o.m_dsv = {};
 	}
 
 	DepthTexture& DepthTexture::operator=(DepthTexture&& o)
 	{
-		assert(this != &o);
+		assert_throw(this != &o, "Self assignment");
 		m_tex.Release();
 		m_tex = std::move(o.m_tex);
 		m_dsv = o.m_dsv;

@@ -49,7 +49,7 @@ namespace engine::gfx
 
 		Texture(TEXTURE_DESC& desc);
 		// DESTRUCTOR
-		~Texture() { assert(!m_res); }
+		~Texture() { assert_throw(!m_res, "Texture was not released"); }
 
 		inline void Update(D3D12_SHADER_RESOURCE_VIEW_DESC* pSrvDesc = nullptr) { device->CreateShaderResourceView(m_res, pSrvDesc, m_srv.CPU); }
 		inline ID3D12Resource* Resource() const { return m_res; }
@@ -76,7 +76,7 @@ namespace engine::gfx
 		inline ID3D12Resource* Resource() const { return m_tex.Resource(); }
 		inline void Update(D3D12_SHADER_RESOURCE_VIEW_DESC* pSrvDesc = nullptr) { m_tex.Update(pSrvDesc); }
 		inline DESCRIPTOR_HANDLE SRVAllocation() const { return m_tex.SRVAllocation(); }
-		inline D3D12_CPU_DESCRIPTOR_HANDLE RTVAllocation(uint32_t mip) const { assert(mip <= m_mipCount); return m_rtv[mip].CPU; }
+		inline D3D12_CPU_DESCRIPTOR_HANDLE RTVAllocation(uint32_t mip) const { assert_throw(mip <= m_mipCount, "Mip level out of range"); return m_rtv[mip].CPU; }
 		inline uint32_t MipCount() const { return m_mipCount; }
 	private:
 		uint32_t _CalculateMipLevels(uint32_t width, uint32_t height);

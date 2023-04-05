@@ -64,45 +64,55 @@ namespace engine::gfx::gpass
 			}
 			return g_mainBuffer.Resource() && g_depthBuffer.Resource();
 		}
+
+		bool CreatePsoAndRootsig()
+		{
+			assert_throw(!g_gpassPso && !g_gpassRootsig, "GPass PSO or root signature already created");
+			RootParameter params[1] = {};
+			params[0].AsConstants(1, D3D12_SHADER_VISIBILITY_ALL, 1);
+			RootSignature rootSig(&params[0], std::size(params));
+			g_gpassRootsig = rootSig.Create();
+			assert(g_gpassRootsig);
+			g_gpassRootsig->SetName(L"GPass Root signature");
+
+			// PSO
+			struct
+			{
+				SubRootSignature rootSig{ g_gpassRootsig };
+				SubVertexShader vs{ shaders::GetEngineShader(shaders::ENGINE_SHADER::VS_FULLSCREEN) };
+				SubPixelShader ps{ shaders::GetEngineShader(shaders::ENGINE_SHADER::PS_FILLCOLOR) };
+				SubPrimitiveTopology topology{ D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE };
+				SubRenderTargetFormats rtvFormats;
+				SubDepthStenciFormat dsvFormat{ g_depthBufferFormat };
+				SubRasterizer rasterizer{ gfx::RASTERIZER_STATE.NO_CULL };
+				SubDepthStencil1 depthStencil{ gfx::DEPTH_STATE.DISABLED };
+			} stream;
+			D3D12_RT_FORMAT_ARRAY rtvFormats = {};
+			rtvFormats.NumRenderTargets = 1;
+			rtvFormats.RTFormats[0] = g_mainBufferFormat;
+
+			stream.rtvFormats = rtvFormats;
+
+			g_gpassPso = CreatePSO(&stream, sizeof(stream));
+			g_gpassPso->SetName(L"GPASS PSO");
+
+			return g_gpassPso && g_gpassRootsig;
+		}
 	}
 
-	bool CreatePsoAndRootsig()
-	{
-		assert(!g_gpassPso && !g_gpassRootsig);
-		RootParameter params[1] = {};
-		params[0].AsConstants(1, D3D12_SHADER_VISIBILITY_ALL, 1);
-		RootSignature rootSig(&params[0], std::size(params));
-		g_gpassRootsig = rootSig.Create();
-		assert(g_gpassRootsig);
-		g_gpassRootsig->SetName(L"GPass Root signature");
-
-		// PSO
-		struct
-		{			
-			SubRootSignature rootSig{g_gpassRootsig};
-			SubVertexShader vs{ shaders::GetEngineShader(shaders::ENGINE_SHADER::VS_FULLSCREEN) };
-			SubPixelShader ps{ shaders::GetEngineShader(shaders::ENGINE_SHADER::PS_FILLCOLOR) };
-			SubPrimitiveTopology topology{ D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE };
-			SubRenderTargetFormats rtvFormats;
-			SubDepthStenciFormat dsvFormat{ g_depthBufferFormat };
-			SubRasterizer rasterizer{ gfx::RASTERIZER_STATE.NO_CULL };
-			SubDepthStencil1 depthStencil{ gfx::DEPTH_STATE.DISABLED };
-		} stream;
-		D3D12_RT_FORMAT_ARRAY rtvFormats = {};
-		rtvFormats.NumRenderTargets = 1;
-		rtvFormats.RTFormats[0] = g_mainBufferFormat;
-
-		stream.rtvFormats = rtvFormats;
-
-		g_gpassPso = CreatePSO(&stream, sizeof(stream));
-		g_gpassPso->SetName(L"GPASS PSO");
-
-		return g_gpassPso && g_gpassRootsig;
-	}
+	
 
 	bool Initialize()
 	{
-		return CreateBuffers(g_geomBufferSize) && CreatePsoAndRootsig();
+		try
+		{
+			return CreateBuffers(g_geomBufferSize) && CreatePsoAndRootsig();
+		}
+		catch (const std::exception& e)
+		{
+			LOG_ERROR("Failed to initialize GPass: {}", e.what());
+			return false;
+		}
 	}
 
 	void Shutdown()
@@ -120,7 +130,7 @@ namespace engine::gfx::gpass
 		if (width > g_geomBufferSize.x || height > g_geomBufferSize.y)
 		{
 			g_geomBufferSize = {std::max(width, g_geomBufferSize.x), std::max(height, g_geomBufferSize.y) };
-			assert(CreateBuffers(g_geomBufferSize));
+			assert_throw(CreateBuffers(g_geomBufferSize), "Failed to create GPass buffers");
 		}
 	}
 

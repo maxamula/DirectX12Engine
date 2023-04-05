@@ -5,10 +5,7 @@
 #include "shaders.h"
 #include "gpass.h"
 
-namespace engine::gfx
-{
-	extern DESCRIPTOR_HANDLE texx;
-}
+
 namespace engine::gfx::fx
 {
 	namespace
@@ -27,7 +24,7 @@ namespace engine::gfx::fx
 
 		bool FxCreatePSOAndRootsig()
 		{
-			assert(!g_fxRootSig && !g_fxPso);
+			assert_throw(!g_fxRootSig && !g_fxPso, "FX PSO or rootsig already created");
 
 			DescriptorRange range { D3D12_DESCRIPTOR_RANGE_TYPE_SRV, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE };
 
@@ -58,13 +55,20 @@ namespace engine::gfx::fx
 			g_fxPso->SetName(L"FX PSO");
 
 			return g_fxPso && g_fxRootSig;
-			return true;
 		}
 	}
 
 	bool Initialize()
 	{
-		return FxCreatePSOAndRootsig();
+		try
+		{
+			return FxCreatePSOAndRootsig();
+		}
+		catch (const std::exception& e)
+		{
+			LOG_ERROR("Failed to initialize FX: {}", e.what());
+			return false;
+		}
 	}
 
 	void Shutdown()

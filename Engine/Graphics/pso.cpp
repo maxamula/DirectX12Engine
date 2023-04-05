@@ -4,7 +4,7 @@ namespace engine::gfx
 {
 	ID3D12PipelineState* CreatePSO(void* stream, uint64_t size)
 	{
-		assert(stream && size);
+		assert_throw(stream && size, "Invalid PSO stream.");
 		D3D12_PIPELINE_STATE_STREAM_DESC desc = {};
 		desc.pPipelineStateSubobjectStream = stream;
 		desc.SizeInBytes = size;

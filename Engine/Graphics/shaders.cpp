@@ -37,9 +37,9 @@ namespace engine
 
 		ShaderCompiler::ShaderCompiler()
 		{
-			assert(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&m_compiler)) == S_OK);
-			assert(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&m_utils)) == S_OK);
-			assert(m_utils->CreateDefaultIncludeHandler(&m_includeHandler) == S_OK);
+			succeed(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&m_compiler)), "Failed to create dxc compiler");
+			succeed(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&m_utils)), "Failed to create dxc utils");
+			succeed(m_utils->CreateDefaultIncludeHandler(&m_includeHandler), "Failed to create default include handler");
 		}
 
 		ShaderCompiler::~ShaderCompiler()
@@ -52,7 +52,7 @@ namespace engine
 		IDxcBlob* ShaderCompiler::CompileShader(const void* pShaderSource, uint32_t size, SHADER_TYPE::type shaderType)
 		{
 			IDxcBlobEncoding* shaderSource = nullptr;
-			assert(m_utils->CreateBlobFromPinned(pShaderSource, size, CP_UTF8, &shaderSource) == S_OK);
+			succeed(m_utils->CreateBlobFromPinned(pShaderSource, size, CP_UTF8, &shaderSource), "Failed to create blob from pinned");
 			assert(shaderSource);
 			//create dxcbuffer
 			DxcBuffer buffer;
@@ -76,7 +76,7 @@ namespace engine
 				L"-Qstrip_debug"
 			};
 			IDxcResult* compileResult = nullptr;
-			assert(m_compiler->Compile(&buffer, args, std::size(args), m_includeHandler, IID_PPV_ARGS(&compileResult)) == S_OK);
+			succeed(m_compiler->Compile(&buffer, args, std::size(args), m_includeHandler, IID_PPV_ARGS(&compileResult)), "Failed to compile shader");
 			assert(compileResult);
 			IDxcBlob* shader = nullptr;
 			IDxcBlobEncoding* errorBuffer = nullptr;
@@ -85,8 +85,7 @@ namespace engine
 				LOG_ERROR("Shader compilation error: {}", (char*)errorBuffer->GetBufferPointer());
 			errorBuffer->Release();
 
-			assert(compileResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shader), nullptr) == S_OK);
-				
+			succeed(compileResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shader), nullptr), "Failed to get shader output");
 			// Release interfaces
 			RELEASE(shaderSource);
 			RELEASE(compileResult);
@@ -95,7 +94,7 @@ namespace engine
 
 		D3D12_SHADER_BYTECODE GetEngineShader(ENGINE_SHADER::id id)
 		{
-			assert(id < ENGINE_SHADER::NUM_SHADERS);
+			assert_throw(id < ENGINE_SHADER::NUM_SHADERS, "Invalid shader id");
 			IDxcBlob* shader = g_engineShaders[id];
 			assert(shader && shader->GetBufferSize());
 			return { shader->GetBufferPointer(), shader->GetBufferSize() };
@@ -103,36 +102,46 @@ namespace engine
 
 		bool Initialize()
 		{
-			bool res = true;
-			// loop through all dll resources
-			for (uint32_t shaderIndex = 0; shaderIndex < ENGINE_SHADER::NUM_SHADERS; shaderIndex++)
+			try
 			{
-				std::string_view view = nameof::nameof_enum<ENGINE_SHADER::id>(static_cast<ENGINE_SHADER::id>(shaderIndex));
-				wchar_t resourceName[MAX_RESOURSE_NAME];
-				MultiByteToWideChar(CP_UTF8, 0, view.data(), view.size(), resourceName, MAX_RESOURSE_NAME);
-				resourceName[view.size()] = L'\0';
-				HRSRC resource = FindResource(engine::g_hInstance, resourceName, L"ENGINE_SHADER");
-				// load resource in memory
-				assert(resource);
-				HGLOBAL resourceData = LoadResource(engine::g_hInstance, resource);
-				assert(resourceData);
-				const void* data = LockResource(resourceData);
-				// get resource size
-				uint32_t size = SizeofResource(engine::g_hInstance, resource);
-				
-				ShaderCompiler compiler{};
-				//compile shader
-				auto blob = compiler.CompileShader(data, size, GetShaderTypeFromName(resourceName));
-				// save shader
-				if (!blob || !blob->GetBufferSize())
-					res = false;
-				g_engineShaders[shaderIndex] = blob;
-				LOG_TRACE("Shader {}(#{}) compiled.", view, shaderIndex);
-				// release resource memory and free resource
-				UnlockResource(resourceData);
-				FreeResource(resourceData);
+				bool res = true;
+				// loop through all dll resources
+				for (uint32_t shaderIndex = 0; shaderIndex < ENGINE_SHADER::NUM_SHADERS; shaderIndex++)
+				{
+					std::string_view view = nameof::nameof_enum<ENGINE_SHADER::id>(static_cast<ENGINE_SHADER::id>(shaderIndex));
+					wchar_t resourceName[MAX_RESOURSE_NAME];
+					MultiByteToWideChar(CP_UTF8, 0, view.data(), view.size(), resourceName, MAX_RESOURSE_NAME);
+					resourceName[view.size()] = L'\0';
+					HRSRC resource = FindResource(engine::g_hInstance, resourceName, L"ENGINE_SHADER");
+					// load resource in memory
+					assert(resource);
+					HGLOBAL resourceData = LoadResource(engine::g_hInstance, resource);
+					assert(resourceData);
+					const void* data = LockResource(resourceData);
+					// get resource size
+					uint32_t size = SizeofResource(engine::g_hInstance, resource);
+
+					ShaderCompiler compiler{};
+					assert(data);
+					//compile shader
+					auto blob = compiler.CompileShader(data, size, GetShaderTypeFromName(resourceName));
+					// save shader
+					if (!blob || !blob->GetBufferSize())
+						res = false;
+					g_engineShaders[shaderIndex] = blob;
+					LOG_TRACE("Shader {}(#{}) compiled.", view, shaderIndex);
+					// release resource memory and free resource
+					UnlockResource(resourceData);
+					FreeResource(resourceData);
+				}
+				return res;
 			}
-			return res;
+			catch (const std::exception& ex)
+			{
+				LOG_ERROR("Failed to initialize shader compiler: {}", ex.what());
+				return false;
+			}
+			
 		}
 
 		void Shutdown()

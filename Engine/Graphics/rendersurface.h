@@ -21,7 +21,7 @@ namespace engine::gfx
 		RenderSurface(RenderSurface&&) = delete;
 		RenderSurface& operator=(RenderSurface&&) = delete;
 		RenderSurface(HWND hWnd, unsigned short width, unsigned short height);
-		~RenderSurface() { assert(m_pSwap == NULL); };
+		~RenderSurface() { assert_throw(m_pSwap == NULL, "RenderSurface not released!"); }
 
 		inline void Present()
 		{
@@ -31,7 +31,7 @@ namespace engine::gfx
 
 		inline D3D12_CPU_DESCRIPTOR_HANDLE RTVHandle(uint32_t index)
 		{
-			assert(index < BACKBUFFER_COUNT);
+			assert_throw(index < BACKBUFFER_COUNT, "Invalid backbuffer index!");
 			return m_renderTargets[index].allocation.CPU;
 		}
 

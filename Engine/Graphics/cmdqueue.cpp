@@ -4,7 +4,7 @@ namespace engine::gfx
 {
 	CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE type)
 	{
-		assert(device);
+		DEVICE_CHECK;
 		// Create command queue
 		D3D12_COMMAND_QUEUE_DESC cmdQueueDesc = {};
 		cmdQueueDesc.Type = type;
@@ -30,7 +30,7 @@ namespace engine::gfx
 
 	CommandQueue::~CommandQueue()
 	{
-		assert(!m_cmdQueue);
+		assert_throw(!m_cmdQueue, "Command queue wasn't released properly.");
 	}
 
 	void CommandQueue::BeginFrame()

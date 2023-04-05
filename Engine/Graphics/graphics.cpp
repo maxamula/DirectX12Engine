@@ -33,8 +33,12 @@ namespace engine::gfx
 			LOG_TRACE("Debug layer enabled");
 		}
 		#endif
-		// Shutdown if initialize
-		if (device) ShutdownD3D();
+		// Shutdown if initialized
+		if (device)
+		{
+			LOG_WARN("Graphics already initialized, shutting down...");
+			ShutdownD3D();
+		}
 		// Select adapter
 		{
 			// Create factory
@@ -71,11 +75,11 @@ namespace engine::gfx
 		new (&g_uavHeap) DescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, 512);
 
 		LOG_DEBUG("Compiling shaders...");
-		if (!shaders::Initialize()) { LOG_ERROR("Failed to initialize shaders"); }
+		if(!shaders::Initialize()) { LOG_CRITICAL("Failed to initialize shaders"); }
 		LOG_DEBUG("Initializing gpass...");
 		if (!gpass::Initialize()) { LOG_CRITICAL("Failed to initialize GPAss"); }
 		LOG_DEBUG("Initializing fx...");
-		if (!fx::Initialize()) { LOG_CRITICAL("Failed to initialize GPAss"); }
+		if (!fx::Initialize()) { LOG_CRITICAL("Failed to initialize FX"); }
 
 		IMGUI_CHECKVERSION();
 		LOG_INFO("Graphics initialized");

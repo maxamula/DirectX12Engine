@@ -38,7 +38,6 @@
     <ClCompile Include="Graphics\descriptorheap.cpp" />
     <ClCompile Include="window.cpp" />
     <ClCompile Include="Graphics\shaders.cpp" />
-    <ClCompile Include="Graphics\dllmain.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="scenegraph.cpp" />
     <ClCompile Include="components.cpp" />

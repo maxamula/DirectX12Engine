@@ -57,6 +57,7 @@ namespace engine
 				ShowWindow(m_hWnd, SW_SHOWNORMAL);
 			}
 			_UpdateSize();
+			m_flagShouldResize = false;
 		}
 
 		void CloseWnd() override

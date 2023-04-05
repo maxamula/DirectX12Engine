@@ -10,15 +10,15 @@ namespace engine::gfx::overlay
         LOG_DEBUG("Initializing ImGui..."); 
         ImGuiContext* context = ImGui::CreateContext();
         ImGui::SetCurrentContext(context);
-        assert(context);
+        assert_throw(context, "Failed to create ImGui context.");
         assert(s_imguiHeaps.find(context) == s_imguiHeaps.end());
         //ImGui::StyleColorsLight();
         ImGui::StyleColorsClassic();
 
         gfx::DESCRIPTOR_HANDLE allocation = g_srvHeap.Allocate();
 
-        assert(ImGui_ImplWin32_Init(hWnd));
-        assert(ImGui_ImplDX12_Init(device, BACKBUFFER_COUNT, DXGI_FORMAT_R8G8B8A8_UNORM, g_srvHeap.GetDescriptorHeap(), allocation.CPU, allocation.GPU));
+        ImGui_ImplWin32_Init(hWnd);
+        ImGui_ImplDX12_Init(device, BACKBUFFER_COUNT, DXGI_FORMAT_R8G8B8A8_UNORM, g_srvHeap.GetDescriptorHeap(), allocation.CPU, allocation.GPU);
 
         s_imguiHeaps[context] = allocation;
 
@@ -29,7 +29,7 @@ namespace engine::gfx::overlay
     {
         if (!context) return;
         auto it = s_imguiHeaps.find(context);
-        assert(it != s_imguiHeaps.end());
+        assert_throw(it != s_imguiHeaps.end(), "Overlay release error. ImGui context not found.");
         
         ImGui::SetCurrentContext(context);
 		ImGui_ImplDX12_Shutdown();

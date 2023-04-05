@@ -79,9 +79,7 @@ namespace engine::gfx
 		cmd->RSSetScissorRects(1, &m_scissiors);
 		ID3D12DescriptorHeap* heaps[] = { g_srvHeap.GetDescriptorHeap() };
 		cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-		TransitionResource(cmd, backBuffer, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		const float clear_color_with_alpha[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-		cmd->ClearRenderTargetView(m_renderTargets[m_backBufferIndex].allocation.CPU, clear_color_with_alpha, 0, NULL);
+		g_resourceBarriers.Add(backBuffer, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		
 
 #pragma region Depth prepass
@@ -142,14 +140,25 @@ namespace engine::gfx
 		for (int i = 0; i < BACKBUFFER_COUNT; ++i)
 		{
 			RELEASE(m_renderTargets[i].resource);
-			g_rtvHeap.Free(m_renderTargets[i].allocation);
-			m_renderTargets[i].allocation = {};
 		}
-		g_cmdQueue.Flush(); //  THIS WORKS IDK WHY
-		HRESULT hr = m_pSwap->ResizeBuffers(BACKBUFFER_COUNT, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
-		assert(SUCCEEDED(hr));
+		g_cmdQueue.Flush();
+		succeed(m_pSwap->ResizeBuffers(BACKBUFFER_COUNT, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0), "Failed to resize swap chain.");
 		m_backBufferIndex = m_pSwap->GetCurrentBackBufferIndex();
-		_CreateRendertargetViews();
+
+		for (int i = 0; i < BACKBUFFER_COUNT; ++i)
+		{
+			succeed(m_pSwap->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_renderTargets[i].resource), "Failed to get back buffer.");
+			wchar_t name[17];
+			swprintf_s(name, L"Backbuffer (%d)", i);
+			m_renderTargets[i].resource->SetName(name);
+			D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
+			rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+			rtvDesc.Texture2D.MipSlice = 0;
+			rtvDesc.Texture2D.PlaneSlice = 0;
+			device->CreateRenderTargetView(m_renderTargets[i].resource, &rtvDesc, m_renderTargets[i].allocation.CPU);
+		}
+		LOG_TRACE("D3D12 Surface resized.");
 	}
 
 	void RenderSurface::_CreateRendertargetViews()
@@ -157,8 +166,7 @@ namespace engine::gfx
 		assert(m_pSwap != NULL);
 		for (int i = 0; i < BACKBUFFER_COUNT; ++i)
 		{
-			HRESULT hr = m_pSwap->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_renderTargets[i].resource);
-			assert(SUCCEEDED(hr));
+			succeed(m_pSwap->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_renderTargets[i].resource), "Failed to get backbuffer.");
 			wchar_t name[17];
 			swprintf_s(name, L"Backbuffer (%d)", i);
 			m_renderTargets[i].resource->SetName(name);

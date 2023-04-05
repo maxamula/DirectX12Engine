@@ -54,7 +54,6 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="Graphics\gpass.cpp" />
-    <ClCompile Include="Graphics\dllmain.cpp" />
     <ClCompile Include="Graphics\descriptorheap.cpp" />
     <ClCompile Include="Graphics\cmdqueue.cpp" />
     <ClCompile Include="Graphics\graphics.cpp" />
