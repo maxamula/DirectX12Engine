@@ -79,28 +79,35 @@ namespace engine
 			assert(m_compiler->Compile(&buffer, args, std::size(args), m_includeHandler, IID_PPV_ARGS(&compileResult)) == S_OK);
 			assert(compileResult);
 			IDxcBlob* shader = nullptr;
-			assert(compileResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shader), nullptr) == S_OK);
+			IDxcBlobEncoding* errorBuffer = nullptr;
+			compileResult->GetErrorBuffer(&errorBuffer);
+			if (errorBuffer->GetBufferSize())
+				LOG_ERROR("Shader compilation error: {}", (char*)errorBuffer->GetBufferPointer());
+			errorBuffer->Release();
 
+			assert(compileResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shader), nullptr) == S_OK);
+				
 			// Release interfaces
 			RELEASE(shaderSource);
 			RELEASE(compileResult);
 			return shader;
 		}	
 
-		IDxcBlob* GetEngineShader(ENGINE_SHADER::id id)
+		D3D12_SHADER_BYTECODE GetEngineShader(ENGINE_SHADER::id id)
 		{
 			assert(id < ENGINE_SHADER::NUM_SHADERS);
 			IDxcBlob* shader = g_engineShaders[id];
 			assert(shader && shader->GetBufferSize());
-			return shader;
+			return { shader->GetBufferPointer(), shader->GetBufferSize() };
 		}
 
-		void Initialize()
+		bool Initialize()
 		{
+			bool res = true;
 			// loop through all dll resources
 			for (uint32_t shaderIndex = 0; shaderIndex < ENGINE_SHADER::NUM_SHADERS; shaderIndex++)
 			{
-				std::string_view view = nameof::nameof_enum<ENGINE_SHADER::id>(static_cast<ENGINE_SHADER::id>(0));
+				std::string_view view = nameof::nameof_enum<ENGINE_SHADER::id>(static_cast<ENGINE_SHADER::id>(shaderIndex));
 				wchar_t resourceName[MAX_RESOURSE_NAME];
 				MultiByteToWideChar(CP_UTF8, 0, view.data(), view.size(), resourceName, MAX_RESOURSE_NAME);
 				resourceName[view.size()] = L'\0';
@@ -117,11 +124,15 @@ namespace engine
 				//compile shader
 				auto blob = compiler.CompileShader(data, size, GetShaderTypeFromName(resourceName));
 				// save shader
+				if (!blob || !blob->GetBufferSize())
+					res = false;
 				g_engineShaders[shaderIndex] = blob;
+				LOG_TRACE("Shader {}(#{}) compiled.", view, shaderIndex);
 				// release resource memory and free resource
 				UnlockResource(resourceData);
 				FreeResource(resourceData);
 			}
+			return res;
 		}
 
 		void Shutdown()

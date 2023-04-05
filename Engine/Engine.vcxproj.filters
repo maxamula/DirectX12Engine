@@ -19,6 +19,17 @@
     <ClInclude Include="engine.h" />
     <ClInclude Include="Graphics\gresource.h" />
     <ClInclude Include="Graphics\pso.h" />
+    <ClInclude Include="logger.h" />
+    <ClInclude Include="Graphics\overlay.h" />
+    <ClInclude Include="Dependencies\imgui.h" />
+    <ClInclude Include="Dependencies\imgui_impl_dx12.h" />
+    <ClInclude Include="Dependencies\imgui_impl_win32.h" />
+    <ClInclude Include="Dependencies\imconfig.h" />
+    <ClInclude Include="Dependencies\imgui_internal.h" />
+    <ClInclude Include="Dependencies\imstb_rectpack.h" />
+    <ClInclude Include="Dependencies\imstb_textedit.h" />
+    <ClInclude Include="Dependencies\imstb_truetype.h" />
+    <ClInclude Include="Graphics\postprocess.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\graphics.cpp" />
@@ -38,12 +49,19 @@
     <ClCompile Include="Graphics\gresource.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="Graphics\pso.cpp" />
+    <ClCompile Include="logger.cpp" />
+    <ClCompile Include="Graphics\overlay.cpp" />
+    <ClCompile Include="Dependencies\imgui.cpp" />
+    <ClCompile Include="Dependencies\imgui_demo.cpp" />
+    <ClCompile Include="Dependencies\imgui_draw.cpp" />
+    <ClCompile Include="Dependencies\imgui_impl_dx12.cpp" />
+    <ClCompile Include="Dependencies\imgui_impl_win32.cpp" />
+    <ClCompile Include="Dependencies\imgui_widgets.cpp" />
+    <ClCompile Include="Dependencies\imgui_tables.cpp" />
+    <ClCompile Include="Graphics\postprocess.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Graphics\Shaders\Fullscreen.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />

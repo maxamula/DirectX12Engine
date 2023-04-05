@@ -13,8 +13,9 @@ namespace engine
 	public:
 		GameObject& CreateObject() override
 		{
-			GameObject* child = new GameObjectImpl(m_reg, *this);
+			GameObjectImpl* child = new GameObjectImpl(m_reg, *this);
 			m_children.push_back(child);
+			//LOG_DEBUG("dsfdfsfd");
 			return *child;
 		}
 

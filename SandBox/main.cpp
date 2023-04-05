@@ -2,11 +2,11 @@
 #include "common.h"
 #include "engine.h"
 #include "window.h"
+#pragma warning(disable:4996)
 
 using namespace engine;
 
 Window* g_mainWindow = nullptr;
-Window* g_mainWindow1 = nullptr;
 
 LRESULT CALLBACK MyProc(Window* This, HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -21,11 +21,15 @@ LRESULT CALLBACK MyProc(Window* This, HWND hwnd, UINT msg, WPARAM wparam, LPARAM
 	return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
-int main()
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+	PSTR lpCmdLine, int nCmdShow)
 {
+#ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	AllocConsole();
+	freopen("CONOUT$", "w", stderr);
+#endif
 	engine::Init();
-	// init
 	GFX_WND_DESC wndDesc;
 
 	wndDesc.callback = (WndProcFnPtr)MyProc;
@@ -37,6 +41,7 @@ int main()
 	//g_mainWindow->Fullscreen(true);
 	g_mainWindow->ShowWnd();
 	bool isRunning = true;
+
 	MSG msg;
 	while (isRunning)
 	{
@@ -50,6 +55,7 @@ int main()
 			DispatchMessage(&msg);
 		}
 		// TODO render
+		g_mainWindow->Render();
 	}
 	g_mainWindow->Destroy();
 	engine::Shutdown();

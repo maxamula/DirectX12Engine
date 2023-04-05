@@ -1,6 +1,8 @@
 #include "window.h"
 #include "Graphics/graphics.h"
 #include "Graphics/rendersurface.h"
+#include "Graphics/overlay.h"
+#include "Graphics/gpass.h"
 #include "scenegraph.h"
 
 
@@ -9,8 +11,7 @@ namespace engine
 	class WindowImpl;
 	namespace
 	{
-		std::vector<WindowImpl*> aliveWindows;
-		std::multimap<Scene*, WindowImpl*> sceneWindows;
+		
 	}
 
 	class WindowImpl : public Window
@@ -30,7 +31,7 @@ namespace engine
 			SetWindowLongPtr(m_hWnd, 0, (LONG_PTR)this);
 			
 			// create rtv && swapchain
-			new (&m_surface) gfx::RenderSurface(m_hWnd, m_width, m_height);
+			new (&m_surface) gfx::RenderSurface(m_hWnd, 100, 100);	// Initialize with whatever size ( Will be updated in ShowWnd() )
 		}
 
 
@@ -55,6 +56,7 @@ namespace engine
 				MoveWindow(m_hWnd, m_wndRect.left, m_wndRect.top, m_wndRect.right, m_wndRect.bottom, true);
 				ShowWindow(m_hWnd, SW_SHOWNORMAL);
 			}
+			_UpdateSize();
 		}
 
 		void CloseWnd() override
@@ -91,6 +93,11 @@ namespace engine
 			m_bFullscreen = bState;
 		}
 
+		void Render() override
+		{
+			m_surface.Render();
+		}
+
 		bool IsFullscreen() const override { return m_bFullscreen; };
 		bool IsClosed() const override { return m_bClosed; }
 		uint16_t Width() const override { return m_width; }
@@ -104,6 +111,7 @@ namespace engine
 			m_width = (uint16_t)(m_clientRect.right - m_clientRect.left);
 			m_height = (uint16_t)(m_clientRect.bottom - m_clientRect.top);
 			m_surface.Resize(m_width, m_height);
+			gfx::gpass::UpdateSize(m_width, m_height);
 		}
 
 		gfx::RenderSurface m_surface;
@@ -120,27 +128,23 @@ namespace engine
 		DWORD m_dwStyle = WS_OVERLAPPED | WS_SYSMENU;
 		bool m_bFullscreen = false;
 		bool m_bClosed = true;
+		bool m_flagShouldResize = false;
+		bool m_flagWasRestored = false;
 	};
 
 	Window* Window::Create(HINSTANCE hInst, GFX_WND_DESC& desc)
 	{
 		WindowImpl* wnd = new WindowImpl(hInst, desc);
-		aliveWindows.push_back(wnd);
 		return wnd;
 	}
 
 	LRESULT CALLBACK WndProcBase(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	{
 		WindowImpl* This = (WindowImpl*)GetWindowLongPtr(hwnd, 0);
+
 		switch (msg)
 		{
 		case WM_DESTROY:
-			for(auto it = aliveWindows.begin(); it < aliveWindows.end(); it++)
-				if (*it == This)
-				{
-					aliveWindows.erase(it);
-					break;
-				}
 			This->m_surface.Release();
 			delete This;
 			return DefWindowProc(hwnd, msg, wparam, lparam);
@@ -149,20 +153,39 @@ namespace engine
 			return DefWindowProc(hwnd, msg, wparam, lparam);
 			break;
 		case WM_EXITSIZEMOVE:
-			This->_UpdateSize();
+			if (This->m_flagShouldResize)
+			{
+				This->_UpdateSize();
+				This->m_flagShouldResize = false;
+			}
 			break;
 		case WM_SIZE:	// TODO resize surface
-			if (wparam == SIZE_MAXIMIZED)
+			if (wparam == SIZE_MAXIMIZED || This->m_flagWasRestored)
+			{
 				This->_UpdateSize();
+				This->m_flagWasRestored = false;
+			}
+			else
+			{
+				This->m_flagShouldResize = true;
+			}
 			break;
 		case WM_SYSCOMMAND:
 			if (wparam == SC_RESTORE)
-				This->_UpdateSize();
+				This->m_flagWasRestored = true;
 			break;
 		case WM_QUIT:
 			return DefWindowProc(hwnd, msg, wparam, lparam);
 			break;
 		}
+
+		if (This)
+		{
+			This->m_surface.SetImGuiContext();
+			if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam))
+				return true;
+		}
+		
 		return (This && This->m_callback) ? This->m_callback(This, hwnd, msg, wparam, lparam) : DefWindowProc(hwnd, msg, wparam, lparam);
 	}
 }

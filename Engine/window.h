@@ -28,6 +28,8 @@ namespace engine
 		virtual void SetWindowCaption(const wchar_t* szCaption) = 0;
 		virtual void Fullscreen(bool bState) = 0;
 
+		virtual void Render() = 0;
+
 		virtual bool IsFullscreen() const = 0;
 		virtual bool IsClosed() const = 0;
 		virtual uint16_t Width() const = 0;

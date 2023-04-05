@@ -2,6 +2,63 @@
 
 namespace engine::gfx
 {
+	ResourceBarrier g_resourceBarriers{};
+
+	void TransitionResource(ID3D12GraphicsCommandList6* cmd, ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after
+		, D3D12_RESOURCE_BARRIER_FLAGS flags, uint32_t subresource)
+	{
+		D3D12_RESOURCE_BARRIER barrier = {};
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = flags;
+		barrier.Transition.pResource = resource;
+		barrier.Transition.Subresource = subresource;
+		barrier.Transition.StateBefore = before;
+		barrier.Transition.StateAfter = after;
+		cmd->ResourceBarrier(1, &barrier);
+	}
+
+	void ResourceBarrier::Add(ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after
+		, D3D12_RESOURCE_BARRIER_FLAGS flags, uint32_t subresource)
+	{
+		assert(m_offset < MAX_RES_BARRIERS);
+		assert(resource);
+		D3D12_RESOURCE_BARRIER& barrier = m_barriers[m_offset++];
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Flags = flags;
+		barrier.Transition.pResource = resource;
+		barrier.Transition.Subresource = subresource;
+		barrier.Transition.StateBefore = before;
+		barrier.Transition.StateAfter = after;
+	}
+	void ResourceBarrier::Add(ID3D12Resource* resource, D3D12_RESOURCE_BARRIER_FLAGS flags)
+	{
+		assert(m_offset < MAX_RES_BARRIERS);
+		assert(resource);
+		D3D12_RESOURCE_BARRIER& barrier = m_barriers[m_offset++];
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+		barrier.Flags = flags;
+		barrier.UAV.pResource = resource;
+	}
+
+	void ResourceBarrier::Add(ID3D12Resource* resBefore, ID3D12Resource* resAfter, D3D12_RESOURCE_BARRIER_FLAGS flags)
+	{
+		assert(m_offset < MAX_RES_BARRIERS);
+		D3D12_RESOURCE_BARRIER& barrier = m_barriers[m_offset++];
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_ALIASING;
+		barrier.Flags = flags;
+		barrier.Aliasing.pResourceBefore = resBefore;
+		barrier.Aliasing.pResourceAfter = resAfter;
+	}
+
+	void ResourceBarrier::Flush(ID3D12GraphicsCommandList6* cmd)
+	{
+		if (m_offset > 0)
+		{
+			cmd->ResourceBarrier(m_offset, m_barriers);
+			m_offset = 0;
+		}
+	}
+
 #pragma region Texture
 
 	Texture::Texture(Texture&& o)
@@ -23,57 +80,61 @@ namespace engine::gfx
 		return *this;
 	}
 
-	Texture::Texture(D3D12_SHADER_RESOURCE_VIEW_DESC* srvDesc, ID3D12Resource* resource)
-		: m_res(resource)
-	{
-		assert(device);
-		m_srv = g_srvHeap.Allocate();
-		device->CreateShaderResourceView(m_res, srvDesc, m_srv.CPU);
-	}
-
-	Texture::Texture(TEXTURE_DESC& desc, D3D12_RESOURCE_ALLOCATION_INFO1& info, ID3D12Heap* heap)
-	{
-		assert(device);
-		const D3D12_CLEAR_VALUE* const clearVal = (desc.resDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET || desc.resDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) ? &desc.clearValue : NULL;
-		device->CreatePlacedResource(heap, info.Offset, &desc.resDesc, desc.initialState, clearVal, IID_PPV_ARGS(&m_res));
-		m_srv = g_srvHeap.Allocate();
-		device->CreateShaderResourceView(m_res, &desc.srvDesc, m_srv.CPU);
-	}
-
 	Texture::Texture(TEXTURE_DESC& desc)
 	{
 		assert(device);
-		const D3D12_CLEAR_VALUE* const clearVal = (desc.resDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET || desc.resDesc.Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) ? &desc.clearValue : NULL;
-		D3D12_HEAP_PROPERTIES heapProps;
-		ZeroMemory(&heapProps, sizeof(D3D12_HEAP_PROPERTIES));
-		heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
-		device->CreateCommittedResource(&heapProps, D3D12_HEAP_FLAG_NONE, &desc.resDesc, desc.initialState, clearVal, IID_PPV_ARGS(&m_res));
+		D3D12_CLEAR_VALUE* clearVal = (desc.pResDesc->Flags & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET || desc.pResDesc->Flags & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) ? &desc.clearValue : nullptr;
+
+		if (desc.resource)
+		{
+			m_res = desc.resource;
+		}
+		else if (desc.pHeap)
+		{
+			assert(device->CreatePlacedResource(desc.pHeap, desc.allocInfo.Offset, desc.pResDesc, desc.initialState, clearVal, IID_PPV_ARGS(&m_res)) == S_OK);
+		}
+		else
+		{
+			D3D12_HEAP_PROPERTIES defaultHeap
+			{
+				D3D12_HEAP_TYPE_DEFAULT,
+				D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+				D3D12_MEMORY_POOL_UNKNOWN,
+				0,
+				0
+			};
+			assert(device->CreateCommittedResource(&defaultHeap, D3D12_HEAP_FLAG_NONE, desc.pResDesc, desc.initialState, clearVal, IID_PPV_ARGS(&m_res)) == S_OK);
+		}
+		
+		assert(m_res);
 		m_srv = g_srvHeap.Allocate();
-		device->CreateShaderResourceView(m_res, &desc.srvDesc, m_srv.CPU);
+		device->CreateShaderResourceView(m_res, desc.pSrvDesc, m_srv.CPU);
 	}
 
 	void Texture::Release()
 	{
 		g_srvHeap.Free(m_srv);
+		m_srv = {};
 		RELEASE(m_res);
 	}
 #pragma endregion
 #pragma region RenderTex
 
 	RenderTexture::RenderTexture(TEXTURE_DESC& desc)
-		: m_tex(desc)
+		: m_tex{desc}
 	{
-		m_mipCount = desc.resDesc.MipLevels;
-		assert(m_mipCount <= MAX_MIPS);
+		m_mipCount = Resource()->GetDesc().MipLevels;
+		assert(m_mipCount && m_mipCount < MAX_MIPS);
+
 		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-		rtvDesc.Format = desc.resDesc.Format;
+		rtvDesc.Format = desc.pResDesc->Format;
 		rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 		rtvDesc.Texture2D.MipSlice = 0;
-		for (uint32_t i = 0; i < m_mipCount; ++i)
+		for (uint32_t i = 0; i < m_mipCount; i++)
 		{
 			m_rtv[i] = g_rtvHeap.Allocate();
-			device->CreateRenderTargetView(m_tex.Resource(), &rtvDesc, m_rtv[i].CPU);
-			rtvDesc.Texture2D.MipSlice++;
+			device->CreateRenderTargetView(Resource(), &rtvDesc, m_rtv[i].CPU);
+			++rtvDesc.Texture2D.MipSlice;
 		}
 	}
 
@@ -106,8 +167,23 @@ namespace engine::gfx
 	{
 		m_tex.Release();
 		for (uint32_t i = 0; i < MAX_MIPS; i++)
+		{
 			g_rtvHeap.Free(m_rtv[i]);
+			m_rtv[i] = {};
+		}
 		m_mipCount = 0;
+	}
+
+	uint32_t RenderTexture::_CalculateMipLevels(uint32_t width, uint32_t height)
+	{
+		uint32_t mipLevels = 1;
+		while (width > 1 || height > 1)
+		{
+			width = std::max(1u, width / 2);
+			height = std::max(1u, height / 2);
+			mipLevels++;
+		}
+		return mipLevels;
 	}
 #pragma endregion
 
@@ -115,11 +191,11 @@ namespace engine::gfx
 
 	DepthTexture::DepthTexture(TEXTURE_DESC& desc)
 	{
-		DXGI_FORMAT format = desc.resDesc.Format;
+		const DXGI_FORMAT dsvFormat = desc.pResDesc->Format;
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		if (desc.resDesc.Format == DXGI_FORMAT_D32_FLOAT)
+		if (desc.pResDesc->Format == DXGI_FORMAT_D32_FLOAT)
 		{
-			desc.resDesc.Format == DXGI_FORMAT_R32_TYPELESS;
+			desc.pResDesc->Format == DXGI_FORMAT_R32_TYPELESS;
 			srvDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		}
 
@@ -130,11 +206,12 @@ namespace engine::gfx
 		srvDesc.Texture2D.PlaneSlice = 0;
 		srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 
-		desc.srvDesc = srvDesc;
+		assert(!desc.pSrvDesc);
+		desc.pSrvDesc = &srvDesc;
 		m_tex = Texture(desc);
 
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-		dsvDesc.Format = format;
+		dsvDesc.Format = dsvFormat;
 		dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 		dsvDesc.Flags = D3D12_DSV_FLAG_NONE;
 		dsvDesc.Texture2D.MipSlice = 0;

@@ -13,6 +13,14 @@
   <ItemGroup>
     <ClInclude Include="components.h" />
     <ClInclude Include="Content\content.h" />
+    <ClInclude Include="Dependencies\imconfig.h" />
+    <ClInclude Include="Dependencies\imgui.h" />
+    <ClInclude Include="Dependencies\imgui_impl_dx12.h" />
+    <ClInclude Include="Dependencies\imgui_impl_win32.h" />
+    <ClInclude Include="Dependencies\imgui_internal.h" />
+    <ClInclude Include="Dependencies\imstb_rectpack.h" />
+    <ClInclude Include="Dependencies\imstb_textedit.h" />
+    <ClInclude Include="Dependencies\imstb_truetype.h" />
     <ClInclude Include="Dependencies\nameof.hpp" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="Graphics\gpass.h" />
@@ -24,6 +32,9 @@
     <ClInclude Include="Graphics\shaders.h" />
     <ClInclude Include="Graphics\gresource.h" />
     <ClInclude Include="Graphics\pso.h" />
+    <ClInclude Include="logger.h" />
+    <ClInclude Include="Graphics\overlay.h" />
+    <ClInclude Include="Graphics\postprocess.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Graphics\rootsig.h" />
     <ClInclude Include="scenegraph.h" />
@@ -33,6 +44,13 @@
   <ItemGroup>
     <ClCompile Include="components.cpp" />
     <ClCompile Include="Content\content.cpp" />
+    <ClCompile Include="Dependencies\imgui.cpp" />
+    <ClCompile Include="Dependencies\imgui_demo.cpp" />
+    <ClCompile Include="Dependencies\imgui_draw.cpp" />
+    <ClCompile Include="Dependencies\imgui_impl_dx12.cpp" />
+    <ClCompile Include="Dependencies\imgui_impl_win32.cpp" />
+    <ClCompile Include="Dependencies\imgui_tables.cpp" />
+    <ClCompile Include="Dependencies\imgui_widgets.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="Graphics\gpass.cpp" />
@@ -45,15 +63,15 @@
     <ClCompile Include="Graphics\rootsig.cpp" />
     <ClCompile Include="Graphics\gresource.cpp" />
     <ClCompile Include="Graphics\pso.cpp" />
+    <ClCompile Include="logger.cpp" />
+    <ClCompile Include="Graphics\overlay.cpp" />
+    <ClCompile Include="Graphics\postprocess.cpp" />
     <ClCompile Include="scenegraph.cpp" />
     <ClCompile Include="script.cpp" />
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Graphics\Shaders\Fullscreen.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Engine.rc" />
@@ -109,13 +127,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;ENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING;_BUILD_ENGINE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;ENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING;_BUILD_ENGINE;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>common.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>common.h;logger.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -139,13 +157,13 @@ xcopy /Y "$(SolutionDir)x64\$(Configuration)\Engine.lib" "$(SolutionDir)Editor\G
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;ENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING;_BUILD_ENGINE</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;ENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_SILENCE_CXX23_ALIGNED_STORAGE_DEPRECATION_WARNING;_BUILD_ENGINE;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(SolutionDir)Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>common.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>common.h;logger.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -171,6 +189,7 @@ xcopy /Y "$(SolutionDir)x64\$(Configuration)\Engine.lib" "$(SolutionDir)Editor\G
     <Import Project="..\packages\directxtk12_uwp.2023.2.7.1\build\native\directxtk12_uwp.targets" Condition="Exists('..\packages\directxtk12_uwp.2023.2.7.1\build\native\directxtk12_uwp.targets')" />
     <Import Project="..\packages\fluid.entt.1.0.8\build\fluid.entt.targets" Condition="Exists('..\packages\fluid.entt.1.0.8\build\fluid.entt.targets')" />
     <Import Project="..\packages\boost_serialization-vc140.1.81.0\build\boost_serialization-vc140.targets" Condition="Exists('..\packages\boost_serialization-vc140.1.81.0\build\boost_serialization-vc140.targets')" />
+    <Import Project="..\packages\spdlog.native.1.0.0\build\native\spdlog.native.targets" Condition="Exists('..\packages\spdlog.native.1.0.0\build\native\spdlog.native.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -180,5 +199,6 @@ xcopy /Y "$(SolutionDir)x64\$(Configuration)\Engine.lib" "$(SolutionDir)Editor\G
     <Error Condition="!Exists('..\packages\directxtk12_uwp.2023.2.7.1\build\native\directxtk12_uwp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxtk12_uwp.2023.2.7.1\build\native\directxtk12_uwp.targets'))" />
     <Error Condition="!Exists('..\packages\fluid.entt.1.0.8\build\fluid.entt.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\fluid.entt.1.0.8\build\fluid.entt.targets'))" />
     <Error Condition="!Exists('..\packages\boost_serialization-vc140.1.81.0\build\boost_serialization-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_serialization-vc140.1.81.0\build\boost_serialization-vc140.targets'))" />
+    <Error Condition="!Exists('..\packages\spdlog.native.1.0.0\build\native\spdlog.native.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\spdlog.native.1.0.0\build\native\spdlog.native.targets'))" />
   </Target>
 </Project>

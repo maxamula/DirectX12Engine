@@ -8,7 +8,7 @@ namespace engine::gfx
 	{
 	public:
 		PSOSubObject() = default;
-		constexpr explicit PSOSubObject(T subobject) : m_type{ type }, m_subobjec{ subobject } {}
+		constexpr explicit PSOSubObject(T subobject) : m_type{ type }, m_subobject{ subobject } {}
 		PSOSubObject& operator= (const T& subobject) { m_subobject = subobject; return *this; }
 	private:
 		const D3D12_PIPELINE_STATE_SUBOBJECT_TYPE m_type{ type };
@@ -41,7 +41,7 @@ namespace engine::gfx
 	PSS(ViewInstancing, D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_VIEW_INSTANCING, D3D12_VIEW_INSTANCING_DESC);
 	PSS(AmplificationShader, D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_AS, D3D12_SHADER_BYTECODE);
 	PSS(MeshShader, D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_MS, D3D12_SHADER_BYTECODE);
-#undef PSS
+//#undef PSS
 
 	ID3D12PipelineState* CreatePSO(void* stream, uint64_t size);
 	ID3D12PipelineState* CreatePSO(D3D12_PIPELINE_STATE_STREAM_DESC desc);

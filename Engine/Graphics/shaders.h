@@ -30,6 +30,8 @@ namespace engine::shaders
 		enum id : uint32_t
 		{
 			VS_FULLSCREEN,
+			PS_FILLCOLOR,
+			PS_POSTPROCESS,
 			NUM_SHADERS
 		};
 	};
@@ -42,15 +44,15 @@ namespace engine::shaders
 		DISABLE_MOVE_COPY(ShaderCompiler);
 		IDxcBlob* CompileShader(const void* pShaderSource, uint32_t size, SHADER_TYPE::type shaderType);
 	private:
-		const wchar_t* m_profiles[SHADER_TYPE::NUM_SHADER_TYPES]{ L"vs_6_5", L"hs_6_5", L"ds_6_5", L"gs_6_5", L"ps_6_5", L"cs_6_5", L"as_6_5", L"ms_6_5" };
+		const wchar_t* m_profiles[SHADER_TYPE::NUM_SHADER_TYPES]{ L"vs_6_6", L"hs_6_6", L"ds_6_6", L"gs_6_6", L"ps_6_6", L"cs_6_6", L"as_6_6", L"ms_6_6" };
 
 		IDxcCompiler3* m_compiler;
 		IDxcUtils* m_utils;	
 		IDxcIncludeHandler* m_includeHandler;
 	};
 
-	IDxcBlob* GetEngineShader(ENGINE_SHADER::id id);
-	void Initialize();
+	D3D12_SHADER_BYTECODE GetEngineShader(ENGINE_SHADER::id id);
+	bool Initialize();
 	void Shutdown();
 }
 

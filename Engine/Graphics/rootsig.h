@@ -54,7 +54,9 @@ namespace engine::gfx
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_MESH_SHADER_ROOT_ACCESS
 		)
 			: D3D12_ROOT_SIGNATURE_DESC1{ numParams, params, numSamplers, staticSamplers, flags }
-		{}
+		{
+			this->Flags |= D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+		}
 
 		inline ID3D12RootSignature* Create() const
 		{
@@ -68,11 +70,11 @@ namespace engine::gfx
 			if (FAILED(D3D12SerializeVersionedRootSignature(&versionedDesc, &sigBlob, &errorBlob)))
 			{
 				const char* errormsg = errorBlob ? (const char*)errorBlob->GetBufferPointer() : "";
-				OutputDebugStringA(errormsg);
+				LOG_ERROR("Failed to Serialize versioned root signature ({})", errormsg);
 				return nullptr;
 			};
 			ID3D12RootSignature* signature = NULL;
-			assert(device->CreateRootSignature(0, sigBlob->GetBufferPointer(), sigBlob->GetBufferSize(), IID_PPV_ARGS(&signature)) == S_OK);
+			HRESULT hr = device->CreateRootSignature(0, sigBlob->GetBufferPointer(), sigBlob->GetBufferSize(), IID_PPV_ARGS(&signature));
 			RELEASE(sigBlob);
 			RELEASE(errorBlob);
 			return signature;

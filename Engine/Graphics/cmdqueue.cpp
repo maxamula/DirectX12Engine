@@ -11,11 +11,17 @@ namespace engine::gfx
 		cmdQueueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 		cmdQueueDesc.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL;
 		device->CreateCommandQueue(&cmdQueueDesc, IID_PPV_ARGS(&m_cmdQueue));
+		m_cmdQueue->SetName(L"Main command queue");
 		// Create command allocator
 		for (int i = 0; i < BACKBUFFER_COUNT; ++i)
+		{
 			device->CreateCommandAllocator(type, IID_PPV_ARGS(&m_cmdAlloc[i]));
+			wchar_t name[25];
+			swprintf_s(name, L"Command allocator (%d)", i);
+		}	
 		// Create command list
 		device->CreateCommandList(0, type, m_cmdAlloc[0], nullptr, IID_PPV_ARGS(&m_cmdList));
+		m_cmdList->SetName(L"Main command list");
 		m_cmdList->Close();
 		// Create fence
 		device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence));

@@ -12,8 +12,9 @@ namespace engine::gfx
 		friend class DescriptorHeap;
 		D3D12_CPU_DESCRIPTOR_HANDLE CPU;
 		D3D12_GPU_DESCRIPTOR_HANDLE GPU;
+		inline uint32_t GetIndex() const { return index; }
 	private:
-		size_t index = -1;
+		uint32_t index = -1;
 	};
 
 	class DescriptorHeap

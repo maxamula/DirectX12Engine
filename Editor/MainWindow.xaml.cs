@@ -20,6 +20,7 @@ using System.CodeDom.Compiler;
 using Editor.GameProject;
 using EnvDTE;
 using Editor.Utils;
+using System.Runtime.InteropServices;
 
 namespace Editor
 {
@@ -35,9 +36,6 @@ namespace Editor
             ShowProjectDialog();
 
             // =================== TEST ===================
-            /*Project.Project project = new Project.Project("dd");
-            Utils.Serializer.Serialize(project, "test");*/
-            //this.DataContext = project;
             // =================== TEST ===================
         }
 

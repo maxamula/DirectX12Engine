@@ -7,6 +7,11 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <assert.h>
+
+// COMPILE SETTINGS
+#define _DEBUG_GRAPHICS
+
 
 #ifdef _BUILD_ENGINE
 #define ENGINE_API __declspec(dllexport)
