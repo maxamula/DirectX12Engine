@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="Editor.Controls.ComponentView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Editor.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Expander IsExpanded="True" Style="{StaticResource Expander.Small}">
+        <Expander.Header>
+            <StackPanel Grid.Column="0" DockPanel.Dock="Left" Orientation="Horizontal">
+                <Image Width="16" Height="16" Source="{Binding ComponentIcon, RelativeSource={RelativeSource AncestorType={x:Type local:ComponentView}}}"/>
+                <TextBlock Margin="10 0 0 0" FontWeight="Bold" Text="{Binding Header, RelativeSource={RelativeSource AncestorType={x:Type local:ComponentView}}}"/>
+            </StackPanel>
+        </Expander.Header>
+        <Border BorderThickness="1 0 1 1" BorderBrush="#E0E0E0">
+            <ContentPresenter Content="{Binding ComponentContent, RelativeSource={RelativeSource AncestorType={x:Type local:ComponentView}}}" Margin="5"/>
+        </Border>
+    </Expander>
+</UserControl>

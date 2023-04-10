@@ -1,0 +1,48 @@
+﻿<UserControl x:Class="Editor.Controls.TransformationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Editor.Controls"
+             xmlns:util="clr-namespace:Editor.Utils"
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:num="clr-namespace:NumericUpDownLib;assembly=NumericUpDownLib"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <local:ComponentView Header="Transformation" ComponentIcon="../Resources/transform.png">
+        <local:ComponentView.ComponentContent>
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <hc:NumericUpDown Value="{Binding X}" Grid.Column="0"/>
+                    <hc:NumericUpDown Value="{Binding Y}" Grid.Column="1"/>
+                    <hc:NumericUpDown Value="{Binding Z}" Grid.Column="2"/>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <hc:NumericUpDown Value="{Binding RotX}" Grid.Column="0"/>
+                    <hc:NumericUpDown Value="{Binding RotY}" Grid.Column="1"/>
+                    <hc:NumericUpDown Value="{Binding RotZ}" Grid.Column="2"/>
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <hc:NumericUpDown Value="{Binding ScaleX}" Grid.Column="0"/>
+                    <hc:NumericUpDown Value="{Binding ScaleY}" Grid.Column="1"/>
+                    <hc:NumericUpDown Value="{Binding ScaleZ}" Grid.Column="2"/>
+                </Grid>
+            </StackPanel>
+        </local:ComponentView.ComponentContent>
+    </local:ComponentView>
+</UserControl>

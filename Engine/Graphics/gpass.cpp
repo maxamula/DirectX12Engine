@@ -20,6 +20,14 @@ namespace engine::gfx::gpass
 		ID3D12RootSignature* g_gpassRootsig = nullptr;
 		ID3D12PipelineState* g_gpassPso = nullptr;
 
+		// Debug information
+#ifdef _DEBUG_GRAPHICS
+		float g_dbgGpassfpsHistory[500];
+		uint16_t g_dbgGpassfpsIndex = 0;
+		float g_dbgGpassTime = 0.0f;
+		float g_dbgDepthPrepassTime = 0.0f;
+#endif
+
 		bool CreateBuffers(UVec2 size)
 		{
 			g_mainBuffer.Release();
@@ -172,6 +180,13 @@ namespace engine::gfx::gpass
 		if (ImGui::CollapsingHeader("Graphics pass", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			ImGui::Text("Geometry buffers size: %dx%d", g_geomBufferSize.x, g_geomBufferSize.y);
+
+			/*if (ImPlot::BeginPlot("FPS", NULL, NULL, ImVec2(-1, 100), ImPlotFlags_NoMenus | ImPlotFlags_NoLegend))
+			{
+				ImPlot::PlotLine<float>("FPS", g_dbgGpassfpsHistory, 500, 1.0, 0, g_dbgGpassfpsIndex, sizeof(float));
+				ImPlot::EndPlot();
+			}*/
+
 			ImGui::Columns(2);
 			float aspectRatio = (float)width / (float)height;
 			float availableWidth = ImGui::GetContentRegionAvail().x;
@@ -182,15 +197,15 @@ namespace engine::gfx::gpass
 			ImGui::Text("Main buffer");
 			ImGui::Image((ImTextureID)g_mainBuffer.SRVAllocation().GPU.ptr, ImVec2(availableWidth, previewHeight), uv0, uv1, ImVec4(1, 1, 1, 1), ImVec4(4, 4, 4, 4));
 			//ImGui::SameLine();
-			ImGui::Text("Depth buffer");
+			ImGui::Text("Depth map");
 			ImGui::Image((ImTextureID)g_depthBuffer.SRVAllocation().GPU.ptr, ImVec2(availableWidth, previewHeight), uv0, uv1, ImVec4(1, 1, 1, 1), ImVec4(4, 4, 4, 4));
 
 			ImGui::NextColumn();
 
-			ImGui::Text("Normal buffer");
-			ImGui::Image((ImTextureID)g_mainBuffer.SRVAllocation().GPU.ptr, ImVec2(availableWidth, previewHeight), uv0, uv1, ImVec4(1, 1, 1, 1), ImVec4(4, 4, 4, 4));
+			ImGui::Text("Normal map");
+			ImGui::Image((ImTextureID)g_depthBuffer.SRVAllocation().GPU.ptr, ImVec2(availableWidth, previewHeight), uv0, uv1, ImVec4(1, 1, 1, 1), ImVec4(4, 4, 4, 4));
 			//ImGui::SameLine();
-			ImGui::Text("Misc buffer");
+			ImGui::Text("[RESERVER]");
 			ImGui::Image((ImTextureID)g_mainBuffer.SRVAllocation().GPU.ptr, ImVec2(availableWidth, previewHeight), uv0, uv1, ImVec4(1, 1, 1, 1), ImVec4(4, 4, 4, 4));
 			ImGui::Columns(1);
 		}

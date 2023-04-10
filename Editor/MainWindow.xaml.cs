@@ -21,6 +21,7 @@ using Editor.GameProject;
 using EnvDTE;
 using Editor.Utils;
 using System.Runtime.InteropServices;
+using Application = System.Windows.Application;
 
 namespace Editor
 {
@@ -36,6 +37,11 @@ namespace Editor
             ShowProjectDialog();
 
             // =================== TEST ===================
+            //Project.Project project = new Project.Project("NAME HERE");
+            //project.AddScene("Default");
+            //Utils.Serializer.Serialize(project, "updated.project");
+
+            
             // =================== TEST ===================
         }
 
@@ -56,14 +62,16 @@ namespace Editor
                 Project.Project project = (Project.Project)projectDialog.DataContext;
                 DataContext = project;    // Pass project as context to main window
                 // BUILD & LOAD GCDLL async
-                await Task.Run(() =>
+                
+               /* await Task.Run(() =>
                 {
                     project.BuildGameAssembly();    // TODO: add callback to launch rendering thread
-                });
+                });*/
             }
         }
 
-        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+
+        async private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == Key.F1)
             {
@@ -72,11 +80,15 @@ namespace Editor
                 dialog.DataContext = this.DataContext;
                 dialog.ShowDialog();
             }
+            else if (e.Key == Key.F2)
+            {
+
+            }
         }
         private void OnAddSceneBtnClick(object sender, EventArgs e)
         {
             var context = this.DataContext as Project.Project;
-            context.AddScene("NewScene" + context.Scenes.Count);
+            context.AddScene("New_Scene_" + context.Scenes.Count);
         }
         private void OnSaveBtnClicked(object sender, EventArgs e)
         {
@@ -97,6 +109,11 @@ namespace Editor
             WindowDialog dialog = new WindowDialog();
             dialog.DataContext = this.DataContext;
             dialog.ShowDialog();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            viewport.Destroy();
         }
     }
 }

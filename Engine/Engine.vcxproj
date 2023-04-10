@@ -13,14 +13,6 @@
   <ItemGroup>
     <ClInclude Include="components.h" />
     <ClInclude Include="Content\content.h" />
-    <ClInclude Include="Dependencies\imconfig.h" />
-    <ClInclude Include="Dependencies\imgui.h" />
-    <ClInclude Include="Dependencies\imgui_impl_dx12.h" />
-    <ClInclude Include="Dependencies\imgui_impl_win32.h" />
-    <ClInclude Include="Dependencies\imgui_internal.h" />
-    <ClInclude Include="Dependencies\imstb_rectpack.h" />
-    <ClInclude Include="Dependencies\imstb_textedit.h" />
-    <ClInclude Include="Dependencies\imstb_truetype.h" />
     <ClInclude Include="Dependencies\nameof.hpp" />
     <ClInclude Include="engine.h" />
     <ClInclude Include="Graphics\gpass.h" />
@@ -44,13 +36,6 @@
   <ItemGroup>
     <ClCompile Include="components.cpp" />
     <ClCompile Include="Content\content.cpp" />
-    <ClCompile Include="Dependencies\imgui.cpp" />
-    <ClCompile Include="Dependencies\imgui_demo.cpp" />
-    <ClCompile Include="Dependencies\imgui_draw.cpp" />
-    <ClCompile Include="Dependencies\imgui_impl_dx12.cpp" />
-    <ClCompile Include="Dependencies\imgui_impl_win32.cpp" />
-    <ClCompile Include="Dependencies\imgui_tables.cpp" />
-    <ClCompile Include="Dependencies\imgui_widgets.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="engine.cpp" />
     <ClCompile Include="Graphics\gpass.cpp" />
@@ -78,6 +63,9 @@
   <ItemGroup>
     <ProjectReference Include="..\ContentManager\ContentManager.vcxproj">
       <Project>{1d8879ae-0a4e-4067-bf07-76cc0032c86a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\ImStatic\ImStatic.vcxproj">
+      <Project>{d0fbe8c7-a7b1-42ca-967e-522fc7956ac8}</Project>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -131,7 +119,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)ImStatic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>common.h;logger.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -161,7 +149,7 @@ xcopy /Y "$(SolutionDir)x64\$(Configuration)\Engine.lib" "$(SolutionDir)Editor\G
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Engine;$(SolutionDir)ImStatic;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ForcedIncludeFiles>common.h;logger.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <AdditionalOptions>/Zc:twoPhase- %(AdditionalOptions)</AdditionalOptions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>

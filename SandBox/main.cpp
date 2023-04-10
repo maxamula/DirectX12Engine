@@ -42,6 +42,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	g_mainWindow->ShowWnd();
 	bool isRunning = true;
 
+	std::thread thread([&]()
+	{
+			while (isRunning)
+			{
+				g_mainWindow->Render();
+			}
+	});
 	MSG msg;
 	while (isRunning)
 	{
@@ -50,12 +57,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 			if (msg.message == WM_QUIT)
 			{
 				isRunning = false;
+				thread.join();
 			}
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 		// TODO render
-		g_mainWindow->Render();
+		
 	}
 	g_mainWindow->Destroy();
 	engine::Shutdown();

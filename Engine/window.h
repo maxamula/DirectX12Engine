@@ -28,13 +28,15 @@ namespace engine
 		virtual void SetWindowCaption(const wchar_t* szCaption) = 0;
 		virtual void Fullscreen(bool bState) = 0;
 
+		virtual void SetOverlay(void* callback) = 0;
 		virtual void Render() = 0;
 
-		virtual bool IsFullscreen() const = 0;
-		virtual bool IsClosed() const = 0;
-		virtual uint16_t Width() const = 0;
-		virtual uint16_t Height() const = 0;
-		virtual HWND WinId() const = 0;
+		[[nodiscard]] virtual void* GetOverlayContext() const = 0;
+		[[nodiscard]] virtual bool IsFullscreen() const = 0;
+		[[nodiscard]] virtual bool IsClosed() const = 0;
+		[[nodiscard]] virtual uint16_t Width() const = 0;
+		[[nodiscard]] virtual uint16_t Height() const = 0;
+		[[nodiscard]] virtual HWND WinId() const = 0;
 	};
 }
 

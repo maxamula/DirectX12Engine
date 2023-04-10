@@ -2,7 +2,13 @@
 #include "generator/PlaneMesh.hpp"
 #include <DirectXMath.h>
 
+#ifdef _DEBUG
+#pragma comment(lib, "dbggenerator.lib")
+#else
 #pragma comment(lib, "generator.lib")
+#endif // _DEBUG
+
+
 
 using namespace DirectX;
 

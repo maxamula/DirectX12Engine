@@ -10,7 +10,7 @@
 #include <assert.h>
 
 // COMPILE SETTINGS
-//#define _DEBUG_GRAPHICS
+#define _DEBUG_GRAPHICS
 
 
 #ifdef _BUILD_ENGINE

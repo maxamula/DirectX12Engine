@@ -58,7 +58,7 @@ namespace engine::gfx
 			this->Flags |= D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
 		}
 
-		inline ID3D12RootSignature* Create() const
+		[[nodiscard]] inline ID3D12RootSignature* Create() const
 		{
 			const D3D12_ROOT_SIGNATURE_DESC1& desc{ *this };
 			D3D12_VERSIONED_ROOT_SIGNATURE_DESC versionedDesc{};

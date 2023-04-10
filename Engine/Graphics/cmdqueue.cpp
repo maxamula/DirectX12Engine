@@ -31,7 +31,7 @@ namespace engine::gfx
 
 	CommandQueue::~CommandQueue()
 	{
-		assert_throw(!m_cmdQueue, "Command queue wasn't released properly.");
+		assert(!m_cmdQueue);
 	}
 
 	void CommandQueue::BeginFrame()

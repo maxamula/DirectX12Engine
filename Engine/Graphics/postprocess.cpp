@@ -4,12 +4,13 @@
 #include "pso.h"
 #include "shaders.h"
 #include "gpass.h"
-
+#include "overlay.h"
 
 namespace engine::gfx::fx
 {
 	namespace
 	{
+		float g_clearColor[4]{ 0.1f, 0.0f, 0.0f, 0.0f };
 		ID3D12RootSignature* g_fxRootSig = nullptr;
 		ID3D12PipelineState* g_fxPso = nullptr;
 
@@ -79,11 +80,23 @@ namespace engine::gfx::fx
 
 	void PostProcess(ID3D12GraphicsCommandList6* cmd, D3D12_CPU_DESCRIPTOR_HANDLE rtv)
 	{
+		// TODO
 		cmd->SetGraphicsRootSignature(g_fxRootSig);
 		cmd->SetPipelineState(g_fxPso);
 		cmd->SetGraphicsRoot32BitConstant(FX_ROOT_PARAM::ROOT_CONSTANSTS, gpass::GetMainBuffer().SRVAllocation().GetIndex(), 0);
 		cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		cmd->OMSetRenderTargets(1, &rtv, 1, nullptr);
+		cmd->ClearRenderTargetView(rtv, g_clearColor, 0, nullptr);
 		cmd->DrawInstanced(3, 1, 0, 0);
 	}
+
+#ifdef _DEBUG_GRAPHICS
+	void DrawDebugInfo(uint16_t width, uint16_t height)
+	{
+		if (ImGui::CollapsingHeader("Post-processing", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			ImGui::ColorPicker3("RTV clear color", g_clearColor, ImGuiColorEditFlags_NoOptions);
+		}
+	}
+#endif
 }

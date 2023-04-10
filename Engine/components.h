@@ -20,10 +20,10 @@ namespace engine
 
 	struct Transformation
 	{
-		DirectX::XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };
+		DirectX::XMFLOAT3 position = { 90.0f, 0.0f, 0.0f };
 		DirectX::XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f };
 		DirectX::XMFLOAT3 scale = { 1.0f, 1.0f, 1.0f };
-		DirectX::XMMATRIX GetMatrix() const
+		[[nodiscard]] DirectX::XMMATRIX GetMatrix() const
 		{
 			return DirectX::XMMatrixScaling(scale.x, scale.y, scale.z) *
 				DirectX::XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z) *

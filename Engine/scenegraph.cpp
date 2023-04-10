@@ -43,14 +43,14 @@ namespace engine
 			}
 		}
 
-		DirectX::XMMATRIX GetWorldMatrix() const override
+		[[nodiscard]] DirectX::XMMATRIX GetWorldMatrix() const override
 		{
 			return GetTransformation().GetMatrix() * m_parent.GetWorldMatrix();
 		}
 
 		// components
 
-		Transformation& GetTransformation() const
+		[[nodiscard]] Transformation& GetTransformation() const override
 		{
 			return m_reg.get<Transformation>(m_id);
 		}
@@ -81,10 +81,10 @@ namespace engine
 		void Destroy() override
 		{
 			// destroy all children
-			for (GameObject* obj : m_children)
+			while (!m_children.empty())
 			{
-				obj->Destroy();
-			}		
+				m_children.back()->Destroy();
+			}
 			// delete current object
 			delete this;
 		}
@@ -97,9 +97,13 @@ namespace engine
 				m_children.erase(it);
 				m_registry.destroy(dynamic_cast<GameObjectImpl*>(object)->m_id);
 			}
+			else
+			{
+				throw std::runtime_error("Object not found in scene");
+			}
 		}
 
-		DirectX::XMMATRIX GetWorldMatrix() const override
+		[[nodiscard]] DirectX::XMMATRIX GetWorldMatrix() const override
 		{
 			return DirectX::XMMatrixIdentity();
 		}

@@ -3,10 +3,6 @@
 #include "gresource.h"
 #include "postprocess.h"
 
-#include "ResourceUploadBatch.h"
-#include <WICTextureLoader.h>
-#include <DDSTextureLoader.h>
-
 namespace engine::gfx
 {
 	RenderSurface::RenderSurface(HWND hWnd, uint16_t width, uint16_t height)
@@ -36,15 +32,17 @@ namespace engine::gfx
 		pSwap->Release();
 
 		// Overlay initialization
-		m_pImGuiContext = overlay::Initialize(hWnd, width, height);
+		m_overlayContext = overlay::Initialize(hWnd, width, height);
+#ifdef _DEBUG_GRAPHICS
 
+#endif
 		_CreateRendertargetViews();
 	}
 
 	void RenderSurface::Release()
 	{
-		overlay::Shutdown(m_pImGuiContext);
 		g_cmdQueue.Flush();
+		overlay::Shutdown(m_overlayContext);		
 		for (int i = 0; i < BACKBUFFER_COUNT; ++i)
 		{
 			RELEASE(m_renderTargets[i].resource);
@@ -54,14 +52,14 @@ namespace engine::gfx
 		RELEASE(m_pSwap);
 	}
 
-	void RenderSurface::SetImGuiContext()
+	void RenderSurface::SetOverlayContext()
 	{
-		ImGui::SetCurrentContext(m_pImGuiContext);
+		ImGui::SetCurrentContext(m_overlayContext->imguiContext);
+		ImPlot::SetCurrentContext(m_overlayContext->implotContext);
 	}
 
 	void RenderSurface::Render()
 	{
-		auto start = std::chrono::high_resolution_clock::now();
 		g_cmdQueue.BeginFrame();
 		ID3D12GraphicsCommandList6* cmd = g_cmdQueue.GetCommandList();
 		// Get back buffer
@@ -74,13 +72,15 @@ namespace engine::gfx
 		};
 		
 
+		if (GetAsyncKeyState(VK_F1))
+			Sleep(100);
+
 		// Record commands
 		cmd->RSSetViewports(1, &m_viewport);
 		cmd->RSSetScissorRects(1, &m_scissiors);
 		ID3D12DescriptorHeap* heaps[] = { g_srvHeap.GetDescriptorHeap() };
 		cmd->SetDescriptorHeaps(_countof(heaps), heaps);
 		g_resourceBarriers.Add(backBuffer, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		
 
 #pragma region Depth prepass
 		// Resource transition
@@ -108,7 +108,7 @@ namespace engine::gfx
 
 #pragma region Overlay
 		// Start the Dear ImGui frame
-		ImGui::SetCurrentContext(m_pImGuiContext);
+		SetOverlayContext();
 		ImGui_ImplDX12_NewFrame();
 		ImGui_ImplWin32_NewFrame();
 		ImGui::NewFrame();
@@ -116,6 +116,8 @@ namespace engine::gfx
 #ifdef _DEBUG_GRAPHICS
 		_DrawDebugInfo();
 #endif
+		if(cbOverlay)
+			cbOverlay();
 		ImGui::Render();
 		// Render Dear ImGui graphics		
 		cmd->OMSetRenderTargets(1, &m_renderTargets[m_backBufferIndex].allocation.CPU, FALSE, NULL);
@@ -124,12 +126,11 @@ namespace engine::gfx
 		TransitionResource(cmd, backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 		g_cmdQueue.EndFrame();
 		Present();
-		auto end = std::chrono::high_resolution_clock::now();
-		m_frameTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 	}
 
 	void RenderSurface::Resize(uint16_t width, uint16_t height)
 	{
+		g_cmdQueue.Flush();
 		assert(m_pSwap != NULL);
 		m_width = width;
 		m_height = height;
@@ -141,7 +142,6 @@ namespace engine::gfx
 		{
 			RELEASE(m_renderTargets[i].resource);
 		}
-		g_cmdQueue.Flush();
 		succeed(m_pSwap->ResizeBuffers(BACKBUFFER_COUNT, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0), "Failed to resize swap chain.");
 		m_backBufferIndex = m_pSwap->GetCurrentBackBufferIndex();
 
@@ -159,6 +159,8 @@ namespace engine::gfx
 			device->CreateRenderTargetView(m_renderTargets[i].resource, &rtvDesc, m_renderTargets[i].allocation.CPU);
 		}
 		LOG_TRACE("D3D12 Surface resized.");
+		// TODO
+		OutputDebugString(L"D3D12 Surface resized.\n");
 	}
 
 	void RenderSurface::_CreateRendertargetViews()
@@ -203,8 +205,9 @@ namespace engine::gfx
 
 		ImGui::Text("D3D12 Device: %p", device);
 		ImGui::Text("D3D12 Swapchain: %p", m_pSwap);
-		ImGui::Text("Frame processing time: %.4f(ms)", this->m_frameTime);
+		ImGui::Checkbox("VSync", (bool*)&bVSync);
 		gpass::DrawDebugInfo(m_width, m_height);
+		fx::DrawDebugInfo(m_width, m_height);
 		ImGui::End();
 	}
 #endif

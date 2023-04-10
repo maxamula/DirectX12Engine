@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:Editor.Controls"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:c="clr-namespace:Editor.Controls"
+        xmlns:util="clr-namespace:Editor.Utils"
         mc:Ignorable="d"
-        PreviewKeyDown="Window_PreviewKeyDown"
+        PreviewKeyDown="Window_PreviewKeyDown" Closing="Window_Closing"
         Title="MainWindow" Height="720" Width="1280">
     <hc:Window.NonClientAreaContent>
         <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
@@ -45,21 +46,52 @@
         <GridSplitter Grid.Column="2" Grid.Row="0" Grid.RowSpan="3" Width="3" ShowsPreview="True" VerticalAlignment="Stretch" HorizontalAlignment="Left" Background="#DFE6E9"/>
         <local:SceneView x:Name="sceneBox" Margin="5" Grid.Row="0" Grid.RowSpan="2" Grid.Column="0"/>
         
-        <!--local:GeneralSettingsView Grid.Column="0" Margin="5" Grid.Row="2"/>
-        <local:GameComponentsView Grid.Column="2" Margin="5" Grid.RowSpan="2" Grid.Row="1"/-->
-        <Grid Margin="10 5 10 0" Grid.Row="0" Grid.Column="1" Grid.RowSpan="2">
+        <!--local:GeneralSettingsView Grid.Column="0" Margin="5" Grid.Row="2"/-->
+        <c:ComponentsView Grid.Column="2" Margin="5" Grid.RowSpan="2" Grid.Row="1"/>
+        <Grid Margin="10 5 10 0" Grid.Row="0" Grid.Column="1" Grid.RowSpan="3">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <ToolBar Grid.Row="0" VerticalAlignment="Top" MinHeight="30">
-                <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal">
+            <ToolBar Grid.Row="0" VerticalAlignment="Top" Height="45">
+                <StackPanel Orientation="Horizontal">
                     <!-- TOOLBOX BTNS HERE-->
-                    <Button Content="Compile" Click="OnCompileClick"/>
-                    <Button Content="Run" Margin="5 0 0 0" Click="OnRunClick"/>
+                    <Button Click="OnCompileClick">
+                        <Button.Content>
+                            <Image Source="../Resources/cog.png"/>
+                        </Button.Content>
+                        <Button.ToolTip>
+                            <TextBlock Text="Compile and load"/>
+                        </Button.ToolTip>
+                    </Button>
+                    <Button Margin="5 0 0 0" Click="OnRunClick">
+                        <Button.Content>
+                            <Image Source="../Resources/play.png"/>
+                        </Button.Content>
+                        <Button.ToolTip>
+                            <TextBlock Text="Run"/>
+                        </Button.ToolTip>
+                    </Button>
+                    <hc:ButtonGroup Margin="10 0 10 0" VerticalAlignment="Center">
+                        <RadioButton>
+                            <RadioButton.Content>
+                                <Image Height="16" Width="16" Source="../Resources/translate.png"/>
+                            </RadioButton.Content>
+                        </RadioButton>
+                        <RadioButton>
+                            <RadioButton.Content>
+                                <Image Height="16" Width="16" Source="../Resources/rotate.png"/>
+                            </RadioButton.Content>
+                        </RadioButton>
+                        <RadioButton>
+                            <RadioButton.Content>
+                                <Image Height="16" Width="16" Source="../Resources/scale.png"/>
+                            </RadioButton.Content>
+                        </RadioButton>
+                    </hc:ButtonGroup>
                 </StackPanel>
             </ToolBar>
-            <Border Grid.Row="1" Margin="5" Background="Gray"/>
+            <util:Viewport x:Name="viewport" Grid.Row="1" Margin="5"/>
         </Grid>
         <hc:ScrollViewer Grid.Column="2" Grid.Row="0">
             <!--StackPanel Margin="0 10 10 10" VerticalAlignment="Top" hc:Growl.GrowlParent="True"/-->

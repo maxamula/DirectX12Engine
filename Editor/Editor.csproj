@@ -14,6 +14,22 @@
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +37,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>11</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
     <UseVSHostingProcess>true</UseVSHostingProcess>
@@ -32,7 +48,7 @@
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>11</LangVersion>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
@@ -43,9 +59,13 @@
     <Reference Include="Nodify, Version=4.1.0.0, Culture=neutral, PublicKeyToken=58ca583181d34478, processorArchitecture=MSIL">
       <HintPath>..\packages\Nodify.4.1.0\lib\net472\Nodify.dll</HintPath>
     </Reference>
+    <Reference Include="NumericUpDownLib, Version=3.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dirkster.NumericUpDownLib.3.4.0\lib\net40\NumericUpDownLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.4.3.0\lib\net462\System.Runtime.dll</HintPath>
       <Private>True</Private>
@@ -57,6 +77,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -75,6 +96,23 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Components\Component.cs" />
+    <Compile Include="Components\Script.cs" />
+    <Compile Include="Components\Transformation.cs" />
+    <Compile Include="Content\Asset.cs" />
+    <Compile Include="Content\Geometry.cs" />
+    <Compile Include="Controls\ComponentsView.xaml.cs">
+      <DependentUpon>ComponentsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ComponentView.xaml.cs">
+      <DependentUpon>ComponentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ScriptView.xaml.cs">
+      <DependentUpon>ScriptView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TransformationView.xaml.cs">
+      <DependentUpon>TransformationView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GameObject.cs" />
     <Compile Include="GameProject\AssemblyMainCPPTemplate.cs">
       <AutoGen>True</AutoGen>
@@ -105,10 +143,32 @@
     <Compile Include="Project\WindowDialog.xaml.cs">
       <DependentUpon>WindowDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Utils\DragBox.cs" />
+    <Compile Include="Utils\EditBox.cs" />
     <Compile Include="Utils\ResourceWriter.cs" />
     <Compile Include="Utils\Serializer.cs" />
+    <Compile Include="Utils\SurfaceHost.cs" />
+    <Compile Include="Utils\Viewport.xaml.cs">
+      <DependentUpon>Viewport.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils\VMBase.cs" />
+    <Page Include="Controls\ComponentsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ComponentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\SceneView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ScriptView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\TransformationView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -144,6 +204,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Project\WindowDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Utils\Viewport.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -244,6 +308,12 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>WndProcTemplate.cs</LastGenOutput>
     </Content>
+    <Resource Include="Resources\rotate.png" />
+    <Resource Include="Resources\translate.png" />
+    <Resource Include="Resources\scale.png" />
+    <Resource Include="Resources\transform.png" />
+    <Resource Include="Resources\cog.png" />
+    <Resource Include="Resources\play.png" />
     <Resource Include="Resources\addwnd.png" />
     <Resource Include="Resources\wndproc.png" />
     <Resource Include="Resources\screen.png" />
@@ -264,6 +334,17 @@
     </Content>
     <EmbeddedResource Include="GameProject\Engine.dll" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 и x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

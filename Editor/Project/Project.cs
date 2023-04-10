@@ -180,13 +180,16 @@ namespace Editor.Project
         }
         public void Unload()
         {
-            GameProject.SolutionManager.CloseVS();
+            this.GetType();
+            var scenes = Scenes.ToArray();
+            foreach (var scene in scenes)
+                RemoveScene(scene);
         }
         // SCENES
         public void AddScene(string sceneName)
         {
             Debug.Assert(!string.IsNullOrEmpty(sceneName.Trim()));
-            _scenes.Add(new Scene() { Name = sceneName });
+            _scenes.Add(new Scene(this) { Name = sceneName });
         }
         public void RemoveScene(Scene scene)
         {

@@ -4,5 +4,6 @@
     <ClCompile Include="scenegraph.cpp" />
     <ClCompile Include="script.cpp" />
     <ClCompile Include="engine.cpp" />
+    <ClCompile Include="window.cpp" />
   </ItemGroup>
 </Project>

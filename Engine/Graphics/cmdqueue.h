@@ -15,10 +15,10 @@ namespace engine::gfx
 		void Flush();
 		void Release();	
 		// Accessors
-		inline ID3D12CommandQueue* GetCommandQueue() const { return m_cmdQueue; }
-		inline ID3D12CommandAllocator* GetCommandAllocator() const { return m_cmdAlloc[m_iFrame]; }
-		inline uint8_t CurrentBackBufferIndex() const { return m_iFrame; }
-		inline ID3D12GraphicsCommandList6* GetCommandList() const { return m_cmdList; }
+		[[nodiscard]] inline ID3D12CommandQueue* GetCommandQueue() const { return m_cmdQueue; }
+		[[nodiscard]] inline ID3D12CommandAllocator* GetCommandAllocator() const { return m_cmdAlloc[m_iFrame]; }
+		[[nodiscard]] inline uint8_t FramerIndex() const { return m_iFrame; }
+		[[nodiscard]] inline ID3D12GraphicsCommandList6* GetCommandList() const { return m_cmdList; }
 	private:
 		void _WaitGPU(HANDLE event, ID3D12Fence1* pFence);	// wait if gpu is busy while executing commands
 

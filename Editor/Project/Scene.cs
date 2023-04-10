@@ -25,10 +25,11 @@ namespace Editor.Project
         // Engine side
         private Engine.Scene _engineScene;
         // Constructor
-        public Scene()
+        public Scene(Project project)
         {
             _engineScene = new Engine.Scene();
             Objects = new ReadOnlyObservableCollection<GameObject>(_objects);
+            Project = project;
         }
 
         [OnDeserialized]
@@ -56,9 +57,6 @@ namespace Editor.Project
         {
             // destroy engine side and all children
             _engineScene.Destroy();
-            // Remove from project
-            //Project.RemoveScene(this);
-
         }
         public override void _Detach(GameObject obj)
         {

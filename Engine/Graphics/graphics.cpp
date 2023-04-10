@@ -61,7 +61,7 @@ namespace engine::gfx
 					wcstombs(cstr, g_adapterDesc.Description, len);
 					LOG_INFO("Suitable adapter found: {:<30}", cstr);
 					delete cstr;
-					//break;
+					break;
 				}
 			}
 		}

@@ -42,7 +42,7 @@ namespace engine::shaders
 		ShaderCompiler();
 		~ShaderCompiler();
 		DISABLE_MOVE_COPY(ShaderCompiler);
-		IDxcBlob* CompileShader(const void* pShaderSource, uint32_t size, SHADER_TYPE::type shaderType);
+		[[nodiscard]] IDxcBlob* CompileShader(const void* pShaderSource, uint32_t size, SHADER_TYPE::type shaderType);
 	private:
 		const wchar_t* m_profiles[SHADER_TYPE::NUM_SHADER_TYPES]{ L"vs_6_6", L"hs_6_6", L"ds_6_6", L"gs_6_6", L"ps_6_6", L"cs_6_6", L"as_6_6", L"ms_6_6" };
 
@@ -51,7 +51,7 @@ namespace engine::shaders
 		IDxcIncludeHandler* m_includeHandler;
 	};
 
-	D3D12_SHADER_BYTECODE GetEngineShader(ENGINE_SHADER::id id);
+	[[nodiscard]] D3D12_SHADER_BYTECODE GetEngineShader(ENGINE_SHADER::id id);
 	bool Initialize();
 	void Shutdown();
 }

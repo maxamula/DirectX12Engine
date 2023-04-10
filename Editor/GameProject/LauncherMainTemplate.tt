@@ -4,22 +4,13 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ parameter name="windows" type="System.Collections.ObjectModel.ReadOnlyObservableCollection<Editor.Project.EngineWindow>" #>
-#include <windows.h>
-#include <crtdbg.h>
-#include <stdint.h>
-#include <unordered_map>
-#include <thread>
-
-#include "script.h"
+#include "common.h"
+#include "engine.h"
 #include "window.h"
+#include <thread>
+#pragma warning(disable:4996)
 
 using namespace engine;
-
-struct SCIPT_INFO
-{
-	engine::ScriptCreator creator;
-	std::string name;
-};
 
 // Wnd procs
 <#
@@ -42,6 +33,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
 #ifdef _DEBUG
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	AllocConsole();
+	freopen("CONOUT$", "w", stderr);
 #endif // _DEBUG
 	engine::LoadGCDLL(L"GameAssembly.dll");
 	engine::Init();
@@ -59,7 +52,7 @@ foreach(var window in windows)
 	wndDesc.szCaption = (wchar_t*)L"<#=window.Title#>";
 	<#=window.Name#> = Window::Create(hInstance, wndDesc);
 	<#if(window.ShowOnStartup)#>
-	<#=window.Name#>.ShowWnd();
+	<#=window.Name#>->ShowWnd();
 <#}#>
 	bool isRunning = true;
 	std::thread logicThread([&isRunning]() 
@@ -82,8 +75,15 @@ foreach(var window in windows)
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		// TODO render
+<#foreach(var window in windows)
+{#>
+		<#=window.Name#>->Render();
+<#}#>	
 	}
+<#foreach(var window in windows)
+{#>
+	<#=window.Name#>->Destroy();
+<#}#>	
 	engine::UnloadGCDLL();
 	engine::Shutdown();
 	return 0;

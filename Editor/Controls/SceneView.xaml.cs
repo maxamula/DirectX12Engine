@@ -28,7 +28,8 @@ namespace Editor.Controls
         private void OnObjectSelectionChanged(object sender, EventArgs e)
         {
             var obj = (sender as TreeView).SelectedItem;
-            //ComponentsView.Instance.DataContext = obj;
+            if(obj is GameObject)
+                ComponentsView.Instance.DataContext = obj;
         }
 
         private void OnAddChildClick(object sender, RoutedEventArgs e)

@@ -4,14 +4,13 @@
 #include "Graphics/overlay.h"
 #include "Graphics/gpass.h"
 #include "scenegraph.h"
-
-
+#include <iostream>
 namespace engine
 {
 	class WindowImpl;
 	namespace
 	{
-		
+		RECT g_sizingRect = {};
 	}
 
 	class WindowImpl : public Window
@@ -57,7 +56,6 @@ namespace engine
 				ShowWindow(m_hWnd, SW_SHOWNORMAL);
 			}
 			_UpdateSize();
-			m_flagShouldResize = false;
 		}
 
 		void CloseWnd() override
@@ -70,7 +68,14 @@ namespace engine
 		{
 			if (m_dwStyle & WS_CHILD)
 			{
-				GetClientRect(m_hWnd, &m_clientRect);
+				m_render = false;
+				m_mutex.lock();
+				m_width = width;
+				m_height = height;
+				m_surface.Resize(m_width, m_height);
+				gfx::gpass::UpdateSize(m_width, m_height);
+				m_mutex.unlock();
+				m_render = true;
 				return;
 			}
 			m_width = width;
@@ -80,7 +85,7 @@ namespace engine
 			AdjustWindowRect(&m_wndRect, m_dwStyle, FALSE);
 			MoveWindow(m_hWnd, m_wndRect.left, m_wndRect.top, m_wndRect.right, m_wndRect.bottom, true);
 
-			GetClientRect(m_hWnd, &m_clientRect);
+			_UpdateSize();
 		}
 
 		void SetWindowCaption(const wchar_t* szCaption)	override
@@ -94,25 +99,43 @@ namespace engine
 			m_bFullscreen = bState;
 		}
 
-		void Render() override
+		void SetOverlay(void* callback) override
 		{
-			m_surface.Render();
+			m_surface.cbOverlay = (void(_cdecl*)())callback;
 		}
 
-		bool IsFullscreen() const override { return m_bFullscreen; };
-		bool IsClosed() const override { return m_bClosed; }
-		uint16_t Width() const override { return m_width; }
-		uint16_t Height() const override { return m_height; }
-		HWND WinId() const override { return m_hWnd; }
+		void* GetOverlayContext() const override
+		{
+			return m_surface.m_overlayContext->imguiContext;
+		}
+
+		void Render() override
+		{
+			if (m_render)
+			{
+				std::lock_guard<std::mutex> lock(m_mutex);
+				m_surface.Render();
+			}		
+		}
+
+		[[nodiscard]] bool IsFullscreen() const override { return m_bFullscreen; };
+		[[nodiscard]] bool IsClosed() const override { return m_bClosed; }
+		[[nodiscard]] uint16_t Width() const override { return m_width; }
+		[[nodiscard]] uint16_t Height() const override { return m_height; }
+		[[nodiscard]] HWND WinId() const override { return m_hWnd; }
 	private:
 		void _UpdateSize()
 		{
+			m_render = false;
+			m_mutex.lock();
 			GetWindowRect(m_hWnd, &m_wndRect);
 			GetClientRect(m_hWnd, &m_clientRect);
 			m_width = (uint16_t)(m_clientRect.right - m_clientRect.left);
 			m_height = (uint16_t)(m_clientRect.bottom - m_clientRect.top);
 			m_surface.Resize(m_width, m_height);
 			gfx::gpass::UpdateSize(m_width, m_height);
+			m_mutex.unlock();
+			m_render = true;
 		}
 
 		gfx::RenderSurface m_surface;
@@ -127,10 +150,12 @@ namespace engine
 		RECT m_wndRect{};
 		RECT m_clientRect{};
 		DWORD m_dwStyle = WS_OVERLAPPED | WS_SYSMENU;
+		std::mutex m_mutex;
+		std::atomic<bool> m_render = true;
 		bool m_bFullscreen = false;
 		bool m_bClosed = true;
-		bool m_flagShouldResize = false;
 		bool m_flagWasRestored = false;
+		uint8_t m_pad[1] = { 0 };
 	};
 
 	Window* Window::Create(HINSTANCE hInst, GFX_WND_DESC& desc)
@@ -142,6 +167,8 @@ namespace engine
 	LRESULT CALLBACK WndProcBase(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	{
 		WindowImpl* This = (WindowImpl*)GetWindowLongPtr(hwnd, 0);
+		if(!This && !(msg == WM_QUIT))
+			return DefWindowProc(hwnd, msg, wparam, lparam);
 
 		switch (msg)
 		{
@@ -153,11 +180,15 @@ namespace engine
 		case WM_NCDESTROY:
 			return DefWindowProc(hwnd, msg, wparam, lparam);
 			break;
+		case WM_KEYDOWN:
+			
+			break;
 		case WM_EXITSIZEMOVE:
-			if (This->m_flagShouldResize)
+			GetClientRect(hwnd, &g_sizingRect);
+			// if width and height the same then it's a move event
+			if (g_sizingRect.right != This->m_clientRect.right || g_sizingRect.bottom != This->m_clientRect.bottom)
 			{
 				This->_UpdateSize();
-				This->m_flagShouldResize = false;
 			}
 			break;
 		case WM_SIZE:	// TODO resize surface
@@ -165,10 +196,6 @@ namespace engine
 			{
 				This->_UpdateSize();
 				This->m_flagWasRestored = false;
-			}
-			else
-			{
-				This->m_flagShouldResize = true;
 			}
 			break;
 		case WM_SYSCOMMAND:
@@ -180,13 +207,10 @@ namespace engine
 			break;
 		}
 
-		if (This)
-		{
-			This->m_surface.SetImGuiContext();
-			if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam))
-				return true;
-		}
+		This->m_surface.SetOverlayContext();
+		if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam))
+			return true;
 		
-		return (This && This->m_callback) ? This->m_callback(This, hwnd, msg, wparam, lparam) : DefWindowProc(hwnd, msg, wparam, lparam);
+		return (This->m_callback) ? This->m_callback(This, hwnd, msg, wparam, lparam) : DefWindowProc(hwnd, msg, wparam, lparam);
 	}
 }

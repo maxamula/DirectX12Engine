@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Editor", "Editor\Editor.csp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SandBox", "SandBox\SandBox.vcxproj", "{1EE9EA1E-6BAA-4DA0-A78A-E4A7FDE85AED}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImStatic", "ImStatic\ImStatic.vcxproj", "{D0FBE8C7-A7B1-42CA-967E-522FC7956AC8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -25,8 +27,8 @@ Global
 		{29034DC9-1CDE-4D13-BFE5-32172EDBC353}.Release|x64.Build.0 = Release|x64
 		{1D8879AE-0A4E-4067-BF07-76CC0032C86A}.Debug|x64.ActiveCfg = Debug|x64
 		{1D8879AE-0A4E-4067-BF07-76CC0032C86A}.Debug|x64.Build.0 = Debug|x64
-		{1D8879AE-0A4E-4067-BF07-76CC0032C86A}.Release|x64.ActiveCfg = Debug|x64
-		{1D8879AE-0A4E-4067-BF07-76CC0032C86A}.Release|x64.Build.0 = Debug|x64
+		{1D8879AE-0A4E-4067-BF07-76CC0032C86A}.Release|x64.ActiveCfg = Release|x64
+		{1D8879AE-0A4E-4067-BF07-76CC0032C86A}.Release|x64.Build.0 = Release|x64
 		{1A0785B0-E3FA-47BD-912B-99A187AA0CD1}.Debug|x64.ActiveCfg = Debug|x64
 		{1A0785B0-E3FA-47BD-912B-99A187AA0CD1}.Debug|x64.Build.0 = Debug|x64
 		{1A0785B0-E3FA-47BD-912B-99A187AA0CD1}.Release|x64.ActiveCfg = Release|x64
@@ -38,6 +40,10 @@ Global
 		{1EE9EA1E-6BAA-4DA0-A78A-E4A7FDE85AED}.Debug|x64.Build.0 = Debug|x64
 		{1EE9EA1E-6BAA-4DA0-A78A-E4A7FDE85AED}.Release|x64.ActiveCfg = Release|x64
 		{1EE9EA1E-6BAA-4DA0-A78A-E4A7FDE85AED}.Release|x64.Build.0 = Release|x64
+		{D0FBE8C7-A7B1-42CA-967E-522FC7956AC8}.Debug|x64.ActiveCfg = Debug|x64
+		{D0FBE8C7-A7B1-42CA-967E-522FC7956AC8}.Debug|x64.Build.0 = Debug|x64
+		{D0FBE8C7-A7B1-42CA-967E-522FC7956AC8}.Release|x64.ActiveCfg = Release|x64
+		{D0FBE8C7-A7B1-42CA-967E-522FC7956AC8}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

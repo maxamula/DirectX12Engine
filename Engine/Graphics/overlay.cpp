@@ -3,17 +3,23 @@
 
 namespace engine::gfx::overlay
 {
-    static std::unordered_map<ImGuiContext*, gfx::DESCRIPTOR_HANDLE> s_imguiHeaps;
+    static std::unordered_map<OVERLAY_CONTEXT*, gfx::DESCRIPTOR_HANDLE> s_imguiHeaps;
 
-    ImGuiContext* Initialize(HWND hWnd, uint16_t initWidth, uint16_t initHeight)
+    OVERLAY_CONTEXT* Initialize(HWND hWnd, uint16_t initWidth, uint16_t initHeight)
     {
         LOG_DEBUG("Initializing ImGui..."); 
-        ImGuiContext* context = ImGui::CreateContext();
-        ImGui::SetCurrentContext(context);
-        assert_throw(context, "Failed to create ImGui context.");
+        ImGuiContext* imguiContext = ImGui::CreateContext();
+        ImPlotContext* implotContext = ImPlot::CreateContext();
+        ImGui::SetCurrentContext(imguiContext);
+        ImPlot::SetCurrentContext(implotContext);
+        ImPlot::SetImGuiContext(imguiContext);
+        assert_throw(imguiContext, "Failed to create ImGui context.");
+        assert_throw(implotContext, "Failed to create ImPlot context.");
+        
+        OVERLAY_CONTEXT* context = new OVERLAY_CONTEXT{ imguiContext, implotContext };
         assert(s_imguiHeaps.find(context) == s_imguiHeaps.end());
-        //ImGui::StyleColorsLight();
-        ImGui::StyleColorsClassic();
+
+        ImGui::StyleColorsDark();
 
         gfx::DESCRIPTOR_HANDLE allocation = g_srvHeap.Allocate();
 
@@ -25,18 +31,21 @@ namespace engine::gfx::overlay
         return context;
     }
 
-    void Shutdown(ImGuiContext* context)
+    void Shutdown(OVERLAY_CONTEXT* context)
     {
         if (!context) return;
         auto it = s_imguiHeaps.find(context);
         assert_throw(it != s_imguiHeaps.end(), "Overlay release error. ImGui context not found.");
         
-        ImGui::SetCurrentContext(context);
+        ImGui::SetCurrentContext(context->imguiContext);
+        ImPlot::SetCurrentContext(context->implotContext);
 		ImGui_ImplDX12_Shutdown();
 		ImGui_ImplWin32_Shutdown();
+        ImPlot::DestroyContext();
 		ImGui::DestroyContext();
         g_srvHeap.Free(it->second);
         s_imguiHeaps.erase(it);
+        delete context;
 	}
 
 }
