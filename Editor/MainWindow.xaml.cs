@@ -115,5 +115,11 @@ namespace Editor
         {
             viewport.Destroy();
         }
+
+        private void CreatePrimitiveClick(object sender, RoutedEventArgs e)
+        {
+            var dlg = new Controls.PrimitiveDialog();
+            dlg.ShowDialog();
+        }
     }
 }

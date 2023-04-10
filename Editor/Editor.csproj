@@ -107,6 +107,9 @@
     <Compile Include="Controls\ComponentView.xaml.cs">
       <DependentUpon>ComponentView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PrimitiveDialog.xaml.cs">
+      <DependentUpon>PrimitiveDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\ScriptView.xaml.cs">
       <DependentUpon>ScriptView.xaml</DependentUpon>
     </Compile>
@@ -143,7 +146,6 @@
     <Compile Include="Project\WindowDialog.xaml.cs">
       <DependentUpon>WindowDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Utils\DragBox.cs" />
     <Compile Include="Utils\EditBox.cs" />
     <Compile Include="Utils\ResourceWriter.cs" />
     <Compile Include="Utils\Serializer.cs" />
@@ -157,6 +159,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ComponentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\PrimitiveDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

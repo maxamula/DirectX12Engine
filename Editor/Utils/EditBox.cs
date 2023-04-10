@@ -56,21 +56,23 @@ namespace Editor.Utils
                 _editBox.FontSize = this.FontSize;
                 _editBox.FontStyle = this.FontStyle;
                 _editBox.FontWeight = this.FontWeight;
-                _editBox.BorderThickness = new Thickness(1);
+                _editBox.BorderThickness = new Thickness(0);
                 _editBox.BorderBrush = Brushes.Black;
                 _editBox.Focusable = true;
                 _editBox.Foreground = Brushes.Black;
                 _editBox.Background = Brushes.White;
-                //_editBox.Width = this.ActualWidth;
-                _editBox.Padding = new Thickness(0);
                 _editBox.PreviewKeyDown += EditBox_PreviewKeyDown;
+                _editBox.LostFocus += (s, e) => ExitEditMode();
                 this.Visibility = Visibility.Collapsed;
-                _editBox.Focus();
+
                 var parent = VisualTreeHelper.GetParent(this) as Panel;
                 if (parent != null)
                 {
                     parent.Children.Add(_editBox);
-                    _editBox.Focus();
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        _editBox.Focus();
+                    }), DispatcherPriority.Render);
                 }
             }
         }

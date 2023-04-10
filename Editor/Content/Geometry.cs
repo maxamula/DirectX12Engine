@@ -13,8 +13,7 @@ namespace Editor.Content
     {
         Plane,
         Box,
-        Sphere,
-        Count
+        Sphere
     };
 
     public class Mesh : VMBase

@@ -28,6 +28,9 @@
                     <MenuItem Header="Create scriptable obj"/>
                     <MenuItem Header="Create wnd procedure"/>
                 </MenuItem>
+                <MenuItem Header="Mesh">
+                    <MenuItem Header="Create primitive" Click="CreatePrimitiveClick"/>
+                </MenuItem>
             </Menu>
         </Grid>
     </hc:Window.NonClientAreaContent>
@@ -73,7 +76,7 @@
                         </Button.ToolTip>
                     </Button>
                     <hc:ButtonGroup Margin="10 0 10 0" VerticalAlignment="Center">
-                        <RadioButton>
+                        <RadioButton IsChecked="True">
                             <RadioButton.Content>
                                 <Image Height="16" Width="16" Source="../Resources/translate.png"/>
                             </RadioButton.Content>
