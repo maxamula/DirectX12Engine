@@ -8,7 +8,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <hc:Theme AccentColor="#29abdf"/>
-                <ResourceDictionary Source="pack://application:,,,/Nodify;component/Themes/Light.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Nodify;component/Themes/Light.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Utils/Templates.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

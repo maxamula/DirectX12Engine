@@ -70,7 +70,7 @@ namespace engine::gfx
 			if (FAILED(D3D12SerializeVersionedRootSignature(&versionedDesc, &sigBlob, &errorBlob)))
 			{
 				const char* errormsg = errorBlob ? (const char*)errorBlob->GetBufferPointer() : "";
-				LOG_ERROR("Failed to Serialize versioned root signature ({})", errormsg);
+				throw std::runtime_error("Failed to Serialize versioned root signature (" + std::string(errormsg) + ")");
 				return nullptr;
 			};
 			ID3D12RootSignature* signature = NULL;

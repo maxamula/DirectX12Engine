@@ -1,4 +1,5 @@
-﻿using Editor.GameProject;
+﻿using Editor.Controls;
+using Editor.GameProject;
 using Editor.Utils;
 using Engine;
 using EnvDTE;
@@ -12,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Security.Cryptography;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -211,22 +213,68 @@ namespace Editor.Project
                 }
             }
         }
-        private string GCDllPath { get => $@"{Path}{Name}\x64\Debug\GameAssembly.dll"; }
-        public void BuildGameAssembly(Action callback = null)
+        private Engine.ScriptInfo[] _scripts = null;
+        public Engine.ScriptInfo[] Scripts
         {
-            SolutionManager.Build(this, "Debug", new Action(() =>
+            get => _scripts;
+            set
             {
-                if (File.Exists(GCDllPath))
+                if (_scripts != value)
                 {
-                    Engine.Scripting.LoadGCDLL(GCDllPath);
-                    //project.AvailableScripts = CLIEngine.Script.GetScriptNames();
+                    _scripts = value;
+                    OnPropertyChanged(nameof(Scripts));
                 }
-                else
+            }
+        }
+        private string GCDllPath { get => $@"{Path}{Name}\x64\Debug\GameAssembly.dll"; }
+        public void CompileGameAssembly()
+        {
+            Engine.Scripting.UnloadGCDLL();
+            SolutionManager.BuildProject(this, GameProjectType.GameAssembly, "Debug", new Action(() => {
+                Engine.Scripting.LoadGCDLL(GCDllPath);
+                Scripts = Engine.Scripting.GetScriptNames();
+            }));
+        }
+
+        public void RunGameProject()
+        {
+            foreach(var scene in _scenes)
+            {
+                scene.SaveBin($@"{Path}{Name}\x64\Debug\{scene.Name.ToLower()}.bin");
+            }
+            SolutionManager.BuildProject(this, GameProjectType.Launcher, "Debug", new Action(() => {
+                ProcessStartInfo process = new ProcessStartInfo();
+                process.UseShellExecute = false;
+                process.FileName = $@"{Path}{Name}\x64\Debug\{Name}.exe";
+                using (System.Diagnostics.Process proc = System.Diagnostics.Process.Start(process))
                 {
-                    Debug.WriteLine($"GameAssembly.dll does not exist at {GCDllPath}");
-                    Growl.Warning($"GameAssembly.dll does not exist at {GCDllPath}");
+                    proc.WaitForExit();
                 }
-            }), callback);
+            }));
+        }
+
+        public void AddScript(string name)
+        {
+            var Cpp = System.IO.Path.GetFullPath(System.IO.Path.Combine(Path, $"{Name}\\GameCode\\GameAssembly\\{name.ToLower()}.cpp"));
+            var H = System.IO.Path.GetFullPath(System.IO.Path.Combine(Path, $"{Name}\\GameCode\\GameAssembly\\{name.ToLower()}.h"));
+            var parameters = new Dictionary<string, object>()
+            {
+                {"ScriptName", name },
+                {"Namespace", this.Name.ToLower() }
+            };
+            GameProject.ScriptHTemplate hTemplate = new GameProject.ScriptHTemplate();
+            hTemplate.Session = parameters;
+            hTemplate.Initialize();
+            using (var sw = File.CreateText(H))
+                sw.Write(hTemplate.TransformText());
+
+            GameProject.ScriptCppTemplate cppTemplate = new GameProject.ScriptCppTemplate();
+            cppTemplate.Session = parameters;
+            cppTemplate.Initialize();
+            using (var sw = File.CreateText(Cpp))
+                sw.Write(cppTemplate.TransformText());
+
+            GameProject.SolutionManager.AddFiles(System.IO.Path.GetFullPath(System.IO.Path.Combine(Path, $"{Name}.sln")), "GameAssembly", new string[] { Cpp, H });
         }
 
         public void UpdateGPFiles()
@@ -262,11 +310,32 @@ namespace Editor.Project
         [DataMember] private ObservableCollection<EngineWindow> _windows = new ObservableCollection<EngineWindow>();
         public ReadOnlyObservableCollection<EngineWindow> Windows { get; set; }
 
+        public void AddWindow(string name)
+        {
+            _windows.Add(new EngineWindow() { Title = name, Name = $"g_{name.ToLower()}", Height = 600, Width = 800, IsFullScreen = false, Procedure = "", ShowOnStartup = false });
+        }
+
+        public void AddWndProc(string procname)
+        {
+            GameProject.WndProcTemplate wndProcTemplate = new GameProject.WndProcTemplate();
+            var wndProcCpp = System.IO.Path.GetFullPath(System.IO.Path.Combine(Path, $"{Name}\\GameCode\\GameAssembly\\{procname.ToLower()}.cpp"));
+            var parameters = new Dictionary<string, object>()
+            {
+                {"procName", procname }
+            };
+            wndProcTemplate.Session = parameters;
+            wndProcTemplate.Initialize();
+            using (var sw = File.CreateText(wndProcCpp))
+                sw.Write(wndProcTemplate.TransformText());
+            GameProject.SolutionManager.AddFiles(System.IO.Path.GetFullPath(System.IO.Path.Combine(Path, $"{Name}.sln")), "GameAssembly", new string[] { wndProcCpp });
+        }
+
 
         [DataMember(Name = "Scenes")] private ObservableCollection<Scene> _scenes = new ObservableCollection<Scene>();
         public ReadOnlyObservableCollection<Scene> Scenes { get; private set; }
         public static Project Current { get => Application.Current.MainWindow.DataContext as Project; }
         [DataMember] public string Name { get; private set; }
         [DataMember] public string Path { get; private set; }
+        public string ContentPath { get => $@"{Path}{Name}\Content\"; }
     }
 }

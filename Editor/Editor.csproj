@@ -56,6 +56,7 @@
     <Reference Include="HandyControl, Version=3.4.0.0, Culture=neutral, PublicKeyToken=45be8712787a1e5b, processorArchitecture=MSIL">
       <HintPath>..\packages\HandyControl.3.4.0\lib\net472\HandyControl.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Nodify, Version=4.1.0.0, Culture=neutral, PublicKeyToken=58ca583181d34478, processorArchitecture=MSIL">
       <HintPath>..\packages\Nodify.4.1.0\lib\net472\Nodify.dll</HintPath>
     </Reference>
@@ -100,12 +101,21 @@
     <Compile Include="Components\Script.cs" />
     <Compile Include="Components\Transformation.cs" />
     <Compile Include="Content\Asset.cs" />
+    <Compile Include="Content\AssetRegistry.cs" />
+    <Compile Include="Content\CManager.cs" />
+    <Compile Include="Content\ContentBrowser.cs" />
     <Compile Include="Content\Geometry.cs" />
     <Compile Include="Controls\ComponentsView.xaml.cs">
       <DependentUpon>ComponentsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\ComponentView.xaml.cs">
       <DependentUpon>ComponentView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ContentBrowserView.xaml.cs">
+      <DependentUpon>ContentBrowserView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Controls\PrimitiveDialog.xaml.cs">
       <DependentUpon>PrimitiveDialog.xaml</DependentUpon>
@@ -115,6 +125,9 @@
     </Compile>
     <Compile Include="Controls\TransformationView.xaml.cs">
       <DependentUpon>TransformationView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\WindowManagerPage.xaml.cs">
+      <DependentUpon>WindowManagerPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="GameObject.cs" />
     <Compile Include="GameProject\AssemblyMainCPPTemplate.cs">
@@ -132,6 +145,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>LauncherMainTemplate.tt</DependentUpon>
     </Compile>
+    <Compile Include="GameProject\ScriptCppTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ScriptCppTemplate.tt</DependentUpon>
+    </Compile>
     <Compile Include="GameProject\ScriptHTemplate.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -143,13 +161,19 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>WndProcTemplate.tt</DependentUpon>
     </Compile>
-    <Compile Include="Project\WindowDialog.xaml.cs">
-      <DependentUpon>WindowDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Utils\EditBox.cs" />
+    <Compile Include="Utils\GeometryEditor.cs" />
+    <Compile Include="Utils\GeometryView.xaml.cs">
+      <DependentUpon>GeometryView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Utils\IAssetEditor.cs" />
+    <Compile Include="Utils\NumBox.cs" />
     <Compile Include="Utils\ResourceWriter.cs" />
     <Compile Include="Utils\Serializer.cs" />
     <Compile Include="Utils\SurfaceHost.cs" />
+    <Compile Include="Utils\Templates.xaml.cs">
+      <DependentUpon>Templates.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Utils\Viewport.xaml.cs">
       <DependentUpon>Viewport.xaml</DependentUpon>
     </Compile>
@@ -159,6 +183,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\ComponentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\ContentBrowserView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -175,6 +207,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\TransformationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\WindowManagerPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -209,7 +245,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Project\WindowDialog.xaml">
+    <Page Include="Utils\GeometryView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Utils\Templates.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -310,10 +350,18 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>AssemblyMainHTemplate.cs</LastGenOutput>
     </Content>
+    <Content Include="GameProject\ScriptCppTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>ScriptCppTemplate.cs</LastGenOutput>
+    </Content>
     <Content Include="GameProject\WndProcTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>WndProcTemplate.cs</LastGenOutput>
     </Content>
+    <Resource Include="Resources\script.png" />
+    <Resource Include="Resources\window.png" />
+    <Resource Include="Resources\grass.png" />
+    <Resource Include="Resources\c-.png" />
     <Resource Include="Resources\rotate.png" />
     <Resource Include="Resources\translate.png" />
     <Resource Include="Resources\scale.png" />

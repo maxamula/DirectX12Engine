@@ -22,6 +22,10 @@
     <ClInclude Include="logger.h" />
     <ClInclude Include="Graphics\overlay.h" />
     <ClInclude Include="Graphics\postprocess.h" />
+    <ClInclude Include="Graphics\buffers.h" />
+    <ClInclude Include="Graphics\upload.h" />
+    <ClInclude Include="Graphics\content.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\graphics.cpp" />
@@ -43,6 +47,11 @@
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="Graphics\overlay.cpp" />
     <ClCompile Include="Graphics\postprocess.cpp" />
+    <ClCompile Include="Graphics\buffers.cpp" />
+    <ClCompile Include="Graphics\upload.cpp" />
+    <ClCompile Include="Graphics\content.cpp" />
+    <ClCompile Include="utils.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -135,52 +135,93 @@ if(window.Procedure != null){
             
             #line default
             #line hidden
-            this.Write("wndDesc.callback = ");
+            this.Write("\twndDesc.callback = (WndProcFnPtr)");
             
-            #line 50 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            #line 51 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(window.Procedure));
             
             #line default
             #line hidden
-            this.Write(";");
+            this.Write(";\r\n");
             
-            #line 50 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            #line 52 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+} else {
+            
+            #line default
+            #line hidden
+            this.Write("\twndDesc.callback = nullptr;\r\n");
+            
+            #line 54 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write("\twndDesc.hParent = nullptr;\r\n\twndDesc.szCaption = (wchar_t*)L\"");
             
-            #line 52 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            #line 56 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(window.Title));
             
             #line default
             #line hidden
-            this.Write("\";\r\n\t");
+            this.Write("\";\r\n\twndDesc.width = ");
             
-            #line 53 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            #line 57 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(window.Width));
+            
+            #line default
+            #line hidden
+            this.Write(";\r\n\twndDesc.height = ");
+            
+            #line 58 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(window.Height));
+            
+            #line default
+            #line hidden
+            this.Write(";\r\n\t");
+            
+            #line 59 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(window.Name));
             
             #line default
             #line hidden
-            this.Write(" = Window::Create(hInstance, wndDesc);\r\n\t");
+            this.Write(" = Window::Create(hInstance, wndDesc);\r\n");
             
-            #line 54 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
-if(window.ShowOnStartup)
+            #line 60 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+if(window.IsFullScreen){
             
             #line default
             #line hidden
             this.Write("\t");
             
-            #line 55 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            #line 61 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(window.Name));
+            
+            #line default
+            #line hidden
+            this.Write("->Fullscreen(true);\r\n");
+            
+            #line 62 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+}
+            
+            #line default
+            #line hidden
+            
+            #line 63 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+if(window.ShowOnStartup){
+            
+            #line default
+            #line hidden
+            this.Write("\t");
+            
+            #line 64 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(window.Name));
             
             #line default
             #line hidden
             this.Write("->ShowWnd();\r\n");
             
-            #line 56 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
-}
+            #line 65 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+}}
             
             #line default
             #line hidden
@@ -207,7 +248,7 @@ if(window.ShowOnStartup)
 		}
 ");
             
-            #line 78 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            #line 87 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
 foreach(var window in windows)
 {
             
@@ -215,21 +256,21 @@ foreach(var window in windows)
             #line hidden
             this.Write("\t\t");
             
-            #line 80 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            #line 89 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(window.Name));
             
             #line default
             #line hidden
             this.Write("->Render();\r\n");
             
-            #line 81 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            #line 90 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write("\t\r\n\t}\r\n");
             
-            #line 83 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            #line 92 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
 foreach(var window in windows)
 {
             
@@ -237,14 +278,14 @@ foreach(var window in windows)
             #line hidden
             this.Write("\t");
             
-            #line 85 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            #line 94 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(window.Name));
             
             #line default
             #line hidden
             this.Write("->Destroy();\r\n");
             
-            #line 86 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
+            #line 95 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\LauncherMainTemplate.tt"
 }
             
             #line default

@@ -28,6 +28,12 @@ foreach(var window in windows)
 {#>
 __declspec(dllexport) extern Window* <#=window.Name#>;
 <#}#>
-
-__declspec(dllexport) std::unordered_map<uint64_t ,SCIPT_INFO>& ScriptTable();	// guaranteed to be initialized before main
+extern "C"
+{
+	__declspec(dllexport) std::unordered_map<uint64_t ,SCIPT_INFO>& ScriptTable();
+}
+#ifndef _DEBUG
 uint8_t RegisterScript(uint64_t handle, ScriptCreator creator);
+#else
+uint8_t RegisterScript(uint64_t handle, ScriptCreator creator, const char* name);
+#endif

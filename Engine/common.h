@@ -25,7 +25,27 @@
 #define DISABLE_COPY(class_name) class_name(const class_name&) = delete; class_name& operator=(const class_name&) = delete;
 #define assert_throw(x, msg) if(!(x)) { throw std::exception(msg); }
 #define DEVICE_CHECK assert_throw(device, "Device not initialized")
-#define succeed(x, msg) if(FAILED(x)) { throw std::exception(msg); }
+
+class com_exception : public std::exception
+{
+public:
+    com_exception(HRESULT hr) : result(hr) {}
+
+    const char* what() const noexcept override
+    {
+        static char s_str[64] = {};
+        sprintf_s(s_str, "Failure with HRESULT of %08X",
+            static_cast<unsigned int>(result));
+        return s_str;
+    }
+
+private:
+    HRESULT result;
+};
+
+// Helper utility converts D3D API failures into exceptions.
+#define ThrowIfFailed(hr) if (FAILED(hr)) throw com_exception(hr)
+
 #ifdef _DEBUG
 #define SET_NAME(x, name) x->SetName(name)
 #else
@@ -63,16 +83,28 @@ const uint32_t uint32_invalid = 0xFFFFFFFF;
 
 struct Vec2
 {
+	Vec2() = default;
+	Vec2(float x, float y)
+		: x(x), y(y)
+	{}
 	float x, y;
 };
 
 struct Vec3
 {
+	Vec3() = default;
+	Vec3(float x, float y, float z)
+		: x(x), y(y), z(z)
+	{}
 	float x, y, z;
 };
 
 struct Vec4
 {
+	Vec4() = default;
+	Vec4(float x, float y, float z, float w)
+		: x(x), y(y), z(z), w(w)
+	{}
 	float x, y, z, w;
 };
 

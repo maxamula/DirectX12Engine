@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -13,7 +14,12 @@ namespace Editor.Components
         public Script(GameObject parent) : base(parent)
         {    }
 
-        
+        public override void WriteBin(BinaryWriter bw)
+        {
+            bw.Write(_id);
+        }
+        public override ComponentType GetComponentType() => ComponentType.Script;
+
         [DataMember] private string _name;
         public string Name
         {
@@ -25,6 +31,15 @@ namespace Editor.Components
             }
         }
 
-        [DataMember] private long _id;
+        [DataMember] private ulong _id;
+        public ulong ID
+        {
+            get => _id;
+            set
+            {
+                _id = value;
+                OnPropertyChanged(nameof(ID));
+            }
+        }
     }
 }

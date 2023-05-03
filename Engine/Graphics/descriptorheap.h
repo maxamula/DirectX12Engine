@@ -1,5 +1,4 @@
 #pragma once
-#include "graphics.h"
 
 // directXTK descriptor heap
 #include <DescriptorHeap.h>

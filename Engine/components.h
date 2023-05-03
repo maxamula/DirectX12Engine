@@ -3,9 +3,10 @@
 
 namespace engine
 {
+	class IScript;
 	struct COMPONENT_TYPE
 	{
-		enum type
+		enum type : uint16_t
 		{
 			TRANSFORM,
 			MESH,

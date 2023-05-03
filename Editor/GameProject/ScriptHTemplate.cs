@@ -28,30 +28,29 @@ namespace Editor.GameProject
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("#pragma once\r\nusing namespace engine;\r\n\r\nREGISTER_SCRIPT(");
-            
-            #line 10 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\ScriptHTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(ScriptName));
-            
-            #line default
-            #line hidden
-            this.Write(");\r\n\r\nclass ");
+            this.Write("#pragma once\r\n#include \"script.h\"\r\nusing namespace engine;\r\n\r\nnamespace ");
             
             #line 12 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\ScriptHTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(Namespace));
+            
+            #line default
+            #line hidden
+            this.Write("\r\n{\r\n\tclass ");
+            
+            #line 14 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\ScriptHTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ScriptName));
             
             #line default
             #line hidden
-            this.Write(" : public IScript\r\n{\r\npublic:\r\n\t");
+            this.Write(" : public IScript\r\n\t{\r\n\tpublic:\r\n\t\t");
             
-            #line 15 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\ScriptHTemplate.tt"
+            #line 17 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\ScriptHTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ScriptName));
             
             #line default
             #line hidden
-            this.Write("(GameObject& obj)\r\n\t\t: IScript(obj)\r\n\t{}\r\n\r\n\t// Called once at the start of the g" +
-                    "ame\r\n\tvoid Begin() override\r\n\t{\r\n\t\t\r\n\t}\r\n\r\n\t// Called every frame\r\n\tvoid Update(" +
-                    "float fElapsedTime) override\r\n\t{\r\n\t\t\r\n\t} \r\n};");
+            this.Write("(GameObject& obj);\r\n\r\n\t\tvoid Begin() override;\r\n\r\n\t\tvoid Update(float fElapsedTim" +
+                    "e) override;\r\n\t};\r\n}");
             return this.GenerationEnvironment.ToString();
         }
         
@@ -67,6 +66,19 @@ private string ScriptName
     get
     {
         return this._ScriptNameField;
+    }
+}
+
+private string _NamespaceField;
+
+/// <summary>
+/// Access the Namespace parameter of the template.
+/// </summary>
+private string Namespace
+{
+    get
+    {
+        return this._NamespaceField;
     }
 }
 
@@ -90,6 +102,20 @@ if ((ScriptNameValueAcquired == false))
     if ((data != null))
     {
         this._ScriptNameField = ((string)(data));
+    }
+}
+bool NamespaceValueAcquired = false;
+if (this.Session.ContainsKey("Namespace"))
+{
+    this._NamespaceField = ((string)(this.Session["Namespace"]));
+    NamespaceValueAcquired = true;
+}
+if ((NamespaceValueAcquired == false))
+{
+    object data = global::System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("Namespace");
+    if ((data != null))
+    {
+        this._NamespaceField = ((string)(data));
     }
 }
 

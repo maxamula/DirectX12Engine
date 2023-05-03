@@ -10,7 +10,7 @@ namespace engine::gfx
 	struct GFX_FRAME_DESC;
 	namespace gpass
 	{
-		bool Initialize();
+		void Initialize();
 		void Shutdown();
 		void UpdateSize(uint32_t width, uint32_t height);
 		void SetPipelineForDepthPrepass(ID3D12GraphicsCommandList6* cmd);

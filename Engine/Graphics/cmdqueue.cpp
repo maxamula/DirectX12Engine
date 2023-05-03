@@ -86,5 +86,6 @@ namespace engine::gfx
 			pFence->SetEventOnCompletion(m_fenceValue, event);
 			WaitForSingleObject(event, INFINITE);
 		}
+		DeferedReleaseEvent();
 	}
 }

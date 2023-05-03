@@ -3,9 +3,11 @@
   <ItemGroup>
     <ClInclude Include="geometry.h" />
     <ClInclude Include="content_common.h" />
+    <ClInclude Include="fbximporter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="geometry.cpp" />
+    <ClCompile Include="fbximporter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

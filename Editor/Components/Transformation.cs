@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Media3D;
@@ -21,6 +23,21 @@ namespace Editor.Components
             _rotx = RotX; _roty = RotY; _rotz = RotZ;
             _scalex = ScaleX; _scaley = ScaleY; _scalez = ScaleZ;
         }
+        public override void WriteBin(BinaryWriter bw)
+        {
+            bw.Write(_x);
+            bw.Write(_y);
+            bw.Write(_z);
+
+            bw.Write(_rotx);
+            bw.Write(_roty);
+            bw.Write(_rotz);
+
+            bw.Write(_scalex);
+            bw.Write(_scaley);
+            bw.Write(_scalez);
+        }
+        public override ComponentType GetComponentType() => ComponentType.Transfoormation;
         public override void ApplyToEngine()
         {
             _engineTransformation = Object._engineObject.GetTransformation();

@@ -4,27 +4,20 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ parameter name = "ScriptName" type = "System.String"#>
+<#@ parameter name = "Namespace" type = "System.String"#>
 #pragma once
+#include "script.h"
 using namespace engine;
 
-REGISTER_SCRIPT(<#=ScriptName#>);
-
-class <#=ScriptName#> : public IScript
+namespace <#=Namespace#>
 {
-public:
-	<#=ScriptName#>(GameObject& obj)
-		: IScript(obj)
-	{}
-
-	// Called once at the start of the game
-	void Begin() override
+	class <#=ScriptName#> : public IScript
 	{
-		
-	}
+	public:
+		<#=ScriptName#>(GameObject& obj);
 
-	// Called every frame
-	void Update(float fElapsedTime) override
-	{
-		
-	} 
-};
+		void Begin() override;
+
+		void Update(float fElapsedTime) override;
+	};
+}

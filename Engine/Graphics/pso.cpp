@@ -14,7 +14,7 @@ namespace engine::gfx
 	ID3D12PipelineState* CreatePSO(D3D12_PIPELINE_STATE_STREAM_DESC desc)
 	{
 		ID3D12PipelineState* pso = nullptr;
-		succeed(device->CreatePipelineState(&desc, IID_PPV_ARGS(&pso)), "Failed to create PSO");
+		ThrowIfFailed(device->CreatePipelineState(&desc, IID_PPV_ARGS(&pso)));
 		return pso;
 	}
 }

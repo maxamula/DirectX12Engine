@@ -14,7 +14,7 @@ foreach(var window in windows)
 __declspec(dllexport) Window* <#=window.Name#>;
 <#}#>
 
-__declspec(dllexport) std::unordered_map<uint64_t ,SCIPT_INFO>& ScriptTable()
+std::unordered_map<uint64_t ,SCIPT_INFO>& ScriptTable()
 {
 	static std::unordered_map<uint64_t, SCIPT_INFO> table;
 	return table;

@@ -1,5 +1,7 @@
 #include "scenegraph.h"
 #include <entt/entt.hpp>
+#include "utils.h"
+#include "script.h"
 
 
 namespace engine
@@ -10,6 +12,7 @@ namespace engine
 	class ENGINE_API GameObjectImpl : public GameObject
 	{
 		friend class SceneImpl;
+		friend Scene& Scene::FromBinary(uint8_t* bin);
 	public:
 		GameObject& CreateObject() override
 		{
@@ -54,6 +57,12 @@ namespace engine
 		{
 			return m_reg.get<Transformation>(m_id);
 		}
+
+		void SetScript(ScriptPtr script) const 
+		{
+			m_reg.emplace_or_replace<Script>(m_id, std::move(script));
+		}
+
 	private:
 		GameObjectImpl(entt::registry& reg, ParentBase& parent)
 			: m_parent(parent), m_reg(reg)
@@ -69,6 +78,7 @@ namespace engine
 
 	class ENGINE_API SceneImpl : public Scene
 	{
+		friend Scene& Scene::FromBinary(uint8_t* bin);
 	public:
 		SceneImpl() = default;
 		GameObject& CreateObject() override
@@ -111,6 +121,41 @@ namespace engine
 	private:
 		entt::registry m_registry;
 	};
+
+	Scene& Scene::FromBinary(uint8_t* bin)
+	{
+		utils::BinaryReader br(bin);
+		SceneImpl* scene = new SceneImpl();
+		const uint32_t objectCount = br.ReadUInt32();
+		for (uint32_t i = 0; i < objectCount; i++)
+		{
+			const uint16_t componentCount = br.ReadUInt16();
+			GameObjectImpl& obj = dynamic_cast<GameObjectImpl&>(scene->CreateObject());
+			for (uint32_t j = 0; j < componentCount; i++)
+			{
+				const COMPONENT_TYPE::type type = static_cast<COMPONENT_TYPE::type>(br.ReadUInt16());
+				switch (type)
+				{
+				case COMPONENT_TYPE::TRANSFORM:
+				{
+					Transformation& t = obj.GetTransformation();
+					t.position = { br.ReadFloat(), br.ReadFloat(), br.ReadFloat() };
+					t.rotation = { br.ReadFloat(), br.ReadFloat(), br.ReadFloat() };
+					t.scale = { br.ReadFloat(), br.ReadFloat(), br.ReadFloat() };
+					break;
+				}
+				case COMPONENT_TYPE::SCRIPT:
+				{
+					const uint64_t scriptId = br.ReadUInt64();
+					ScriptPtr pScript = GetScriptTable()[scriptId].creator(obj);
+					obj.SetScript(std::move(pScript));
+					break;
+				}
+				}
+			}
+		}
+		return *scene;
+	}
 
 	Scene& CreateScene()
 	{

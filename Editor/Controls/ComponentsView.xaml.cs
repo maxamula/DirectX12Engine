@@ -29,9 +29,10 @@ namespace Editor.Controls
             Instance = this;
         }
 
-        private void OnAddScript(object sender, RoutedEventArgs e)
+        private void OnAddComponent(object sender, RoutedEventArgs e)
         {
             GameObject obj = (GameObject)DataContext;
+            //ComponentType type = (sender as ContextMenuItem)
             obj.AddComponent(new Script(obj));
         }
 

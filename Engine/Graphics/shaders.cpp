@@ -37,9 +37,9 @@ namespace engine
 
 		ShaderCompiler::ShaderCompiler()
 		{
-			succeed(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&m_compiler)), "Failed to create dxc compiler");
-			succeed(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&m_utils)), "Failed to create dxc utils");
-			succeed(m_utils->CreateDefaultIncludeHandler(&m_includeHandler), "Failed to create default include handler");
+			ThrowIfFailed(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&m_compiler)));
+			ThrowIfFailed(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&m_utils)));
+			ThrowIfFailed(m_utils->CreateDefaultIncludeHandler(&m_includeHandler));
 		}
 
 		ShaderCompiler::~ShaderCompiler()
@@ -52,7 +52,7 @@ namespace engine
 		IDxcBlob* ShaderCompiler::CompileShader(const void* pShaderSource, uint32_t size, SHADER_TYPE::type shaderType)
 		{
 			IDxcBlobEncoding* shaderSource = nullptr;
-			succeed(m_utils->CreateBlobFromPinned(pShaderSource, size, CP_UTF8, &shaderSource), "Failed to create blob from pinned");
+			ThrowIfFailed(m_utils->CreateBlobFromPinned(pShaderSource, size, CP_UTF8, &shaderSource));
 			assert(shaderSource);
 			//create dxcbuffer
 			DxcBuffer buffer;
@@ -76,7 +76,7 @@ namespace engine
 				L"-Qstrip_debug"
 			};
 			IDxcResult* compileResult = nullptr;
-			succeed(m_compiler->Compile(&buffer, args, _countof(args), m_includeHandler, IID_PPV_ARGS(&compileResult)), "Failed to compile shader");
+			ThrowIfFailed(m_compiler->Compile(&buffer, args, _countof(args), m_includeHandler, IID_PPV_ARGS(&compileResult)));
 			assert(compileResult);
 			IDxcBlob* shader = nullptr;
 			IDxcBlobEncoding* errorBuffer = nullptr;
@@ -85,7 +85,7 @@ namespace engine
 				LOG_ERROR("Shader compilation error: {}", (char*)errorBuffer->GetBufferPointer());
 			errorBuffer->Release();
 
-			succeed(compileResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shader), nullptr), "Failed to get shader output");
+			ThrowIfFailed(compileResult->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&shader), nullptr));
 			// Release interfaces
 			RELEASE(shaderSource);
 			RELEASE(compileResult);

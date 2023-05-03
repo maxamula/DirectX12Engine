@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:Editor.Controls"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:c="clr-namespace:Editor.Content"
+        xmlns:util="clr-namespace:Editor.Utils"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        mc:Ignorable="d" ResizeMode="NoResize" UseLayoutRounding="True"
+        mc:Ignorable="d" ResizeMode="NoResize" SnapsToDevicePixels="True"
         Title="Generate mesh" Height="600" Width="800">
     <Window.Resources>
         <ObjectDataProvider x:Key="enumToData" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
@@ -16,38 +17,376 @@
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
     </Window.Resources>
-    <StackPanel Orientation="Vertical">
-        <ToolBar>
+    <Window.DataContext>
+        <util:GeometryEditor/>
+    </Window.DataContext>
+    <Grid Background="#EEEEEE">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MaxWidth="400" Width="1*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <ToolBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
             <ComboBox SelectedIndex="0" Width="150" VerticalAlignment="Center" x:Name="cbType" SelectionChanged="OnTypeChanged" ItemsSource="{Binding Source={StaticResource enumToData}}"/>
-            <Grid>
-                <!-- PLANE -->
-                <StackPanel Orientation="Horizontal">
-                    <StackPanel.Style>
-                        <Style TargetType="{x:Type StackPanel}">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedItem, ElementName=cbType}" Value="{x:Static c:PrimitiveType.Plane}">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>
-                    <TextBlock VerticalAlignment="Center" Text="Segments:"/>
-                    <TextBlock Margin="5, 0" VerticalAlignment="Center" Text="Width"/>
-                    <hc:NumericUpDown Maximum="15" Minimum="1" Value="2"/>
-                    <TextBlock Margin="5, 0" VerticalAlignment="Center" Text="Length"/>
-                    <hc:NumericUpDown Maximum="15" Minimum="1" Value="2"/>
-
-                    <TextBlock Margin="15 0 0 0" VerticalAlignment="Center" Text="Size:"/>
-                    <TextBlock Margin="5, 0" VerticalAlignment="Center" Text="Width"/>
-                    <hc:NumericUpDown Maximum="15" Minimum="1" Value="2"/>
-                    <TextBlock Margin="5, 0" VerticalAlignment="Center" Text="Length"/>
-                    <hc:NumericUpDown Maximum="15" Minimum="1" Value="2"/>
-
-                </StackPanel>
-                <!-- BOX -->
-                <!-- SPHERE -->
-            </Grid>
+            <TextBlock Text="Smoothing angle:" VerticalAlignment="Center" Margin="10, 0"/>
+            <hc:ButtonGroup x:Name="smoothingAngle">
+                <RadioButton Content="30°" Tag="30.0" Checked="RadioButton_Checked"/>
+                <RadioButton Content="60°" Tag="60.0" Checked="RadioButton_Checked" IsChecked="True"/>
+                <RadioButton Content="90°" Tag="80.0" Checked="RadioButton_Checked"/>
+                <RadioButton Content="120°" Tag="120.0" Checked="RadioButton_Checked"/>
+                <RadioButton Content="180°" Tag="180.0" Checked="RadioButton_Checked"/>
+            </hc:ButtonGroup>
         </ToolBar>
-    </StackPanel>
+        <util:GeometryView Grid.Column="1" Grid.Row="1" DataContext="{Binding Renderer}"/>
+        <!--PLANE-->
+        <Grid Grid.Row="1">
+            <StackPanel Background="WhiteSmoke">
+                <StackPanel.Style>
+                    <Style TargetType="{x:Type StackPanel}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedItem, ElementName=cbType}" Value="{x:Static c:PrimitiveType.Plane}">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <GroupBox Header="Segments" Margin="3, 5" Style="{StaticResource GroupBox.Small}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Width:" Margin="10, 0"/>
+                        <hc:PreviewSlider x:Name="planeSliceX" Delay="1" Grid.Column="1" Maximum="12" Minimum="1" Value="1" ValueChanged="PreviewSlider_ValueChanged">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0."/>
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+                        <TextBlock Text="Height:" Grid.Row="1" Margin="10, 5"/>
+
+                        <hc:PreviewSlider x:Name="planeSliceY" Delay="1" Grid.Row="1" Grid.Column="1" Maximum="12" Minimum="1" Value="1" ValueChanged="PreviewSlider_ValueChanged">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0."/>
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Size" Margin="3, 5" Style="{StaticResource GroupBox.Small}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Width:" Margin="10, 0"/>
+                        <Border Grid.Column="1" Background="White" CornerRadius="3" BorderThickness="1" BorderBrush="LightGray" Height="20" Width="100">
+                            <util:NumBox x:Name="planeSizeX" Step="0,1" Value="1.5" ValueChanged="NumBox_ValueChanged"/>
+                        </Border>
+                        
+                        <TextBlock Text="Height:" Grid.Row="1" Margin="10, 5"/>
+                        <Border Grid.Column="1" Grid.Row="1" Background="White" CornerRadius="3" BorderThickness="1" BorderBrush="LightGray" Height="20" Width="100">
+                            <util:NumBox x:Name="planeSizeY" Step="0,1" Value="1.5" ValueChanged="NumBox_ValueChanged"/>
+                        </Border>
+                    </Grid>
+                </GroupBox>
+                <Button Content="Save" Width="100" Click="SaveClick"/>
+            </StackPanel>
+            <StackPanel Background="WhiteSmoke">
+                <StackPanel.Style>
+                    <Style TargetType="{x:Type StackPanel}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedItem, ElementName=cbType}" Value="{x:Static c:PrimitiveType.Box}">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <GroupBox Header="Segments" Margin="3, 5" Style="{StaticResource GroupBox.Small}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Width:" Margin="10, 0"/>
+                        <hc:PreviewSlider x:Name="boxSliceX" Delay="1" Grid.Column="1" Maximum="12" Minimum="1" Value="1" ValueChanged="PreviewSlider_ValueChanged">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0."/>
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+                        <TextBlock Text="Height:" Grid.Row="1" Margin="10, 5"/>
+                        <hc:PreviewSlider x:Name="boxSliceY" Delay="1" Grid.Row="1" Grid.Column="1" Maximum="12" Minimum="1" Value="1" ValueChanged="PreviewSlider_ValueChanged">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0."/>
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+                        <TextBlock Text="Depth:" Grid.Row="2" Margin="10, 5"/>
+                        <hc:PreviewSlider x:Name="boxSliceZ" Delay="1" Grid.Row="2" Grid.Column="1" Maximum="12" Minimum="1" Value="1" ValueChanged="PreviewSlider_ValueChanged">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0."/>
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Size" Margin="3, 5" Style="{StaticResource GroupBox.Small}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Width:" Margin="10, 0"/>
+                        <Border Grid.Column="1" Background="White" CornerRadius="3" BorderThickness="1" BorderBrush="LightGray" Height="20" Width="100">
+                            <util:NumBox x:Name="boxSizeX" Step="0,1" Value="1.5" ValueChanged="NumBox_ValueChanged"/>
+                        </Border>
+
+                        <TextBlock Text="Height:" Grid.Row="1" Margin="10, 5"/>
+                        <Border Grid.Column="1" Grid.Row="1" Background="White" CornerRadius="3" BorderThickness="1" BorderBrush="LightGray" Height="20" Width="100">
+                            <util:NumBox x:Name="boxSizeY" Step="0,1" Value="1.5" ValueChanged="NumBox_ValueChanged"/>
+                        </Border>
+
+                        <TextBlock Text="Depth:" Grid.Row="2" Margin="10, 5"/>
+                        <Border Grid.Column="1" Grid.Row="2" Background="White" CornerRadius="3" BorderThickness="1" BorderBrush="LightGray" Height="20" Width="100">
+                            <util:NumBox x:Name="boxSizeZ" Step="0,1" Value="1.5" ValueChanged="NumBox_ValueChanged"/>
+                        </Border>
+                    </Grid>
+                </GroupBox>
+                <Button Content="Save" Width="100" Click="SaveClick"/>
+            </StackPanel>
+            <StackPanel Background="WhiteSmoke">
+                <StackPanel.Style>
+                    <Style TargetType="{x:Type StackPanel}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedItem, ElementName=cbType}" Value="{x:Static c:PrimitiveType.Sphere}">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <GroupBox Header="Segments" Margin="3, 5" Style="{StaticResource GroupBox.Small}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Slice:" Margin="10, 0"/>
+                        <hc:PreviewSlider x:Name="sphereSlice" Delay="1" Grid.Column="1" Maximum="64" Minimum="7" Value="7" ValueChanged="PreviewSlider_ValueChanged">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0."/>
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+
+                        <TextBlock Text="Segments:" Grid.Row="1" Margin="10, 0"/>
+                        <hc:PreviewSlider x:Name="sphereSegments" Delay="1" Grid.Column="1" Grid.Row="1" Maximum="64" Minimum="7" Value="7" ValueChanged="PreviewSlider_ValueChanged">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0."/>
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Size" Margin="3, 5" Style="{StaticResource GroupBox.Small}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Radius:" Margin="10, 0"/>
+                        <Border Grid.Column="1" Background="White" CornerRadius="3" BorderThickness="1" BorderBrush="LightGray" Height="20" Width="100">
+                            <util:NumBox x:Name="sphereRad" Step="0,1" Value="1.5" ValueChanged="NumBox_ValueChanged"/>
+                        </Border>
+                    </Grid>
+                </GroupBox>
+                <Button Content="Save" Width="100" Click="SaveClick"/>
+            </StackPanel>
+            <StackPanel Background="WhiteSmoke">
+                <StackPanel.Style>
+                    <Style TargetType="{x:Type StackPanel}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedItem, ElementName=cbType}" Value="{x:Static c:PrimitiveType.IcoSphere}">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <GroupBox Header="Segments" Margin="3, 5" Style="{StaticResource GroupBox.Small}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Slice:" Margin="10, 0"/>
+                        <hc:PreviewSlider x:Name="icoSlice" Delay="1" Grid.Column="1" Maximum="64" Minimum="7" Value="7" ValueChanged="PreviewSlider_ValueChanged">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0."/>
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Size" Margin="3, 5" Style="{StaticResource GroupBox.Small}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Radius:" Margin="10, 0"/>
+                        <Border Grid.Column="1" Background="White" CornerRadius="3" BorderThickness="1" BorderBrush="LightGray" Height="20" Width="100">
+                            <util:NumBox x:Name="icoRad" Step="0,1" Value="1.5" ValueChanged="NumBox_ValueChanged"/>
+                        </Border>
+                    </Grid>
+                </GroupBox>
+                <Button Content="Save" Width="100" Click="SaveClick"/>
+            </StackPanel>
+            <StackPanel Background="WhiteSmoke">
+                <StackPanel.Style>
+                    <Style TargetType="{x:Type StackPanel}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedItem, ElementName=cbType}" Value="{x:Static c:PrimitiveType.Torus}">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <GroupBox Header="Segments" Margin="3, 5" Style="{StaticResource GroupBox.Small}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Slice:" Margin="10, 0"/>
+                        <hc:PreviewSlider x:Name="torusSlice" Delay="1" Grid.Column="1" Maximum="64" Minimum="7" Value="7" ValueChanged="PreviewSlider_ValueChanged">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0."/>
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+
+                        <TextBlock Text="Segments:" Grid.Row="1" Margin="10, 0"/>
+                        <hc:PreviewSlider x:Name="torusSegments" Delay="1" Grid.Column="1" Grid.Row="1" Maximum="64" Minimum="7" Value="7" ValueChanged="PreviewSlider_ValueChanged">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0."/>
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Size" Margin="3, 5" Style="{StaticResource GroupBox.Small}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Inner radius:" Margin="10, 0"/>
+                        <Border Grid.Column="1" Background="White" CornerRadius="3" BorderThickness="1" BorderBrush="LightGray" Height="20" Width="100">
+                            <util:NumBox x:Name="torusInnerRad" Step="0,1" Value="1.5" ValueChanged="NumBox_ValueChanged"/>
+                        </Border>
+                        <TextBlock Grid.Row="1" Text="Outer radius:" Margin="10, 0"/>
+                        <Border Grid.Column="1" Grid.Row="1" Background="White" CornerRadius="3" BorderThickness="1" BorderBrush="LightGray" Height="20" Width="100">
+                            <util:NumBox x:Name="torusOuterRad" Step="0,1" Value="1.5" ValueChanged="NumBox_ValueChanged"/>
+                        </Border>
+                    </Grid>
+                </GroupBox>
+                <Button Content="Save" Width="100" Click="SaveClick"/>
+            </StackPanel>
+            <StackPanel Background="WhiteSmoke">
+                <StackPanel.Style>
+                    <Style TargetType="{x:Type StackPanel}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedItem, ElementName=cbType}" Value="{x:Static c:PrimitiveType.Cylinder}">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <GroupBox Header="Segments" Margin="3, 5" Style="{StaticResource GroupBox.Small}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Slice:" Margin="10, 0"/>
+                        <hc:PreviewSlider x:Name="cylSlice" Delay="1" Grid.Column="1" Maximum="64" Minimum="7" Value="7" ValueChanged="PreviewSlider_ValueChanged">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0."/>
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+
+                        <TextBlock Text="Segments:" Grid.Row="1" Margin="10, 0"/>
+                        <hc:PreviewSlider x:Name="cylSegments" Delay="1" Grid.Column="1" Grid.Row="1" Maximum="64" Minimum="7" Value="7" ValueChanged="PreviewSlider_ValueChanged">
+                            <hc:PreviewSlider.PreviewContent>
+                                <Label Style="{StaticResource LabelPrimary}" Content="{Binding Path=(hc:PreviewSlider.PreviewPosition),RelativeSource={RelativeSource Self}}" ContentStringFormat="#0."/>
+                            </hc:PreviewSlider.PreviewContent>
+                        </hc:PreviewSlider>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Size" Margin="3, 5" Style="{StaticResource GroupBox.Small}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Radius:" Margin="10, 0"/>
+                        <Border Grid.Column="1" Background="White" CornerRadius="3" BorderThickness="1" BorderBrush="LightGray" Height="20" Width="100">
+                            <util:NumBox x:Name="cylSizeX" Step="0,1" Value="1.5" ValueChanged="NumBox_ValueChanged"/>
+                        </Border>
+                        <TextBlock Grid.Row="1" Text="Height:" Margin="10, 0"/>
+                        <Border Grid.Column="1" Grid.Row="1" Background="White" CornerRadius="3" BorderThickness="1" BorderBrush="LightGray" Height="20" Width="100">
+                            <util:NumBox x:Name="cylSizeY" Step="0,1" Value="1.5" ValueChanged="NumBox_ValueChanged"/>
+                        </Border>
+                    </Grid>
+                </GroupBox>
+                <Button Content="Save" Width="100" Click="SaveClick"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
 </Window>

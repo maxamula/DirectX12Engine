@@ -54,22 +54,12 @@ namespace engine::gfx::fx
 
 			g_fxPso = CreatePSO(&stream, sizeof(stream));
 			SET_NAME(g_fxPso, L"FX PSO");
-
-			return g_fxPso && g_fxRootSig;
 		}
 	}
 
-	bool Initialize()
+	void Initialize()
 	{
-		try
-		{
-			return FxCreatePSOAndRootsig();
-		}
-		catch (const std::exception& e)
-		{
-			LOG_ERROR("Failed to initialize FX: {}", e.what());
-			return false;
-		}
+		FxCreatePSOAndRootsig();
 	}
 
 	void Shutdown()
@@ -78,15 +68,13 @@ namespace engine::gfx::fx
 		RELEASE(g_fxPso);
 	}
 
-	void PostProcess(ID3D12GraphicsCommandList6* cmd, D3D12_CPU_DESCRIPTOR_HANDLE rtv)
+	void PostProcess(ID3D12GraphicsCommandList6* cmd)
 	{
 		// TODO
 		cmd->SetGraphicsRootSignature(g_fxRootSig);
 		cmd->SetPipelineState(g_fxPso);
 		cmd->SetGraphicsRoot32BitConstant(FX_ROOT_PARAM::ROOT_CONSTANSTS, gpass::GetMainBuffer().SRVAllocation().GetIndex(), 0);
 		cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		cmd->OMSetRenderTargets(1, &rtv, 1, nullptr);
-		cmd->ClearRenderTargetView(rtv, g_clearColor, 0, nullptr);
 		cmd->DrawInstanced(3, 1, 0, 0);
 	}
 

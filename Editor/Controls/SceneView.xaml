@@ -52,8 +52,7 @@
                             <HierarchicalDataTemplate ItemsSource="{Binding Path=Objects}">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Height="10" Margin="0 0 5 0" Source="{StaticResource dot_blue}"/>
-                                    <util:EditableTextBlock Text="{Binding Path=Name}"/>
-                                    <!--TextBlock Text="{Binding Path=Name}"/-->
+                                    <util:EditBox Value="{Binding Path=Name, Mode=TwoWay}"/>
                                 </StackPanel>
                             </HierarchicalDataTemplate>
                         </HierarchicalDataTemplate.ItemTemplate>

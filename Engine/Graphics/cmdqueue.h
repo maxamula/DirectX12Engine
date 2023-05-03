@@ -1,5 +1,6 @@
 #pragma once
 #include "graphics.h"
+#include "utils.h"
 
 namespace engine::gfx
 {
@@ -19,6 +20,8 @@ namespace engine::gfx
 		[[nodiscard]] inline ID3D12CommandAllocator* GetCommandAllocator() const { return m_cmdAlloc[m_iFrame]; }
 		[[nodiscard]] inline uint8_t FramerIndex() const { return m_iFrame; }
 		[[nodiscard]] inline ID3D12GraphicsCommandList6* GetCommandList() const { return m_cmdList; }
+
+		utils::Event<> DeferedReleaseEvent; // event to release resources that are used by gpu
 	private:
 		void _WaitGPU(HANDLE event, ID3D12Fence1* pFence);	// wait if gpu is busy while executing commands
 

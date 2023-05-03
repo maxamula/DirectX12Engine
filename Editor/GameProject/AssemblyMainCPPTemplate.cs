@@ -52,7 +52,7 @@ foreach(var window in windows)
             #line default
             #line hidden
             this.Write(@"
-__declspec(dllexport) std::unordered_map<uint64_t ,SCIPT_INFO>& ScriptTable()
+std::unordered_map<uint64_t ,SCIPT_INFO>& ScriptTable()
 {
 	static std::unordered_map<uint64_t, SCIPT_INFO> table;
 	return table;

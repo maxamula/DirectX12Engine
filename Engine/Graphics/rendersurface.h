@@ -1,6 +1,9 @@
 #pragma once
 #include "graphics.h"
 #include "overlay.h"
+#include "gpass.h"
+#include "gresource.h"
+#include "postprocess.h"
 #include <chrono>
 
 #define MAX_FRAMES 1000
@@ -10,12 +13,6 @@ namespace engine
 	class WindowImpl;
 	namespace gfx
 	{
-		struct RENDER_TARGET
-		{
-			ID3D12Resource* resource = nullptr;
-			DESCRIPTOR_HANDLE allocation = {};
-		};
-
 		class RenderSurface
 		{
 		public:
@@ -42,12 +39,14 @@ namespace engine
 
 			void Release();
 			void Resize(uint16_t width, uint16_t height);
+			inline uint16_t GetWidth() const { return m_width; }
+			inline uint16_t GetHeight() const { return m_height; }
 			void SetOverlayContext();
 			void Render();
 
 			void(_cdecl* cbOverlay)() = nullptr;
 			uint8_t bVSync = 1;
-		private:
+		protected:
 			void _CreateRendertargetViews();
 #ifdef _DEBUG_GRAPHICS
 			void _DrawDebugInfo();

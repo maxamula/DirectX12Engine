@@ -2,6 +2,8 @@
 #include <imgui.h>
 #include <ImGuizmo.h>
 
+#include <thread>
+
 namespace Engine
 {
 	float cameraView[16] =
@@ -19,6 +21,42 @@ namespace Engine
 	float cameraProjection[16];
 
 	void Overlay();
+
+	static public ref class Viewport
+	{
+	internal:
+		static ImGuiContext* s_ctx = nullptr;
+		static engine::Window* s_window = nullptr;
+	public:
+		static System::IntPtr SetParent(System::IntPtr hParent)
+		{
+			engine::GFX_WND_DESC desc{};
+			desc.callback = nullptr;
+			desc.hParent = (HWND)hParent.ToPointer();
+			desc.width = 10;
+			desc.height = 10;
+			s_window = engine::Window::Create(GetModuleHandle(NULL), desc);
+			s_ctx = (ImGuiContext*)s_window->GetOverlayContext();
+			s_window->SetOverlay(Overlay);
+			s_window->VSync(false);
+			return System::IntPtr(s_window->WinId());
+		}
+
+		static void Destroy()
+		{
+			s_window->Destroy();
+		}
+
+		static void Render()
+		{
+			s_window->Render();	
+		}
+
+		static void Resize(uint16_t width, uint16_t height)
+		{
+			s_window->SetWindowSize(width, height);
+		}
+	};
 
 	public ref class Window
 	{
@@ -80,7 +118,7 @@ namespace Engine
 
 	void Overlay()
 	{
-		ImGui::SetCurrentContext(Window::s_ctx);
+		ImGui::SetCurrentContext(Viewport::s_ctx);
 		ImGuiIO& io = ImGui::GetIO();
 		float windowWidth = (float)ImGui::GetWindowWidth();
 		float windowHeight = (float)ImGui::GetWindowHeight();

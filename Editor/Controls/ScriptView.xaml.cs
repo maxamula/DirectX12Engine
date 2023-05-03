@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Editor.Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,11 @@ namespace Editor.Controls
         public ScriptView()
         {
             InitializeComponent();
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            (this.DataContext as Script).ID = ((sender as ComboBox).SelectedItem as Engine.ScriptInfo).Id;
         }
     }
 }

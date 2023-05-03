@@ -1,5 +1,13 @@
 #include "geometry.h"
 #include "generator/PlaneMesh.hpp"
+#include "generator/BoxMesh.hpp"
+#include "generator/IcoSphereMesh.hpp"
+#include "generator/SphereMesh.hpp"
+#include "generator/SpringMesh.hpp"
+#include "generator/TorusMesh.hpp"
+#include "generator/CylinderMesh.hpp"
+#include "generator/AnyGenerator.hpp"
+#include "utils.h"
 #include <DirectXMath.h>
 
 #ifdef _DEBUG
@@ -14,120 +22,112 @@ using namespace DirectX;
 
 namespace engine::content
 {
+	void DetermineMeshType(MESH& mesh)
+	{
+		if (mesh.normals.size())
+			mesh.elementMask |= elements::ELEMENT_TYPE::NORMAL;
+		if (mesh.colors.size())
+			mesh.elementMask |= elements::ELEMENT_TYPE::COLOR;
+		if (mesh.tangents.size())
+			mesh.elementMask |= elements::ELEMENT_TYPE::TANGENT;
+		if (mesh.uvs.size() && mesh.uvs[0].size())
+			mesh.elementMask |= elements::ELEMENT_TYPE::TEXCOORD;
+		// TODO add skeletal mesh support
+	}
 	namespace
 	{
-		typedef void(*CreatePrimitiveFnPtr)(SCENE& scene, PRIMITIVE_DESC& desc);
-
-		void CreatePlane(SCENE& scene, PRIMITIVE_DESC& desc);
-		void CreateBox(SCENE& scene, PRIMITIVE_DESC& desc);
-		void CreateSphere(SCENE& scene, PRIMITIVE_DESC& desc);
-
-		CreatePrimitiveFnPtr g_primitiveCreators[] =
-		{
-			CreatePlane,
-			CreateBox,
-			CreateSphere
-		};
-
-		static_assert(sizeof(g_primitiveCreators) / sizeof(g_primitiveCreators[0]) == (size_t)PRIMITIVE_TYPE::Count);
-
-		void CreatePlane(SCENE& scene, PRIMITIVE_DESC& desc)
+		void GeneratePrimitive(SCENE& scene, PRIMITIVE_DESC& desc)
 		{
 			LOD_GROUP lod;
 			lod.name = "LOD0";
 			MESH mesh;
-			generator::PlaneMesh generated = generator::PlaneMesh({ (desc.size.x), desc.size.y }, { (int)desc.segments[0], (int)desc.segments[1] });
-			auto vertices = generated.vertices();
-			while (!vertices.done())
+			std::function fnWriteTriangleData = [&](generator::AnyGenerator<generator::Triangle> gen)
 			{
-				generator::MeshVertex vertex = vertices.generate();
-				mesh.vertices.emplace_back(vertex.position[0], vertex.position[1], vertex.position[2]);
-				//mesh.normals.emplace_back(vertex.normal[0], vertex.normal[1], vertex.normal[2]);	// TODO implement generation method
-				//mesh.uvs[0].emplace_back(vertex.texCoord[0], vertex.texCoord[1]);
-				vertices.next();
+				while (!gen.done())
+				{
+					generator::Triangle triangle = gen.generate();
+					mesh.indices.emplace_back(triangle.vertices[0]);
+					mesh.indices.emplace_back(triangle.vertices[1]);
+					mesh.indices.emplace_back(triangle.vertices[2]);
+					gen.next();
+				}
+			};
+
+			std::function fnWriteVertexData = [&](generator::AnyGenerator<generator::MeshVertex> gen)
+			{
+				std::vector<Vec2> uv0;
+				while (!gen.done())
+				{
+					generator::MeshVertex vertex = gen.generate();
+					mesh.vertices.emplace_back(vertex.position[0], vertex.position[1], vertex.position[2]);
+					uv0.emplace_back(vertex.texCoord[0], vertex.texCoord[1]);
+					gen.next();
+				}
+				mesh.uvs.push_back(uv0);
+			};
+
+			switch (desc.type)
+			{
+			case PRIMITIVE_TYPE::Plane:
+			{
+				auto generated = generator::PlaneMesh({ (desc.size.x), desc.size.y }, { (int)desc.segments[0], (int)desc.segments[1] });
+				fnWriteTriangleData(generated.triangles());
+				fnWriteVertexData(generated.vertices());
+				break;
 			}
-			auto triangles = generated.triangles();
-			while (!triangles.done())
+			case PRIMITIVE_TYPE::Box:
 			{
-				generator::Triangle triangle = triangles.generate();
-				mesh.indices.emplace_back(triangle.vertices[0]);
-				mesh.indices.emplace_back(triangle.vertices[1]);
-				mesh.indices.emplace_back(triangle.vertices[2]);
-				triangles.next();
+				auto generated = generator::BoxMesh({ desc.size.x, desc.size.y, desc.size.z }, { (int)desc.segments[0], (int)desc.segments[1], (int)desc.segments[2] });
+				fnWriteTriangleData(generated.triangles());
+				fnWriteVertexData(generated.vertices());
+				break;
+			}
+			case PRIMITIVE_TYPE::Sphere:
+			{
+				auto generated = generator::SphereMesh(desc.size.x, (int)desc.segments[0], (int)desc.segments[1]);
+				fnWriteTriangleData(generated.triangles());
+				fnWriteVertexData(generated.vertices());
+				break;
+			}
+			case PRIMITIVE_TYPE::IcoSphere:
+			{
+				auto generated = generator::IcoSphereMesh(desc.size.x, (int)desc.segments[0]);
+				fnWriteTriangleData(generated.triangles());
+				fnWriteVertexData(generated.vertices());
+				break;
+			}
+			case PRIMITIVE_TYPE::Torus:
+			{
+				auto generated = generator::TorusMesh(desc.size.x, desc.size.y, (int)desc.segments[0], (int)desc.segments[1]);
+				fnWriteTriangleData(generated.triangles());
+				fnWriteVertexData(generated.vertices());
+				break;
+			}
+			case PRIMITIVE_TYPE::Cylinder:
+			{
+				auto generated = generator::CylinderMesh(desc.size.x, desc.size.y, (int)desc.segments[0], (int)desc.segments[1]);
+				fnWriteTriangleData(generated.triangles());
+				fnWriteVertexData(generated.vertices());
+				break;
+			}
 			}
 			lod.meshes.push_back(mesh);
 			scene.lod.push_back(lod);
 		}
-
-		void CreateBox(SCENE& scene, PRIMITIVE_DESC& desc)
+		
+		uint32_t GetPackedVertexSize(elements::ELEMENT_TYPE mask)
 		{
-
-		}
-
-		void CreateSphere(SCENE& scene, PRIMITIVE_DESC& desc)
-		{
-
-		}
-
-		template <typename T>
-		constexpr T PackFloat(float f)
-		{
-			assert(f >= 0.0f && f <= 1.0f);
-			uint32_t bits = sizeof(T) * 8;
-			float intervals = (float)((1ui32 << bits) - 1);
-			return (T)(intervals * f + 0.5f);
-		}
-
-		template <typename T>
-		constexpr T PackFloat(float f, float min, float max)
-		{
-			assert(min < max);
-			uint32_t bits = sizeof(T) * 8;
-			const float dist = (f - min) / (max - min);
-			return PackFloat<T>(dist);
-		}
-
-		template <typename T>
-		constexpr float UnpackFloat(T f)
-		{
-			uint32_t bits = sizeof(T) * 8;
-			float intervals = (float)((1ui32 << bits) - 1);
-			return (float)f / intervals;
-		}
-
-		template <typename T>
-		constexpr float UnpackFloat(T f, float min, float max)
-		{
-			assert(min < max);
-			return min + UnpackFloat(f) * (max - min);
-		}
-
-		void PackStaticVertices(MESH& mesh)
-		{
-			const uint32_t nVertices = (uint32_t)mesh.processedVertices.size();
-			const uint32_t nIndices = (uint32_t)mesh.indices.size();
-			mesh.pkStaticVertices.reserve(nVertices);
-			for (uint32_t i = 0; i < nVertices; i++)
-			{
-				VERTEX& vertex = mesh.processedVertices[i];
-				PK_STATIC_VERTEX pkVertex;
-
-				pkVertex.position = vertex.position;
-				const uint8_t signs = (uint8_t)(vertex.normal.z > 0.0f) << 1;
-				const uint16_t nx = PackFloat<uint16_t>(vertex.normal.x);
-				const uint16_t ny = PackFloat<uint16_t>(vertex.normal.y);
-				// TODO tanfents
-
-				mesh.pkStaticVertices.emplace_back(PK_STATIC_VERTEX
-					{
-						vertex.position,
-						{0, 0, 0},
-						signs,
-						{nx, ny},
-						{0, 0},
-						vertex.uv
-					});
-			}
+			uint32_t size = sizeof(Vec3); // Positions
+			if (mask & elements::ELEMENT_TYPE::NORMAL)
+				size += sizeof(Vec3);
+			if (mask & elements::ELEMENT_TYPE::TANGENT)
+				size += sizeof(Vec4);
+			if (mask & elements::ELEMENT_TYPE::COLOR)
+				size += sizeof(uint8_t) * 3;
+			if (mask & elements::ELEMENT_TYPE::TEXCOORD)
+				size += sizeof(Vec2);
+			// TODO Skeletal joint data
+			return size;
 		}
 
 		void ProcessVertices(MESH& mesh, const IMPORT_PARAMS& params)
@@ -156,7 +156,7 @@ namespace engine::content
 				}
 			}
 			// process normals
-			const float cosAngle = XMScalarCos(PI - params.smoothingAngle * PI - 180.0f);
+			const float cosAngle = XMScalarCos((180.0f - params.smoothingAngle) * XM_PI / 180.0f);
 			const uint32_t nVertices = (uint32_t)mesh.vertices.size();
 			const uint32_t nIndices = (uint32_t)mesh.indices.size();
 			assert(nVertices && nIndices);
@@ -184,7 +184,7 @@ namespace engine::content
 					{
 						float cos = 0.0f;
 						XMVECTOR normal2 = XMLoadFloat3((XMFLOAT3*)&mesh.normals[refs[k]]);
-						XMStoreFloat(&cos, XMVector3Dot(normal1, normal2) * XMVector3ReciprocalLength(normal1));
+						XMStoreFloat(&cos, XMVector3Dot(normal1, normal2) / XMVector3Length(normal1));
 						if (cos >= cosAngle)
 						{
 							normal1 += normal2;
@@ -199,8 +199,7 @@ namespace engine::content
 			}
 			mesh.processedVertices = vertices;
 			mesh.indices = indices;
-
-			PackStaticVertices(mesh);
+			DetermineMeshType(mesh);
 		}
 
 		void ProcessUVs(MESH& mesh)
@@ -212,17 +211,96 @@ namespace engine::content
 
 		}
 
+		bool SplitByMaterial(uint32_t materialIdx, MESH& mesh, MESH& submesh)
+		{
+			submesh.name = mesh.name;
+			submesh.lodThreshold = mesh.lodThreshold;
+			submesh.lodId = mesh.lodId;
+			submesh.materialUsed.emplace_back(materialIdx);
+			submesh.uvs.resize(mesh.uvs.size());
+
+			const uint32_t polygonCount = (uint32_t)mesh.indices.size() / 3;
+			std::vector<uint32_t> vertexRef(mesh.vertices.size(), uint32_invalid);
+
+			for (uint32_t i = 0; i < polygonCount; i++)
+			{
+				const uint32_t matIdx = mesh.materialIndices[i];
+				if (matIdx != materialIdx) continue;
+
+				const uint32_t index = i * 3;
+				for (uint32_t j = index; j < index + 3; j++)
+				{
+					const uint32_t vIdx = mesh.indices[j];
+					if (vertexRef[vIdx] != uint32_invalid)
+					{
+						submesh.indices.emplace_back(vertexRef[vIdx]);
+					}
+					else
+					{
+						submesh.indices.emplace_back(submesh.vertices.size());
+						vertexRef[vIdx] = submesh.indices.back();
+						submesh.vertices.emplace_back(mesh.vertices[vIdx]);
+					}
+
+					if (mesh.normals.size())
+					{
+						submesh.normals.emplace_back(mesh.normals[j]);
+					}
+					
+					if (mesh.tangents.size())
+					{
+						submesh.tangents.emplace_back(mesh.tangents[j]);
+					}
+
+					for (uint32_t k = 0; k < mesh.uvs.size(); k++)
+					{
+						if(mesh.uvs[k].size())
+							submesh.uvs[k].emplace_back(mesh.uvs[k][j]);
+					}
+				}
+			}
+			return submesh.indices.size() > 0;
+		}
+
+		void SplitByMaterial(SCENE& scene)
+		{
+			for (auto& lod : scene.lod)
+			{
+				std::vector<MESH> newMeshes;
+
+				for (auto& m : lod.meshes)
+				{
+					const uint32_t materialsCount = (uint32_t)m.materialUsed.size();
+					if (materialsCount > 1)
+					{
+						for (uint32_t i = 0; i < materialsCount; i++)
+						{
+							MESH submesh;
+							if(SplitByMaterial(m.materialUsed[i], m, submesh))
+								newMeshes.emplace_back(submesh);
+						}
+					}
+					else
+					{
+						newMeshes.emplace_back(m);
+					}
+				}
+				lod.meshes.swap(newMeshes);
+			}
+		}
+
 		size_t GetMeshSize(const MESH& mesh)
 		{
-			const uint64_t nVertices = mesh.pkStaticVertices.size();
-			const uint64_t vertexBufSize = nVertices * sizeof(PK_STATIC_VERTEX);
+			const uint64_t nVertices = mesh.processedVertices.size();
+			const uint64_t vertexBufSize = nVertices * GetPackedVertexSize((elements::ELEMENT_TYPE)mesh.elementMask);
 			const uint64_t indexSize = (nVertices < (1 << 16)) ? sizeof(uint16_t) : sizeof(uint32_t);
 			const uint64_t indexBufferSize = mesh.indices.size() * indexSize;
 			uint64_t size
 			{
 				sizeof(uint32_t) +
 				mesh.name.size() +
-				sizeof(uint32_t) +	// Mesh id
+				sizeof(uint32_t) +	// vertex component mask
+				sizeof(uint32_t) +	// lod id
 				sizeof(uint32_t) +	// vertex size
 				sizeof(uint32_t) + // num vertices
 				sizeof(uint32_t) + // index size
@@ -234,7 +312,7 @@ namespace engine::content
 			return size;
 		}
 
-		size_t GetPackedBufferSize(const SCENE& scene)
+		uint64_t GetPackedBufferSize(const SCENE& scene)
 		{
 			uint64_t size
 			{
@@ -249,7 +327,7 @@ namespace engine::content
 				{
 					sizeof(uint32_t) +
 					lod.name.size() +
-					sizeof(uint32_t)
+					sizeof(uint32_t) 	// num meshes	
 				};
 
 				for (auto& mesh : lod.meshes)
@@ -260,76 +338,80 @@ namespace engine::content
 			}
 			return size;
 		}
+	}
 
-		void PackData(const SCENE& scene, GEOMETRY_DATA& geometry)
+	void PackVertices(const MESH& mesh, utils::BinaryWriter& buf)
+	{
+		const uint32_t verticesCount = (uint32_t)mesh.processedVertices.size();
+
+		for (uint32_t i = 0; i < verticesCount; i++)
 		{
-			uint64_t bufSize = GetPackedBufferSize(scene);
-			geometry.bufferSize = bufSize;
-			geometry.buffer = CoTaskMemAlloc(bufSize);
-			assert(geometry.buffer);
-			uint8_t* buf = (uint8_t*)geometry.buffer;
-			uint64_t at = 0;
-			uint32_t u32temp;
-
-			// Scene
-			u32temp = (uint32_t)scene.name.size();
-			WRITEMEM(u32temp);
-			memcpy(&buf[at], scene.name.c_str(), u32temp); at += u32temp;
-			u32temp = scene.lod.size();
-			WRITEMEM(u32temp);
-
-			for (auto& lod : scene.lod)
+			buf.WriteBytes(mesh.processedVertices[i].position);
+			if (mesh.elementMask & elements::ELEMENT_TYPE::NORMAL) buf.WriteBytes(mesh.processedVertices[i].normal);
+			if (mesh.elementMask & elements::ELEMENT_TYPE::TANGENT) buf.WriteBytes(mesh.processedVertices[i].tangent);
+			if (mesh.elementMask & elements::ELEMENT_TYPE::TEXCOORD) buf.WriteBytes(mesh.processedVertices[i].uv);
+			if (mesh.elementMask & elements::ELEMENT_TYPE::COLOR)
 			{
-				u32temp = (uint32_t)lod.name.size();
-				WRITEMEM(u32temp);
-				memcpy(&buf[at], lod.name.c_str(), u32temp); at += u32temp;
-				u32temp = lod.meshes.size();
-				WRITEMEM(u32temp);
-				for (auto& mesh : lod.meshes)
-				{
-					u32temp = (uint32_t)mesh.name.size();
-					WRITEMEM(u32temp);
-					memcpy(&buf[at], mesh.name.c_str(), u32temp); at += u32temp;
-					u32temp = mesh.lodId;
-					WRITEMEM(u32temp);
-					u32temp = sizeof(PK_STATIC_VERTEX);
-					WRITEMEM(u32temp);
-					u32temp = mesh.pkStaticVertices.size();
-					WRITEMEM(u32temp);
-					const uint32_t indexSize = (mesh.pkStaticVertices.size() < (1 << 16)) ? sizeof(uint16_t) : sizeof(uint32_t);
-					u32temp = indexSize;
-					WRITEMEM(u32temp);
-					u32temp = mesh.indices.size();
-					WRITEMEM(u32temp);
+				buf.WriteBytes(mesh.processedVertices[i].red);
+				buf.WriteBytes(mesh.processedVertices[i].green);
+				buf.WriteBytes(mesh.processedVertices[i].blue);
+			}
+		}
+	}
 
-					//LOD
-					float ftemp = mesh.lodThreshold;
-					WRITEMEM(ftemp);
-					u32temp = sizeof(PK_STATIC_VERTEX) * mesh.pkStaticVertices.size();
-					memcpy(&buf[at], mesh.pkStaticVertices.data(), u32temp); at += u32temp;
-					u32temp = indexSize * mesh.indices.size();
-					void* data = (void*)mesh.indices.data();
-					std::vector<uint16_t> indices16;
-					if (indexSize == sizeof(uint16_t))
+	void PackData(const SCENE& scene, GEOMETRY_DATA& geometry)
+	{
+		uint64_t bufSize = GetPackedBufferSize(scene);
+		geometry.bufferSize = bufSize;
+		geometry.buffer = CoTaskMemAlloc(bufSize);
+
+		utils::BinaryWriter writer(geometry.buffer);
+		writer.WriteUInt32(scene.name.size());
+		writer.WriteString(scene.name);
+		writer.WriteUInt32(scene.lod.size());
+		for (auto& lod : scene.lod)
+		{
+			writer.WriteUInt32(lod.name.size());
+			writer.WriteString(lod.name);
+			writer.WriteUInt32(lod.meshes.size());
+			for (auto& mesh : lod.meshes)
+			{
+				writer.WriteUInt32(mesh.name.size());
+				writer.WriteString(mesh.name);
+				writer.WriteUInt32(mesh.elementMask);
+				writer.WriteUInt32(mesh.lodId);
+				writer.WriteUInt32(GetPackedVertexSize((elements::ELEMENT_TYPE)mesh.elementMask));
+				writer.WriteUInt32(mesh.processedVertices.size());
+				const uint32_t indexSize = (mesh.processedVertices.size() < (1 << 16)) ? sizeof(uint16_t) : sizeof(uint32_t);
+				writer.WriteUInt32(indexSize);
+				writer.WriteUInt32(mesh.indices.size());
+				writer.WriteFloat(mesh.lodThreshold);
+				PackVertices(mesh, writer);
+				if (indexSize == sizeof(uint16_t))
+				{
+					for (auto it = mesh.indices.begin(); it < mesh.indices.end(); it++)
 					{
-						indices16.resize(mesh.indices.size());
-						for (uint32_t i = 0; i < mesh.indices.size(); i++)
-							indices16[i] = (uint16_t)mesh.indices[i];
-						data = (void*)indices16.data();
+						writer.WriteUInt16((uint16_t)*it);
 					}
-					memcpy(&buf[at], data, u32temp); at += u32temp;
+				}
+				else
+				{
+					for (auto it = mesh.indices.begin(); it < mesh.indices.end(); it++)
+					{
+						writer.WriteUInt32((uint32_t)*it);
+					}
 				}
 			}
-		};
+		}
+	}
 
-		void ProcessScene(SCENE& scene, const IMPORT_PARAMS& params)
+	void ProcessScene(SCENE& scene, const IMPORT_PARAMS& params)
+	{
+		for (auto& lod : scene.lod)
 		{
-			for (auto& lod : scene.lod)
+			for (auto& mesh : lod.meshes)
 			{
-				for (auto& mesh : lod.meshes)
-				{
-					ProcessVertices(mesh, params);
-				}
+				ProcessVertices(mesh, params);
 			}
 		}
 	}
@@ -338,25 +420,9 @@ namespace engine::content
 	{
 		assert(desc.type < PRIMITIVE_TYPE::Count);
 		SCENE scene;
-		g_primitiveCreators[(size_t)desc.type](scene, desc);
+		//g_primitiveCreators[(size_t)desc.type](scene, desc);
+		GeneratePrimitive(scene, desc);
 		ProcessScene(scene, params);
 		PackData(scene, data);
 	}
-}
-
-INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-	PSTR lpCmdLine, INT nCmdShow)
-{
-	engine::content::IMPORT_PARAMS p{};
-	p.bGenerateNormals = true;
-	p.smoothingAngle = 60.0f;
-	
-	engine::content::PRIMITIVE_DESC d{};
-	d.type = engine::content::PRIMITIVE_TYPE::Plane;
-	d.segments[1] = 4;
-
-	engine::content::GEOMETRY_DATA data{};
-
-	engine::content::CreatePrimitive(d, p, data);
-	return 0;
 }

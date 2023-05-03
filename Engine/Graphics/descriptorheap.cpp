@@ -1,4 +1,5 @@
 #include "descriptorheap.h"
+#include "graphics.h"
 
 namespace engine::gfx
 {

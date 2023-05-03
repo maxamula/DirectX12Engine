@@ -7,6 +7,11 @@
 #include <list>
 #include <memory>
 #include <mutex>
+#include <assert.h>
+
+// COMPILE SETTINGS
+#define _DEBUG_GRAPHICS
+
 
 #ifdef _BUILD_ENGINE
 #define ENGINE_API __declspec(dllexport)
@@ -18,6 +23,14 @@
 #define SAFE_DELETE(p) { if(p) { delete p; p = nullptr; } }
 #define DISABLE_MOVE_COPY(class_name) class_name(const class_name&) = delete; class_name& operator=(const class_name&) = delete; class_name(class_name&&) = delete; class_name& operator=(class_name&&) = delete;
 #define DISABLE_COPY(class_name) class_name(const class_name&) = delete; class_name& operator=(const class_name&) = delete;
+#define assert_throw(x, msg) if(!(x)) { throw std::exception(msg); }
+#define DEVICE_CHECK assert_throw(device, "Device not initialized")
+#define succeed(x, msg) if(FAILED(x)) { throw std::exception(msg); }
+#ifdef _DEBUG
+#define SET_NAME(x, name) x->SetName(name)
+#else
+#define SET_NAME(x, name) ((void)0)
+#endif
 
 #define WIN32_LEAN_AND_MEAN
 #undef min
@@ -61,4 +74,9 @@ struct Vec3
 struct Vec4
 {
 	float x, y, z, w;
+};
+
+struct UVec2
+{
+	uint32_t x, y;
 };

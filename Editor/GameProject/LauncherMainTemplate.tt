@@ -47,13 +47,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 foreach(var window in windows)
 {#>
 
-<#if(window.Procedure != null){#>wndDesc.callback = <#=window.Procedure#>;<#}#>
+<#if(window.Procedure != null){#>
+	wndDesc.callback = (WndProcFnPtr)<#=window.Procedure#>;
+<#} else {#>
+	wndDesc.callback = nullptr;
+<#}#>
 	wndDesc.hParent = nullptr;
 	wndDesc.szCaption = (wchar_t*)L"<#=window.Title#>";
+	wndDesc.width = <#=window.Width#>;
+	wndDesc.height = <#=window.Height#>;
 	<#=window.Name#> = Window::Create(hInstance, wndDesc);
-	<#if(window.ShowOnStartup)#>
-	<#=window.Name#>->ShowWnd();
+<#if(window.IsFullScreen){#>
+	<#=window.Name#>->Fullscreen(true);
 <#}#>
+<#if(window.ShowOnStartup){#>
+	<#=window.Name#>->ShowWnd();
+<#}}#>
 	bool isRunning = true;
 	std::thread logicThread([&isRunning]() 
 	{

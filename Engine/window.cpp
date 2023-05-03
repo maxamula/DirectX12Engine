@@ -118,6 +118,12 @@ namespace engine
 			}		
 		}
 
+		void VSync(bool bState) override
+		{
+			m_surface.bVSync = bState;
+		}
+
+		[[nodiscard]] bool VSync() const override { return m_surface.bVSync; }
 		[[nodiscard]] bool IsFullscreen() const override { return m_bFullscreen; };
 		[[nodiscard]] bool IsClosed() const override { return m_bClosed; }
 		[[nodiscard]] uint16_t Width() const override { return m_width; }
@@ -136,6 +142,7 @@ namespace engine
 			gfx::gpass::UpdateSize(m_width, m_height);
 			m_mutex.unlock();
 			m_render = true;
+			Resized(*this);
 		}
 
 		gfx::RenderSurface m_surface;

@@ -1,9 +1,13 @@
-﻿using EnvDTE;
+﻿using Editor.Project;
+using EnvDTE;
+using EnvDTE80;
+using HandyControl.Controls;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
@@ -12,6 +16,11 @@ using System.Windows;
 
 namespace Editor.GameProject
 {
+    public enum GameProjectType
+    {
+        GameAssembly = 1,
+        Launcher = 2,
+    }
     public static class SolutionManager
     {
         [DllImport("ole32.dll")]
@@ -55,6 +64,7 @@ namespace Editor.GameProject
                         Type vsType = Type.GetTypeFromProgID("VisualStudio.DTE", true);
                         _vsInstance = Activator.CreateInstance(vsType) as EnvDTE80.DTE2;
                     }
+                    _events = _vsInstance.Events;
                 }
             }
             catch (Exception ex)
@@ -135,87 +145,74 @@ namespace Editor.GameProject
             }
         }
 
-        private static Action[] _callbacks; // callbacks that will be called after build is done and successfull
-        public static void Build(Project.Project project, string buildConfig, params Action[] callbacks)
+        public static void BuildProject(Project.Project project, GameProjectType type, string buildConfig, params Action[] callbacks)
         {
             _callbacks = callbacks;
             project.IsBuildAvailable = false;
             OpenVS(project.Path + $"{project.Name}\\" + $"{project.Name}.sln");
             if (IsBusy())
             {
-                Debug.WriteLine("Visual studio is busy");
+                Growl.WarningGlobal("Visual Studio is busy");
                 project.IsBuildAvailable = true;
                 return;
             }
-            Engine.Scripting.UnloadGCDLL();
             try
             {
                 if (!_vsInstance.Solution.IsOpen)
                     _vsInstance.Solution.Open(project.Path + $"{project.Name}\\" + $"{project.Name}.sln");
-
-                _events = _vsInstance.Events;
+      
                 _buildEvents = _events.BuildEvents;
                 _buildEvents.OnBuildProjConfigDone += OnBuildDone;
+                
+                _ClearPdb(project);
 
-                try
-                {
-                    foreach (var pdb in Directory.GetFiles($@"{project.Path}{project.Name}\x64\{buildConfig}\", "*.pdb"))
-                    {
-                        File.Delete(pdb);
-                    }
-                }
-                catch { }
-
-                _buildDone = false;
                 _vsInstance.Solution.SolutionBuild.SolutionConfigurations.Item(buildConfig).Activate();
-                _vsInstance.ExecuteCommand("Build.BuildSolution");
+                EnvDTE80.SolutionBuild2 solutionBuild = (EnvDTE80.SolutionBuild2)_vsInstance.Solution.SolutionBuild;
+                EnvDTE.Project proj = _vsInstance.Solution.Projects.Item((int)type);
+                _flag = false;
+                solutionBuild.BuildProject(solutionBuild.ActiveConfiguration.Name, proj.UniqueName, false);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.Message);
+                Growl.ErrorGlobal(ex.Message);
                 project.IsBuildAvailable = true;
             }
         }
-        private static bool _buildDone;
+
         private static void OnBuildDone(string proj, string ProjectConfig, string Platform, string SolutionConfig, bool Success)
         {
-            if (!_buildDone) // In case this event will be called several times
+            if(!_flag)
             {
-                _buildDone = true;
+                _flag = true;
                 Project.Project project = null;
                 Application.Current.Dispatcher.Invoke(new Action(() => { project = Project.Project.Current; }));
                 project.IsBuildAvailable = true;
                 if (Success)
-                {                
+                {
                     foreach (var callback in _callbacks) // invoke all callbacks
                     {
-                        if(callback != null)
+                        if (callback != null)
                             callback.Invoke();
                     }
                 }
-            }
-        }
-        public static void Run(Project.Project project, string configName, bool debug)
-        {
-            // TODO save scenes to binary file
-            Build(project, configName, new Action(() =>
-            {
-                if (_vsInstance != null)
-                {
-                    ProcessStartInfo process = new ProcessStartInfo();
-                    process.UseShellExecute = false;
-                    process.FileName = $@"{project.Path}{project.Name}\x64\{configName}\{project.Name}.exe";
-                    using (System.Diagnostics.Process proc = System.Diagnostics.Process.Start(process))
-                    {
-                        proc.WaitForExit();
-                    }
-                }
-            }));
+            }    
         }
 
+        private static void _ClearPdb(Project.Project project)
+        {
+            try
+            {
+                foreach (var pdb in Directory.GetFiles($@"{project.Path}{project.Name}\x64\Debug\", "*.pdb"))
+                    File.Delete(pdb);
+                foreach (var pdb in Directory.GetFiles($@"{project.Path}{project.Name}\x64\Release\", "*.pdb"))
+                    File.Delete(pdb);
+            } catch { }
+        }
 
         private static EnvDTE80.DTE2 _vsInstance = null; // visual studio instance
         private static Events _events;
         private static BuildEvents _buildEvents;
+        private static Action[] _callbacks; // callbacks that will be called after build is done and successfull
+        private static bool _flag = false;
     }
 }

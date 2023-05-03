@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
@@ -7,6 +8,12 @@ using System.Threading.Tasks;
 
 namespace Editor.Components
 {
+    public enum ComponentType
+    {
+        Transfoormation,
+        Script,
+    }
+
     [KnownType(typeof(Transformation))]
     [DataContract]
     public abstract class Component : VMBase
@@ -18,6 +25,10 @@ namespace Editor.Components
 
         virtual public void ApplyToEngine()
         { }
+
+        abstract public void WriteBin(BinaryWriter bw);
+        abstract public ComponentType GetComponentType();
+
 
         [DataMember]
         public GameObject Object

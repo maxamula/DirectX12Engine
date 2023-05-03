@@ -11,6 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\content.h" />
+    <ClInclude Include="Graphics\buffers.h" />
     <ClInclude Include="components.h" />
     <ClInclude Include="Content\content.h" />
     <ClInclude Include="Dependencies\nameof.hpp" />
@@ -27,13 +29,17 @@
     <ClInclude Include="logger.h" />
     <ClInclude Include="Graphics\overlay.h" />
     <ClInclude Include="Graphics\postprocess.h" />
+    <ClInclude Include="Graphics\renderer.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Graphics\rootsig.h" />
     <ClInclude Include="scenegraph.h" />
     <ClInclude Include="script.h" />
+    <ClInclude Include="utils.h" />
     <ClInclude Include="window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Graphics\content.cpp" />
+    <ClCompile Include="Graphics\buffers.cpp" />
     <ClCompile Include="components.cpp" />
     <ClCompile Include="Content\content.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -50,8 +56,11 @@
     <ClCompile Include="logger.cpp" />
     <ClCompile Include="Graphics\overlay.cpp" />
     <ClCompile Include="Graphics\postprocess.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Graphics\renderer.cpp" />
     <ClCompile Include="scenegraph.cpp" />
     <ClCompile Include="script.cpp" />
+    <ClCompile Include="utils.cpp" />
     <ClCompile Include="window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -175,20 +184,20 @@ xcopy /Y "$(SolutionDir)x64\$(Configuration)\Engine.lib" "$(SolutionDir)Editor\G
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\boost.1.81.0\build\boost.targets" Condition="Exists('..\packages\boost.1.81.0\build\boost.targets')" />
-    <Import Project="..\packages\directxtk12_uwp.2023.2.7.1\build\native\directxtk12_uwp.targets" Condition="Exists('..\packages\directxtk12_uwp.2023.2.7.1\build\native\directxtk12_uwp.targets')" />
     <Import Project="..\packages\fluid.entt.1.0.8\build\fluid.entt.targets" Condition="Exists('..\packages\fluid.entt.1.0.8\build\fluid.entt.targets')" />
-    <Import Project="..\packages\boost_serialization-vc140.1.81.0\build\boost_serialization-vc140.targets" Condition="Exists('..\packages\boost_serialization-vc140.1.81.0\build\boost_serialization-vc140.targets')" />
     <Import Project="..\packages\spdlog.native.1.0.0\build\native\spdlog.native.targets" Condition="Exists('..\packages\spdlog.native.1.0.0\build\native\spdlog.native.targets')" />
+    <Import Project="..\packages\directxtk12_uwp.2023.3.30.1\build\native\directxtk12_uwp.targets" Condition="Exists('..\packages\directxtk12_uwp.2023.3.30.1\build\native\directxtk12_uwp.targets')" />
+    <Import Project="..\packages\boost.1.82.0\build\boost.targets" Condition="Exists('..\packages\boost.1.82.0\build\boost.targets')" />
+    <Import Project="..\packages\boost_serialization-vc140.1.82.0\build\boost_serialization-vc140.targets" Condition="Exists('..\packages\boost_serialization-vc140.1.82.0\build\boost_serialization-vc140.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>Данный проект ссылается на пакеты NuGet, отсутствующие на этом компьютере. Используйте восстановление пакетов NuGet, чтобы скачать их.  Дополнительную информацию см. по адресу: http://go.microsoft.com/fwlink/?LinkID=322105. Отсутствует следующий файл: {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\boost.1.81.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.81.0\build\boost.targets'))" />
-    <Error Condition="!Exists('..\packages\directxtk12_uwp.2023.2.7.1\build\native\directxtk12_uwp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxtk12_uwp.2023.2.7.1\build\native\directxtk12_uwp.targets'))" />
     <Error Condition="!Exists('..\packages\fluid.entt.1.0.8\build\fluid.entt.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\fluid.entt.1.0.8\build\fluid.entt.targets'))" />
-    <Error Condition="!Exists('..\packages\boost_serialization-vc140.1.81.0\build\boost_serialization-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_serialization-vc140.1.81.0\build\boost_serialization-vc140.targets'))" />
     <Error Condition="!Exists('..\packages\spdlog.native.1.0.0\build\native\spdlog.native.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\spdlog.native.1.0.0\build\native\spdlog.native.targets'))" />
+    <Error Condition="!Exists('..\packages\directxtk12_uwp.2023.3.30.1\build\native\directxtk12_uwp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxtk12_uwp.2023.3.30.1\build\native\directxtk12_uwp.targets'))" />
+    <Error Condition="!Exists('..\packages\boost.1.82.0\build\boost.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost.1.82.0\build\boost.targets'))" />
+    <Error Condition="!Exists('..\packages\boost_serialization-vc140.1.82.0\build\boost_serialization-vc140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\boost_serialization-vc140.1.82.0\build\boost_serialization-vc140.targets'))" />
   </Target>
 </Project>

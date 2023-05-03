@@ -1,7 +1,5 @@
 #include "rendersurface.h"
-#include "gpass.h"
-#include "gresource.h"
-#include "postprocess.h"
+
 
 namespace engine::gfx
 {
@@ -60,53 +58,19 @@ namespace engine::gfx
 
 	void RenderSurface::Render()
 	{
-		g_cmdQueue.BeginFrame();
 		ID3D12GraphicsCommandList6* cmd = g_cmdQueue.GetCommandList();
-		// Get back buffer
-		ID3D12Resource* backBuffer = m_renderTargets[m_backBufferIndex].resource;
-
-		GFX_FRAME_DESC desc
-		{
-			m_width,
-			m_height
-		};
-		
-
-		if (GetAsyncKeyState(VK_F1))
-			Sleep(100);
-
-		// Record commands
-		cmd->RSSetViewports(1, &m_viewport);
-		cmd->RSSetScissorRects(1, &m_scissiors);
-		ID3D12DescriptorHeap* heaps[] = { g_srvHeap.GetDescriptorHeap() };
-		cmd->SetDescriptorHeaps(_countof(heaps), heaps);
-		g_resourceBarriers.Add(backBuffer, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-
-#pragma region Depth prepass
-		// Resource transition
-		g_resourceBarriers.Add(gpass::GetDepthBuffer().Resource(), D3D12_RESOURCE_STATE_DEPTH_READ | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-			D3D12_RESOURCE_STATE_DEPTH_WRITE);
-		g_resourceBarriers.Flush(cmd);
-		gpass::SetPipelineForDepthPrepass(cmd);
-		gpass::DepthPrepass(cmd, desc);
-#pragma endregion
-
-#pragma region GPass
-		// Resource transition
-		g_resourceBarriers.Add(gpass::GetMainBuffer().Resource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		g_resourceBarriers.Add(gpass::GetDepthBuffer().Resource(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_DEPTH_READ | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-		g_resourceBarriers.Flush(cmd);
-		gpass::SetPipelineForGPass(cmd);
-		gpass::Render(cmd, desc);
-#pragma endregion
-
-#pragma region Post process
-		g_resourceBarriers.Add(gpass::GetMainBuffer().Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-		g_resourceBarriers.Flush(cmd);
-		fx::PostProcess(cmd, m_renderTargets[m_backBufferIndex].allocation.CPU);
-#pragma endregion
-
+		GFX_FRAME_DESC desc;
+		desc.renderTargets = &m_renderTargets[m_backBufferIndex];
+		desc.scissiors = &m_scissiors;
+		desc.viewports = &m_viewport;
+		desc.rtvCount = 1;
+		desc.surfHeight = m_height;
+		desc.surfWidth = m_width;
+		g_cmdQueue.BeginFrame();
+		gfx::RenderFrame(cmd, desc);
 #pragma region Overlay
+		// resource transition stuff
+		TransitionResource(cmd, m_renderTargets[m_backBufferIndex].resource, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		// Start the Dear ImGui frame
 		SetOverlayContext();
 		ImGui_ImplDX12_NewFrame();
@@ -114,16 +78,34 @@ namespace engine::gfx
 		ImGui::NewFrame();
 		// Draw overlay
 #ifdef _DEBUG_GRAPHICS
-		_DrawDebugInfo();
+		ImGuiWindowFlags windowFlags =
+			ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoSavedSettings |
+			ImGuiWindowFlags_NoBringToFrontOnFocus |
+			ImGuiWindowFlags_NoNavFocus;
+
+
+		// Calculate the window size and position based on the available screen space
+		const ImVec2 screenSize = ImGui::GetIO().DisplaySize;
+		const ImVec2 windowSize = ImVec2(screenSize.x > 450 ? 350 : screenSize.x * 0.5f, screenSize.y);
+		const ImVec2 windowPos = ImVec2(0, 0);
+
+		ImGui::SetNextWindowSize(windowSize);
+		ImGui::SetNextWindowPos(windowPos);
+		ImGui::Begin("Frame", nullptr, windowFlags);
+
+		ImGui::Text("D3D12 Device: %p", device);
+		gpass::DrawDebugInfo(m_width, m_height);
+		fx::DrawDebugInfo(m_width, m_height);
+		ImGui::End();
 #endif
-		if(cbOverlay)
-			cbOverlay();
 		ImGui::Render();
-		// Render Dear ImGui graphics		
-		cmd->OMSetRenderTargets(1, &m_renderTargets[m_backBufferIndex].allocation.CPU, FALSE, NULL);
+		// Render Dear ImGui graphics
 		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), cmd);
+		// Transition back
+		TransitionResource(cmd, m_renderTargets[m_backBufferIndex].resource, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 #pragma endregion
-		TransitionResource(cmd, backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 		g_cmdQueue.EndFrame();
 		Present();
 	}
@@ -142,12 +124,12 @@ namespace engine::gfx
 		{
 			RELEASE(m_renderTargets[i].resource);
 		}
-		succeed(m_pSwap->ResizeBuffers(BACKBUFFER_COUNT, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0), "Failed to resize swap chain.");
+		ThrowIfFailed(m_pSwap->ResizeBuffers(BACKBUFFER_COUNT, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 		m_backBufferIndex = m_pSwap->GetCurrentBackBufferIndex();
 
 		for (int i = 0; i < BACKBUFFER_COUNT; ++i)
 		{
-			succeed(m_pSwap->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_renderTargets[i].resource), "Failed to get back buffer.");
+			ThrowIfFailed(m_pSwap->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_renderTargets[i].resource));
 			wchar_t name[17];
 			swprintf_s(name, L"Backbuffer (%d)", i);
 			SET_NAME(m_renderTargets[i].resource, name);
@@ -168,7 +150,7 @@ namespace engine::gfx
 		assert(m_pSwap != NULL);
 		for (int i = 0; i < BACKBUFFER_COUNT; ++i)
 		{
-			succeed(m_pSwap->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_renderTargets[i].resource), "Failed to get backbuffer.");
+			ThrowIfFailed(m_pSwap->GetBuffer(i, __uuidof(ID3D12Resource), (void**)&m_renderTargets[i].resource));
 			wchar_t name[17];
 			swprintf_s(name, L"Backbuffer (%d)", i);
 			SET_NAME(m_renderTargets[i].resource, name);
@@ -186,29 +168,7 @@ namespace engine::gfx
 	void RenderSurface::_DrawDebugInfo()
 	{
 
-		ImGuiWindowFlags windowFlags =
-			ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoSavedSettings |
-			ImGuiWindowFlags_NoBringToFrontOnFocus |
-			ImGuiWindowFlags_NoNavFocus;
-
-
-		// Calculate the window size and position based on the available screen space
-		const ImVec2 screenSize = ImGui::GetIO().DisplaySize;
-		const ImVec2 windowSize = ImVec2(screenSize.x > 450 ? 350 : screenSize.x * 0.5f, screenSize.y);
-		const ImVec2 windowPos = ImVec2(0, 0);
-
-		ImGui::SetNextWindowSize(windowSize);
-		ImGui::SetNextWindowPos(windowPos);
-		ImGui::Begin("Frame", nullptr, windowFlags);
-
-		ImGui::Text("D3D12 Device: %p", device);
-		ImGui::Text("D3D12 Swapchain: %p", m_pSwap);
-		ImGui::Checkbox("VSync", (bool*)&bVSync);
-		gpass::DrawDebugInfo(m_width, m_height);
-		fx::DrawDebugInfo(m_width, m_height);
-		ImGui::End();
+		
 	}
 #endif
 }

@@ -1,7 +1,5 @@
 #pragma once
 #include "common.h"
-#include "scenegraph.h"
-#include "script.h"
 
 namespace engine
 {

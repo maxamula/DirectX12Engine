@@ -1,5 +1,6 @@
 #pragma once
 #include "components.h"
+#include "utils.h"
 #include <DirectXMath.h>
 
 namespace engine
@@ -33,8 +34,7 @@ namespace engine
 	class ENGINE_API Scene : public ParentBase
 	{
 	public:
-
-
+		static Scene& FromBinary(uint8_t* bin);
 	private:
 
 	};

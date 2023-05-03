@@ -94,9 +94,15 @@ foreach(var window in windows)
             
             #line default
             #line hidden
-            this.Write("\r\n__declspec(dllexport) std::unordered_map<uint64_t ,SCIPT_INFO>& ScriptTable();\t" +
-                    "// guaranteed to be initialized before main\r\nuint8_t RegisterScript(uint64_t han" +
-                    "dle, ScriptCreator creator);");
+            this.Write(@"extern ""C""
+{
+	__declspec(dllexport) std::unordered_map<uint64_t ,SCIPT_INFO>& ScriptTable();
+}
+#ifndef _DEBUG
+uint8_t RegisterScript(uint64_t handle, ScriptCreator creator);
+#else
+uint8_t RegisterScript(uint64_t handle, ScriptCreator creator, const char* name);
+#endif");
             return this.GenerationEnvironment.ToString();
         }
         

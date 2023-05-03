@@ -11,30 +11,46 @@ using System.Windows.Threading;
 
 namespace Editor.Utils
 {
-    public class EditableTextBlock : TextBlock
+    [TemplatePart(Name = "PART_textblock", Type = typeof(TextBlock))]
+    [TemplatePart(Name = "PART_textbox", Type = typeof(TextBox))]
+    public class EditBox : Control
     {
-        private TextBox _editBox;
         private DispatcherTimer _timer;
-
-        public EditableTextBlock()
+        public string Value
         {
-            this.MouseLeftButtonDown += EditableTextBlock_MouseLeftButtonDown;
+            get => (string)GetValue(ValueProperty);
+            set => SetValue(ValueProperty, value);
+        }
+        public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(nameof(Value), typeof(string), typeof(EditBox), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+            if (GetTemplateChild("PART_textblock") is TextBlock textBlock)
+            {
+                textBlock.MouseLeftButtonDown += OnTextBlock_Mouse_LBD;
+            }
         }
 
-        private void EditableTextBlock_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void OnTextBlock_Mouse_LBD(object sender, MouseButtonEventArgs e)
         {
             if (_timer == null)
             {
                 _timer = new DispatcherTimer();
-                _timer.Interval = TimeSpan.FromMilliseconds(300);
+                _timer.Interval = TimeSpan.FromMilliseconds(200);
                 _timer.Tick += Timer_Tick;
                 _timer.Start();
             }
             else
             {
+                e.Handled = true;
                 _timer.Stop();
                 _timer = null;
-                EnterEditMode();
+                if (GetTemplateChild("PART_textbox") is TextBox textBox)
+                {
+                    textBox.Visibility = Visibility.Visible;
+                    textBox.Focus();
+                    textBox.SelectAll();
+                }
             }
         }
 
@@ -43,59 +59,9 @@ namespace Editor.Utils
             _timer.Stop();
             _timer = null;
         }
-
-        private void EnterEditMode()
+        static EditBox()
         {
-            if (_editBox == null)
-            {
-                _editBox = new TextBox();
-                _editBox.Text = this.Text;
-                _editBox.HorizontalAlignment = this.HorizontalAlignment;
-                _editBox.VerticalAlignment = this.VerticalAlignment;
-                _editBox.FontFamily = this.FontFamily;
-                _editBox.FontSize = this.FontSize;
-                _editBox.FontStyle = this.FontStyle;
-                _editBox.FontWeight = this.FontWeight;
-                _editBox.BorderThickness = new Thickness(0);
-                _editBox.BorderBrush = Brushes.Black;
-                _editBox.Focusable = true;
-                _editBox.Foreground = Brushes.Black;
-                _editBox.Background = Brushes.White;
-                _editBox.PreviewKeyDown += EditBox_PreviewKeyDown;
-                _editBox.LostFocus += (s, e) => ExitEditMode();
-                this.Visibility = Visibility.Collapsed;
-
-                var parent = VisualTreeHelper.GetParent(this) as Panel;
-                if (parent != null)
-                {
-                    parent.Children.Add(_editBox);
-                    Dispatcher.BeginInvoke(new Action(() =>
-                    {
-                        _editBox.Focus();
-                    }), DispatcherPriority.Render);
-                }
-            }
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(EditBox), new System.Windows.FrameworkPropertyMetadata(typeof(EditBox)));
         }
-
-        private void ExitEditMode()
-        {
-            this.Text = _editBox.Text;
-            this.Visibility = Visibility.Visible;
-            var parent = VisualTreeHelper.GetParent(_editBox) as Panel;
-            if (parent != null)
-            {
-                parent.Children.Remove(_editBox);
-                _editBox = null;
-            }
-        }
-
-        private void EditBox_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                ExitEditMode();
-            }
-        }
-
     }
 }

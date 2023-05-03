@@ -91,19 +91,11 @@ namespace engine::gfx
 		}
 		else if (desc.pHeap)
 		{
-			succeed(device->CreatePlacedResource(desc.pHeap, desc.allocInfo.Offset, desc.pResDesc, desc.initialState, clearVal, IID_PPV_ARGS(&m_res)), "Failed to create placed resource");
+			ThrowIfFailed(device->CreatePlacedResource(desc.pHeap, desc.allocInfo.Offset, desc.pResDesc, desc.initialState, clearVal, IID_PPV_ARGS(&m_res)));
 		}
 		else
 		{
-			D3D12_HEAP_PROPERTIES defaultHeap
-			{
-				D3D12_HEAP_TYPE_DEFAULT,
-				D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
-				D3D12_MEMORY_POOL_UNKNOWN,
-				0,
-				0
-			};
-			succeed(device->CreateCommittedResource(&defaultHeap, D3D12_HEAP_FLAG_NONE, desc.pResDesc, desc.initialState, clearVal, IID_PPV_ARGS(&m_res)), "Failed to create committed resource");
+			ThrowIfFailed(device->CreateCommittedResource(&HEAP.DEFAULT, D3D12_HEAP_FLAG_NONE, desc.pResDesc, desc.initialState, clearVal, IID_PPV_ARGS(&m_res)));
 		}
 		
 		assert(m_res);

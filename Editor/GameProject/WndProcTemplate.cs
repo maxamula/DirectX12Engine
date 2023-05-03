@@ -28,20 +28,22 @@ namespace Editor.GameProject
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("#include \"common.h\"\r\n#include \"window.h\"\r\n\r\nLRESULT CALLBACK ");
+            this.Write("#include \"common.h\"\r\n#include \"window.h\"\r\n\r\n_declspec(dllexport) LRESULT CALLBACK" +
+                    " ");
             
             #line 10 "C:\Users\maxamula\Documents\GitHub\Engine\Editor\GameProject\WndProcTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(procName));
             
             #line default
             #line hidden
-            this.Write(@"(Window* This, HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+            this.Write(@"(engine::Window* This, HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 	switch (msg)
 	{
 	case WM_CLOSE:
-		if(MessageBox(NULL, ""Are you sure?"", ""Exit"", MB_OKCANCEL) == IDOK)
-			PostQuitMessage();
+		if(MessageBox(NULL, L""Are you sure?"", L""Exit"", MB_OKCANCEL) == IDOK)
+			PostQuitMessage(0);
+		return 0;
 		break;
 	}
 	return DefWindowProc(hwnd, msg, wparam, lparam);

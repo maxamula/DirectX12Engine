@@ -13,6 +13,7 @@
 // Graphics modules
 #include "cmdqueue.h"
 #include "descriptorheap.h"
+#include "overlay.h"
 
 #ifndef _DEBUG
 #ifdef _DRAW_DEBUG_INFO
@@ -31,9 +32,19 @@ namespace engine::gfx
 	class RenderTexture;
 	class DepthTexture;
 
+	struct RENDER_TARGET
+	{
+		ID3D12Resource* resource = nullptr;
+		DESCRIPTOR_HANDLE allocation{};
+	};
 
 	struct GFX_FRAME_DESC
 	{
+		uint32_t rtvCount = 1;
+		RENDER_TARGET* renderTargets = nullptr;
+		D3D12_VIEWPORT* viewports =	nullptr;
+		D3D12_RECT* scissiors = nullptr;
+		void(*cbOverlay)(void) = nullptr;
 		uint32_t surfWidth;
 		uint32_t surfHeight;
 	};
@@ -116,6 +127,27 @@ namespace engine::gfx
 		};
 	} DEPTH_STATE;
 
+	const struct
+	{
+		const D3D12_HEAP_PROPERTIES DEFAULT
+		{
+			D3D12_HEAP_TYPE_DEFAULT,
+			D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+			D3D12_MEMORY_POOL_UNKNOWN,
+			0,
+			0
+		};
+
+		const D3D12_HEAP_PROPERTIES UPLOAD
+		{
+			D3D12_HEAP_TYPE_UPLOAD,
+			D3D12_CPU_PAGE_PROPERTY_UNKNOWN,
+			D3D12_MEMORY_POOL_UNKNOWN,
+			0,
+			0
+		};
+	} HEAP;
+
 	extern ID3D12Device8* device;
 	extern IDXGIFactory7* dxgiFactory;
 	extern IDXGIAdapter4* dxgiAdapter;
@@ -125,6 +157,7 @@ namespace engine::gfx
 	extern DescriptorHeap g_srvHeap;
 	extern DescriptorHeap g_uavHeap;
 	
-	void InitD3D();
-	void ShutdownD3D();
+	void InitD3D();																			// initialize D3D
+	void ShutdownD3D();																		// shutdown D3D
+	void RenderFrame(ID3D12GraphicsCommandList6* cmd, GFX_FRAME_DESC& desc);				// render to the given render target view
 }

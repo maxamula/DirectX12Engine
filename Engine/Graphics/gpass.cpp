@@ -28,7 +28,7 @@ namespace engine::gfx::gpass
 		float g_dbgDepthPrepassTime = 0.0f;
 #endif
 
-		bool CreateBuffers(UVec2 size)
+		void CreateBuffers(UVec2 size)
 		{
 			g_mainBuffer.Release();
 			g_depthBuffer.Release();
@@ -70,10 +70,10 @@ namespace engine::gfx::gpass
 				texDesc.clearValue.DepthStencil.Stencil = 0;
 				g_depthBuffer = DepthTexture(texDesc);
 			}
-			return g_mainBuffer.Resource() && g_depthBuffer.Resource();
+			assert_throw(g_mainBuffer.Resource() && g_depthBuffer.Resource(), "Failed to create GPass buffers");
 		}
 
-		bool CreatePsoAndRootsig()
+		void CreatePsoAndRootsig()
 		{
 			assert_throw(!g_gpassPso && !g_gpassRootsig, "GPass PSO or root signature already created");
 			RootParameter params[1] = {};
@@ -103,24 +103,16 @@ namespace engine::gfx::gpass
 
 			g_gpassPso = CreatePSO(&stream, sizeof(stream));
 			SET_NAME(g_gpassPso, L"GPass PSO");
-
-			return g_gpassPso && g_gpassRootsig;
+			assert_throw(g_gpassPso && g_gpassRootsig, "Failed to create GPass Rootsig or PSO");
 		}
 	}
 
 	
 
-	bool Initialize()
+	void Initialize()
 	{
-		try
-		{
-			return CreateBuffers(g_geomBufferSize) && CreatePsoAndRootsig();
-		}
-		catch (const std::exception& e)
-		{
-			LOG_ERROR("Failed to initialize GPass: {}", e.what());
-			return false;
-		}
+		CreateBuffers(g_geomBufferSize);
+		CreatePsoAndRootsig();
 	}
 
 	void Shutdown()
@@ -138,7 +130,7 @@ namespace engine::gfx::gpass
 		if (width > g_geomBufferSize.x || height > g_geomBufferSize.y)
 		{
 			g_geomBufferSize = {std::max(width, g_geomBufferSize.x), std::max(height, g_geomBufferSize.y) };
-			assert_throw(CreateBuffers(g_geomBufferSize), "Failed to create GPass buffers");
+			CreateBuffers(g_geomBufferSize);
 		}
 	}
 

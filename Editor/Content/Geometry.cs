@@ -1,11 +1,16 @@
-﻿using System;
+﻿using Editor.Utils;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Editor.Content
 {
@@ -13,11 +18,27 @@ namespace Editor.Content
     {
         Plane,
         Box,
-        Sphere
+        Sphere,
+        IcoSphere,
+        Torus,
+        Cylinder,
+        Cone
+    };
+
+    public enum ElementType : uint
+    {
+        Position = 1 << 0,
+        Normal = 1 << 1,
+        Tangent = 1 << 2,
+        Color = 1 << 3,
+        Texcoord = 1 << 4,
+        JoinWeights = 1 << 5,
+        JointIndices = 1 << 6,
     };
 
     public class Mesh : VMBase
     {
+        public uint VertexComponents = 0;
         private int _vertexSize;
         public int VertexSize
         {
@@ -195,6 +216,7 @@ namespace Editor.Content
 
             var mesh = new Mesh();
 
+            mesh.VertexComponents = reader.ReadUInt32();
             var lodId = reader.ReadInt32();
             mesh.VertexSize = reader.ReadInt32();
             mesh.VertexCount = reader.ReadInt32();
@@ -227,6 +249,86 @@ namespace Editor.Content
         {
             Debug.Assert(lodGroup >= 0 && lodGroup < _lodGroups.Count);
             return _lodGroups.Any() ? _lodGroups[lodGroup] : null;
+        }
+
+        public override IEnumerable<string> Save(string file)
+        {
+            var savedFiles = new List<string>();
+            if(!_lodGroups.Any()) return savedFiles;
+
+            var path = Path.GetDirectoryName(file) + Path.DirectorySeparatorChar;
+            var name = Path.GetFileNameWithoutExtension(file);
+
+            try
+            {
+                foreach (var lodGroup in _lodGroups) 
+                {
+                    var meshFilename = $"{path}{name}_{lodGroup.LODs[0].Name}.asset";
+                    Guid = Guid.NewGuid();
+                    byte[] data = null;
+                    using (var bw = new BinaryWriter(new MemoryStream()))
+                    {
+                        bw.Write(lodGroup.Name);
+                        bw.Write(lodGroup.LODs.Count);
+                        foreach (var lod in lodGroup.LODs)
+                        {
+                            _LodToBin(lod, bw);
+                        }
+                        data = ((MemoryStream)bw.BaseStream).ToArray();
+                        Icon = GenerateIcon(lodGroup.LODs[0]);
+                    }
+                    using (var bw = new BinaryWriter(File.Open(meshFilename, FileMode.Create, FileAccess.Write)))
+                    {
+                        _WriteAssetHeader(bw);
+                        bw.Write(data.Length);
+                        bw.Write(data);
+                    }
+
+                    savedFiles.Add(meshFilename);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            return savedFiles;
+        }
+
+        private byte[] GenerateIcon(MeshLOD lod)
+        {
+            var width = 90 * 4;
+
+            BitmapSource bmp = null;
+
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
+            {
+                bmp = GeometryView.RenderToBitmap(new MeshRenderer(lod, null), width, width);
+                bmp = new TransformedBitmap(bmp, new ScaleTransform(0.25, 0.25, 0.5, 0.5));
+            });
+
+            using var memstream = new MemoryStream();
+            memstream.SetLength(0);
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(bmp));
+            encoder.Save(memstream);
+            return memstream.ToArray();
+        }
+
+        private void _LodToBin(MeshLOD lod, BinaryWriter bw)
+        {
+            bw.Write(lod.Name);
+            bw.Write(lod.LodThreshold);
+            bw.Write(lod.Meshes.Count);
+            foreach (var mesh in lod.Meshes)
+            {
+                bw.Write(mesh.VertexComponents);
+                bw.Write(mesh.VertexSize);
+                bw.Write(mesh.VertexCount);
+                bw.Write(mesh.IndexSize);
+                bw.Write(mesh.IndexCount);
+                bw.Write(mesh.Vertices);
+                bw.Write(mesh.Indices);
+            }
         }
 
         private readonly List<LODGroup> _lodGroups = new List<LODGroup>();

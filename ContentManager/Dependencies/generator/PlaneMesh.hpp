@@ -39,6 +39,8 @@ public:
 
 	Vertices vertices() const noexcept { return parametricMesh_.vertices(); }
 
+	ParametricMesh Get() const noexcept { return parametricMesh_; }
+
 };
 
 

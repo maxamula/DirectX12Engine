@@ -3,10 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 using System.Windows.Markup;
 
 namespace Editor.Project
@@ -43,6 +45,23 @@ namespace Editor.Project
             Objects = new ReadOnlyObservableCollection<GameObject>(_objects);
         }
 
+        public void SaveBin(string bin)
+        {
+            using (var bw = new BinaryWriter(File.Open(bin, FileMode.Open, FileAccess.Write)))
+            {
+                bw.Write(_objects.Count);
+                foreach (var obj in _objects)
+                {
+                    bw.Write(0);    // reserved
+                    bw.Write(obj.Components.Count);
+                    foreach (var component in obj.Components)
+                    {
+                        bw.Write((int)component.GetComponentType());
+                        component.WriteBin(bw);
+                    }
+                }
+            }
+        }
         public override GameObject CreateObject(string name)
         {
             // Creating new object
@@ -70,7 +89,7 @@ namespace Editor.Project
             get => _name;
             set
             {
-                _name = $"Scene ({value})";
+                _name = value;
                 OnPropertyChanged(nameof(Name));
             }
         }

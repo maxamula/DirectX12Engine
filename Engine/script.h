@@ -38,7 +38,9 @@ namespace engine
 		return std::make_unique<Script_Impl>(obj);
 	}
 
+	
+	ENGINE_API std::unordered_map<uint64_t, engine::SCIPT_INFO>& GetScriptTable();
 	ENGINE_API bool LoadGCDLL(const wchar_t* path);
 	ENGINE_API bool UnloadGCDLL();
-	ENGINE_API LPSAFEARRAY GetScriptList();
+	
 }

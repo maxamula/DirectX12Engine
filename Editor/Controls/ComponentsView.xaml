@@ -12,7 +12,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <DataTemplate DataType="{x:Type cmp:Script}">
-            <Border Width="10" Height="100" BorderThickness="10" BorderBrush="AliceBlue"/>
+            <local:ScriptView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type cmp:Transformation}">
             <local:TransformationView/>
@@ -25,12 +25,11 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <util:EditableTextBlock Text="skdfdf"/>
                 <!--TextBlock HorizontalAlignment="Right" Text="{Binding Name}" Grid.Column="0"/-->
                 <hc:ContextMenuButton Content="+" Grid.Column="1">
                     <hc:ContextMenuButton.Menu>
-                        <ContextMenu>
-                            <MenuItem Header="Script" Click="OnAddScript"/>
+                        <ContextMenu Style="{StaticResource ContextMenu.Small}" MaxWidth="150">
+                            <MenuItem Header="Script" Click="OnAddComponent" Tag="{x:Static cmp:ComponentType.Script}"/>
                             <MenuItem Header="Geometry">
                                 <MenuItem Header="Static mesh"/>
                             </MenuItem>

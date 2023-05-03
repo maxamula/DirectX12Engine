@@ -3,9 +3,9 @@
 
 namespace engine::gfx::fx
 {
-	bool Initialize();
+	void Initialize();
 	void Shutdown();
-	void PostProcess(ID3D12GraphicsCommandList6* cmd, D3D12_CPU_DESCRIPTOR_HANDLE rtv);
+	void PostProcess(ID3D12GraphicsCommandList6* cmd);
 #ifdef _DEBUG_GRAPHICS
 	void DrawDebugInfo(uint16_t width, uint16_t height);
 #endif

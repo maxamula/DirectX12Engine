@@ -24,6 +24,7 @@ namespace engine
 	class ENGINE_API GameObject : public ParentBase
 	{
 	public:
+		[[nodiscard]] virtual Transformation& GetTransformation() const = 0;
 
 	private:
 

@@ -1,13 +1,16 @@
 ﻿using Editor.GameProject;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using System.Windows.Interop;
 
 namespace Editor.Utils
@@ -25,10 +28,13 @@ namespace Editor.Utils
             if(swapchainSize != controlSize)
             {
                 swapchainSize = controlSize;
-                Window.Resize((ushort)controlSize.Width, (ushort)controlSize.Height);
+                Engine.Viewport.Resize((ushort)controlSize.Width, (ushort)controlSize.Height);
             }    
         }
-        public Engine.Window Window { get; private set; }
+
+        public delegate void WindowCreatedEventHandler();
+        public event WindowCreatedEventHandler WindowCreated;
+
         Size controlSize = Size.Empty;
         Size swapchainSize = Size.Empty;
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -44,8 +50,9 @@ namespace Editor.Utils
         {
             try
             {
-                Window = new Engine.Window(hwndParent.Handle);
-                return new HandleRef(this, Window.GetHandle());
+                var hwnd = Engine.Viewport.SetParent(hwndParent.Handle);
+                WindowCreated?.Invoke();
+                return new HandleRef(this, hwnd);
             }
             catch (Exception ex)
             {
@@ -57,7 +64,7 @@ namespace Editor.Utils
 
         protected override void DestroyWindowCore(HandleRef hwnd)
         {
-            Window.Destroy();
+            
         }
 
         // Intermediate data
