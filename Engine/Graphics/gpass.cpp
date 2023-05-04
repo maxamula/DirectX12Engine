@@ -111,6 +111,7 @@ namespace engine::gfx::gpass
 
 	void Initialize()
 	{
+		LOG_TRACE("Initializing gpass...");
 		CreateBuffers(g_geomBufferSize);
 		CreatePsoAndRootsig();
 	}

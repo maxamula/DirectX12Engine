@@ -59,6 +59,7 @@ namespace engine::gfx::fx
 
 	void Initialize()
 	{
+		LOG_TRACE("Initializing fx...");
 		FxCreatePSOAndRootsig();
 	}
 

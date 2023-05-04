@@ -1,9 +1,8 @@
 #pragma once
 #include "graphics.h"
 #include "overlay.h"
-#include "gpass.h"
 #include "gresource.h"
-#include "postprocess.h"
+#include "renderer.h"
 #include <chrono>
 
 #define MAX_FRAMES 1000
@@ -42,10 +41,11 @@ namespace engine
 			inline uint16_t GetWidth() const { return m_width; }
 			inline uint16_t GetHeight() const { return m_height; }
 			void SetOverlayContext();
-			void Render();
+
+			GFX_FRAME_RENDER_TARGET_DESC GenerateRTDesc();
 
 			void(_cdecl* cbOverlay)() = nullptr;
-			uint8_t bVSync = 1;
+			uint8_t bVSync = VSYNC_DEFAULT_STATE;
 		protected:
 			void _CreateRendertargetViews();
 #ifdef _DEBUG_GRAPHICS

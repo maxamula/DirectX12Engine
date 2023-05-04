@@ -1,5 +1,6 @@
 #include "rendersurface.h"
-
+#include "gpass.h"
+#include "postprocess.h"
 
 namespace engine::gfx
 {
@@ -30,7 +31,7 @@ namespace engine::gfx
 		pSwap->Release();
 
 		// Overlay initialization
-		m_overlayContext = overlay::Initialize(hWnd, width, height);
+		m_overlayContext = overlay::Initialize(hWnd);
 #ifdef _DEBUG_GRAPHICS
 
 #endif
@@ -56,58 +57,16 @@ namespace engine::gfx
 		ImPlot::SetCurrentContext(m_overlayContext->implotContext);
 	}
 
-	void RenderSurface::Render()
+	GFX_FRAME_RENDER_TARGET_DESC RenderSurface::GenerateRTDesc()
 	{
-		ID3D12GraphicsCommandList6* cmd = g_cmdQueue.GetCommandList();
-		GFX_FRAME_DESC desc;
+		GFX_FRAME_RENDER_TARGET_DESC desc;
 		desc.renderTargets = &m_renderTargets[m_backBufferIndex];
 		desc.scissiors = &m_scissiors;
 		desc.viewports = &m_viewport;
 		desc.rtvCount = 1;
 		desc.surfHeight = m_height;
 		desc.surfWidth = m_width;
-		g_cmdQueue.BeginFrame();
-		gfx::RenderFrame(cmd, desc);
-#pragma region Overlay
-		// resource transition stuff
-		TransitionResource(cmd, m_renderTargets[m_backBufferIndex].resource, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		// Start the Dear ImGui frame
-		SetOverlayContext();
-		ImGui_ImplDX12_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
-		// Draw overlay
-#ifdef _DEBUG_GRAPHICS
-		ImGuiWindowFlags windowFlags =
-			ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoSavedSettings |
-			ImGuiWindowFlags_NoBringToFrontOnFocus |
-			ImGuiWindowFlags_NoNavFocus;
-
-
-		// Calculate the window size and position based on the available screen space
-		const ImVec2 screenSize = ImGui::GetIO().DisplaySize;
-		const ImVec2 windowSize = ImVec2(screenSize.x > 450 ? 350 : screenSize.x * 0.5f, screenSize.y);
-		const ImVec2 windowPos = ImVec2(0, 0);
-
-		ImGui::SetNextWindowSize(windowSize);
-		ImGui::SetNextWindowPos(windowPos);
-		ImGui::Begin("Frame", nullptr, windowFlags);
-
-		ImGui::Text("D3D12 Device: %p", device);
-		gpass::DrawDebugInfo(m_width, m_height);
-		fx::DrawDebugInfo(m_width, m_height);
-		ImGui::End();
-#endif
-		ImGui::Render();
-		// Render Dear ImGui graphics
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), cmd);
-		// Transition back
-		TransitionResource(cmd, m_renderTargets[m_backBufferIndex].resource, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-#pragma endregion
-		g_cmdQueue.EndFrame();
-		Present();
+		return desc;
 	}
 
 	void RenderSurface::Resize(uint16_t width, uint16_t height)

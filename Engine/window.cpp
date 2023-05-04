@@ -3,8 +3,14 @@
 #include "Graphics/rendersurface.h"
 #include "Graphics/overlay.h"
 #include "Graphics/gpass.h"
+#include "Graphics/postprocess.h"
+#include "Graphics/gresource.h"
+#include "Graphics/renderer.h"
 #include "scenegraph.h"
 #include <iostream>
+
+#define SC_TITLEBAR_RESTORE 61730
+
 namespace engine
 {
 	class WindowImpl;
@@ -114,7 +120,50 @@ namespace engine
 			if (m_render)
 			{
 				std::lock_guard<std::mutex> lock(m_mutex);
-				m_surface.Render();
+				auto desc = m_surface.GenerateRTDesc();
+				gfx::g_cmdQueue.BeginFrame();
+				gfx::RenderFrame(desc);
+#pragma region Overlay
+				auto cmd = gfx::g_cmdQueue.GetCommandList();
+				// resource transition stuff
+				gfx::TransitionResource(cmd, desc.renderTargets->resource, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+				// Start the Dear ImGui frame
+				m_surface.SetOverlayContext();
+				ImGui_ImplDX12_NewFrame();
+				ImGui_ImplWin32_NewFrame();
+				ImGui::NewFrame();
+				// Draw overlay
+#ifdef _DEBUG_GRAPHICS
+				ImGuiWindowFlags windowFlags =
+					ImGuiWindowFlags_NoResize |
+					ImGuiWindowFlags_NoMove |
+					ImGuiWindowFlags_NoSavedSettings |
+					ImGuiWindowFlags_NoBringToFrontOnFocus |
+					ImGuiWindowFlags_NoNavFocus;
+
+
+				// Calculate the window size and position based on the available screen space
+				const ImVec2 screenSize = ImGui::GetIO().DisplaySize;
+				const ImVec2 windowSize = ImVec2(screenSize.x > 450 ? 350 : screenSize.x * 0.5f, screenSize.y);
+				const ImVec2 windowPos = ImVec2(0, 0);
+
+				ImGui::SetNextWindowSize(windowSize);
+				ImGui::SetNextWindowPos(windowPos);
+				ImGui::Begin("DEBUG_VIEW", nullptr, windowFlags);
+
+				ImGui::Text("D3D12 Device: %p", gfx::device);
+				gfx::gpass::DrawDebugInfo(m_width, m_height);
+				gfx::fx::DrawDebugInfo(m_width, m_height);
+				ImGui::End();
+#endif
+				ImGui::Render();
+				// Render Dear ImGui graphics
+				ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), cmd);
+				// Transition back
+				gfx::TransitionResource(cmd, desc.renderTargets->resource, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+#pragma endregion
+				gfx::g_cmdQueue.EndFrame();
+				m_surface.Present();
 			}		
 		}
 
@@ -206,7 +255,7 @@ namespace engine
 			}
 			break;
 		case WM_SYSCOMMAND:
-			if (wparam == SC_RESTORE)
+			if (wparam == SC_RESTORE || wparam == SC_TITLEBAR_RESTORE)
 				This->m_flagWasRestored = true;
 			break;
 		case WM_QUIT:

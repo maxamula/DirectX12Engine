@@ -93,12 +93,12 @@ namespace engine::content
 			{
 				writer.Thresholds()[lodIdx] = br.ReadFloat();
 				const uint32_t idCount = br.ReadUInt32();
-				writer.LODOffsets()[lodIdx].offset = {submeshIdx, (uint16_t)idCount};
+				writer.LODOffsets()[lodIdx] = {submeshIdx, (uint16_t)idCount};
 				br.Skip(sizeof(uint32_t)); // skip size of submeshes
 				for (uint32_t idIdx = 0; idIdx < idCount; idIdx++)
 				{
 					const uint8_t* at = (uint8_t*)br.CurrentReadPos();
-					gpuHandles[submeshIdx++] = gfx::submesh::Add(at);
+					gpuHandles[submeshIdx++] = gfx::AddSubmesh(at);
 					br.Skip((uint64_t)(at - br.CurrentReadPos()));
 				}
 			}
@@ -113,7 +113,7 @@ namespace engine::content
 		}
 
 
-		uint64_t RemoveGeometryResource(uint64_t handle)
+		void RemoveGeometryResource(uint64_t handle)
 		{
 			std::lock_guard lock(g_geometryHierarchiesMutex);
 			uint8_t* const buffer = g_geometryHierarchies.Get(handle);
@@ -126,7 +126,7 @@ namespace engine::content
 				const uint32_t idCount = stream.LODOffsets()[lod].count;
 				for (uint32_t i = 0; i < idCount; i++)
 				{
-					gfx::submesh::Remove(stream.GPUHandles()[idIdx++]);
+					gfx::RemoveSubmesh(stream.GPUHandles()[idIdx++]);
 				}
 			}
 		}
@@ -144,7 +144,7 @@ namespace engine::content
 		case ASSET_TYPE::MATERIAL:
 			break;
 		case ASSET_TYPE::MESH:
-			CreateGeometryResource(data);
+			id = CreateGeometryResource(data);
 			break;
 		case ASSET_TYPE::SKELETON:
 			break;

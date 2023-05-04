@@ -40,13 +40,7 @@ namespace engine::gfx
 
 	struct GFX_FRAME_DESC
 	{
-		uint32_t rtvCount = 1;
-		RENDER_TARGET* renderTargets = nullptr;
-		D3D12_VIEWPORT* viewports =	nullptr;
-		D3D12_RECT* scissiors = nullptr;
-		void(*cbOverlay)(void) = nullptr;
-		uint32_t surfWidth;
-		uint32_t surfHeight;
+
 	};
 
 	const struct
@@ -158,6 +152,5 @@ namespace engine::gfx
 	extern DescriptorHeap g_uavHeap;
 	
 	void InitD3D();																			// initialize D3D
-	void ShutdownD3D();																		// shutdown D3D
-	void RenderFrame(ID3D12GraphicsCommandList6* cmd, GFX_FRAME_DESC& desc);				// render to the given render target view
+	void ShutdownD3D();																		// shutdown D3D															// render the HUD
 }

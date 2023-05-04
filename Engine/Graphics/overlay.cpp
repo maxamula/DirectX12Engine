@@ -5,7 +5,7 @@ namespace engine::gfx::overlay
 {
     static std::unordered_map<OVERLAY_CONTEXT*, gfx::DESCRIPTOR_HANDLE> s_imguiHeaps;
 
-    OVERLAY_CONTEXT* Initialize(HWND hWnd, uint16_t initWidth, uint16_t initHeight)
+    OVERLAY_CONTEXT* Initialize(HWND hWnd)
     {
         LOG_DEBUG("Initializing ImGui..."); 
         ImGuiContext* imguiContext = ImGui::CreateContext();

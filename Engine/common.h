@@ -48,8 +48,12 @@ private:
 
 #ifdef _DEBUG
 #define SET_NAME(x, name) x->SetName(name)
+#define INDEXED_NAME_BUFFER(size) wchar_t namebuf[size]
+#define SET_NAME_INDEXED(x, name, index) swprintf_s(namebuf, L"%s (%d)", name, index); x->SetName(namebuf)
 #else
 #define SET_NAME(x, name) ((void)0)
+#define INDEXED_NAME_BUFFER(size) ((void)0)
+#define SET_NAME_INDEXED(x, name, index) ((void)0)
 #endif
 
 #define WIN32_LEAN_AND_MEAN
@@ -61,6 +65,8 @@ private:
 
 // engine settings
 #define BACKBUFFER_COUNT 3
+#define COPY_FRAMES_COUNT 2
+#define VSYNC_DEFAULT_STATE 1
 
 // misc
 #define MAX_RESOURSE_NAME 60

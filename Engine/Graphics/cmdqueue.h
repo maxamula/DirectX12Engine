@@ -17,21 +17,21 @@ namespace engine::gfx
 		void Release();	
 		// Accessors
 		[[nodiscard]] inline ID3D12CommandQueue* GetCommandQueue() const { return m_cmdQueue; }
-		[[nodiscard]] inline ID3D12CommandAllocator* GetCommandAllocator() const { return m_cmdAlloc[m_iFrame]; }
-		[[nodiscard]] inline uint8_t FramerIndex() const { return m_iFrame; }
+		[[nodiscard]] inline ID3D12CommandAllocator* GetCommandAllocator() const { return m_cmdAlloc[m_frame]; }
+		[[nodiscard]] inline uint8_t FramerIndex() const { return m_frame; }
 		[[nodiscard]] inline ID3D12GraphicsCommandList6* GetCommandList() const { return m_cmdList; }
 
 		utils::Event<> DeferedReleaseEvent; // event to release resources that are used by gpu
 	private:
 		void _WaitGPU(HANDLE event, ID3D12Fence1* pFence);	// wait if gpu is busy while executing commands
 
-		ID3D12CommandQueue* m_cmdQueue = NULL;
-		ID3D12GraphicsCommandList6* m_cmdList = NULL;
+		ID3D12CommandQueue* m_cmdQueue = nullptr;
+		ID3D12GraphicsCommandList6* m_cmdList = nullptr;
 		ID3D12CommandAllocator* m_cmdAlloc[BACKBUFFER_COUNT];
-		ID3D12Fence1* m_fence = NULL;
-		HANDLE m_fenceEvent = NULL;
+		ID3D12Fence1* m_fence = nullptr;
+		HANDLE m_fenceEvent = nullptr;
 		uint64_t m_fenceValue = 0;
-		uint8_t m_iFrame = 0;
+		uint8_t m_frame = 0;
 	};
 }
 

@@ -1,9 +1,10 @@
 #include "buffers.h"
+#include "uploadegine.h"
 #include <ResourceUploadBatch.h>
 
 namespace engine::gfx
 {
-	ID3D12Resource* CreateBuffer(const void* data, uint32_t bufferSize,
+	ID3D12Resource* CreateBuffer(uint32_t bufferSize, const void* data,
 		bool cpuVisible, D3D12_RESOURCE_STATES state,
 		D3D12_RESOURCE_FLAGS flags, ID3D12Heap* heap, uint64_t offset)
 	{
@@ -24,9 +25,13 @@ namespace engine::gfx
 		const D3D12_RESOURCE_STATES initState = cpuVisible ? D3D12_RESOURCE_STATE_GENERIC_READ : state;
 
 		if (heap)
+		{
 			ThrowIfFailed(device->CreatePlacedResource(heap, offset, &desc, initState, nullptr, IID_PPV_ARGS(&resource)));
+		}
 		else
+		{
 			ThrowIfFailed(device->CreateCommittedResource(cpuVisible ? &HEAP.UPLOAD : &HEAP.DEFAULT, D3D12_HEAP_FLAG_NONE, &desc, initState, nullptr, IID_PPV_ARGS(&resource)));
+		}	
 
 		if (data)
 		{
@@ -40,18 +45,13 @@ namespace engine::gfx
 			}
 			else
 			{
-				DirectX::ResourceUploadBatch uploadBatch(device);
-				uploadBatch.Begin();
-				D3D12_SUBRESOURCE_DATA subresourceData{};
-				subresourceData.pData = data;
-				subresourceData.RowPitch = bufferSize;
-				subresourceData.SlicePitch = 0;
-				uploadBatch.Upload(resource, 0, &subresourceData, 1);
-				uploadBatch.Transition(resource, D3D12_RESOURCE_STATE_COPY_DEST, state);
-				uploadBatch.End(g_cmdQueue.GetCommandQueue()).wait();
+				copy::CopyContext copyContext(bufferSize);
+				memcpy(copyContext.Mapped(), data, bufferSize);
+				copyContext.GetCommandList()->CopyResource(resource, copyContext.GetUploadBuffer());
+				copyContext.Flush();
 			}
 		}
-		if(!resource) throw std::runtime_error("Failed to create buffer");
+		assert(resource);
 		return resource; 
 	}
 }

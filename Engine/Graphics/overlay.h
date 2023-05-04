@@ -16,6 +16,6 @@ namespace engine::gfx::overlay
         ImPlotContext* implotContext;
     };
 
-	OVERLAY_CONTEXT* Initialize(HWND hWnd, uint16_t initWidth, uint16_t initHeight);
+	OVERLAY_CONTEXT* Initialize(HWND hWnd);
 	void Shutdown(OVERLAY_CONTEXT* context);
 }

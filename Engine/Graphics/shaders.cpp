@@ -124,12 +124,12 @@ namespace engine
 					ShaderCompiler compiler{};
 					assert(data);
 					//compile shader
+					LOG_TRACE("Compiling {}(#{})...", view, shaderIndex);
 					auto blob = compiler.CompileShader(data, size, GetShaderTypeFromName(resourceName));
 					// save shader
 					if (!blob || !blob->GetBufferSize())
 						res = false;
 					g_engineShaders[shaderIndex] = blob;
-					LOG_TRACE("Shader {}(#{}) compiled.", view, shaderIndex);
 					// release resource memory and free resource
 					UnlockResource(resourceData);
 					FreeResource(resourceData);

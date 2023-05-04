@@ -136,7 +136,7 @@ namespace engine::utils
 		void FireOnce(const EventCallback& callback)
 		{
 			std::lock_guard<std::mutex> lock(m_mutex);
-			m_callbacksOnce.push(callbck);
+			m_callbacksOnce.push(callback);
 		}
 
 		void operator()(Args... args)

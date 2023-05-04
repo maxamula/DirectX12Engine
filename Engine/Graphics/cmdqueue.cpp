@@ -2,6 +2,7 @@
 
 namespace engine::gfx
 {
+#pragma region CommandQueue
 	CommandQueue::CommandQueue(D3D12_COMMAND_LIST_TYPE type)
 	{
 		DEVICE_CHECK;
@@ -16,9 +17,8 @@ namespace engine::gfx
 		for (int i = 0; i < BACKBUFFER_COUNT; ++i)
 		{
 			device->CreateCommandAllocator(type, IID_PPV_ARGS(&m_cmdAlloc[i]));
-			wchar_t name[25];
-			swprintf_s(name, L"Command allocator (%d)", i);
-			SET_NAME(m_cmdAlloc[i], name);
+			INDEXED_NAME_BUFFER(25);
+			SET_NAME_INDEXED(m_cmdAlloc[i], L"Command allocator", i);
 		}	
 		// Create command list
 		device->CreateCommandList(0, type, m_cmdAlloc[0], nullptr, IID_PPV_ARGS(&m_cmdList));
@@ -38,9 +38,9 @@ namespace engine::gfx
 	{
 		_WaitGPU(m_fenceEvent, m_fence);
 		// Get command allocator
-		m_cmdAlloc[m_iFrame]->Reset();
+		m_cmdAlloc[m_frame]->Reset();
 		// Get command list
-		m_cmdList->Reset(m_cmdAlloc[m_iFrame], nullptr);
+		m_cmdList->Reset(m_cmdAlloc[m_frame], nullptr);
 	}
 
 	void CommandQueue::EndFrame()
@@ -53,7 +53,7 @@ namespace engine::gfx
 		// Signal fence
 		m_cmdQueue->Signal(m_fence, ++m_fenceValue);
 		// Increment frame index
-		m_iFrame = (m_iFrame + 1) % BACKBUFFER_COUNT;
+		m_frame = (m_frame + 1) % BACKBUFFER_COUNT;
 	}
 
 	void CommandQueue::Flush()
@@ -88,4 +88,5 @@ namespace engine::gfx
 		}
 		DeferedReleaseEvent();
 	}
+#pragma endregion
 }
